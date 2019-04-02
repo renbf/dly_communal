@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TGiftApplyMapper">
+    
+    <resultMap type="TGiftApply" id="TGiftApplyResult">
+        <result property="id"    column="id"    />
+        <result property="giftId"    column="gift_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="timeType"    column="time_type"    />
+        <result property="number"    column="number"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="state"    column="state"    />
+        <result property="latticePrice"    column="lattice_price"    />
+        <result property="introduce"    column="introduce"    />
+        <result property="orderno"    column="orderno"    />
+    </resultMap>
+    <resultMap type="GiftApplyVo" id="TGiftApplyVoResult">
+        <result property="id"    column="id"    />
+        <result property="giftName"    column="giftName"    />
+        <result property="giftModel"    column="giftModel"    />
+        <result property="locationName"    column="locationName"    />
+        <result property="timeType"    column="timeType"    />
+        <result property="number"    column="number"    />
+        <result property="deposit"    column="deposit"    />
+        <result property="state"    column="state"    />
+        <result property="userName"    column="userName"    />
+        <result property="sysUserName"    column="sys_user_name"    />
+        <result property="source"    column="source"    />
+        <result property="goodsNames"    column="goodsNames"    />
+        <result property="goodsIds"    column="goodsIds"    />
+    </resultMap>
+	<sql id="selectTGiftApplyVo">
+        select id, gift_id, user_id, time_type, number, create_date, state, lattice_price, introduce, orderno from t_gift_apply
+    </sql>
+
+    <select id="selectTGiftApplyByTGiftId" parameterType="String" resultMap="TGiftApplyResult">
+        <include refid="selectTGiftApplyVo"/>
+        where gift_id = #{giftId}
+    </select>
+
+    <select id="selectTGiftApplyIntroduce" parameterType="String" resultMap="TGiftApplyResult">
+        <include refid="selectTGiftApplyVo"/>
+        where gift_id = #{giftId}
+    </select>
+
+    <select id="selectTGiftApplyBYList" parameterType="TGiftApply" resultMap="TGiftApplyResult">
+        <include refid="selectTGiftApplyVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="giftId != null  and giftId != '' "> and gift_id = #{giftId}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="timeType != null  and timeType != '' "> and time_type = #{timeType}</if>
+             <if test="number != null "> and number = #{number}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="latticePrice != null "> and lattice_price = #{latticePrice}</if>
+             <if test="introduce != null  and introduce != '' "> and introduce = #{introduce}</if>
+             <if test="orderno != null  and orderno != '' "> and orderno = #{orderno}</if>
+         </where>
+    </select>
+
+    <resultMap type="TCommodityInformation" id="odityInformationResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="price"    column="price"    />
+        <result property="model"    column="model"    />
+        <result property="introduce"    column="introduce"    />
+        <result property="picture"    column="picture"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+    </resultMap>
+
+    <select id="selectTCommodityInformation" parameterType="String" resultMap="odityInformationResult">
+
+
+        select t.id as id, t.name as name, t.price as price, t.model as model, t.introduce as introduce, t.picture as picture, t.create_date as create_date, t.create_user as create_user from t_commodity_information t
+       left  join  t_gift_goods gg on gg.goods_id=t.id
+       where gg.gift_id= #{giftId}
+    </select>
+    <select id="selectTGiftApplyList" parameterType="GiftApplyVo" resultMap="TGiftApplyVoResult">
+        select ga.id,g.model_name as giftName,m.id as giftModel,sa.short_name locationName, ga.time_type as timeType,
+		case when ga.time_type = 0 then ga.number else 30* ga.number end number,
+		p.money as deposit,ga.state,u.nickname as userName,su.user_name sys_user_name,g.source,
+		(select GROUP_CONCAT(ci.name) from t_commodity_information ci join t_gift_goods gg on gg.goods_id = ci.id where gg.gift_apply_id = ga.id) goodsNames,
+		(select GROUP_CONCAT(gg.goods_id) from t_gift_goods gg where gg.gift_apply_id = ga.id) goodsIds
+		from t_gift_apply ga
+		LEFT JOIN t_gift g on ga.gift_id=g.id
+		LEFT JOIN t_gift_model m on g.model=m.id
+		LEFT JOIN t_pay_order p on p.orderno=ga.orderno
+		LEFT JOIN t_user_info u on ga.user_id=u.id
+		left join sys_user su on su.user_id = ga.user_id
+		left join t_sys_areas sa on sa.id = g.location_name
+         <where>
+      		<if test="giftId != null  and giftId != '' "> and t.gift_id = #{giftId}</if>
+             <if test="state != null  and state != '' "> and t.state = #{state}</if>
+             <if test="giftName   != null  and giftName != '' "> AND g.model_name like concat('%', #{giftName}, '%')</if>
+             <if test="locationName != null  and locationName != '' "> and g.location_name = #{locationName}</if>
+			<if test="giftModel != null  and giftModel != '' "> and m.id = #{giftModel}</if>
+         </where>
+    </select>
+    
+    <select id="selectTGiftApplyById" parameterType="String" resultMap="TGiftApplyResult">
+        <include refid="selectTGiftApplyVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTGiftApply" parameterType="TGiftApply">
+        insert into t_gift_apply
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="giftId != null  and giftId != ''  ">gift_id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="timeType != null  and timeType != ''  ">time_type,</if>
+			<if test="number != null  ">number,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="latticePrice != null  ">lattice_price,</if>
+			<if test="introduce != null  and introduce != ''  ">introduce,</if>
+			<if test="orderno != null  and orderno != ''  ">orderno,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="giftId != null  and giftId != ''  ">#{giftId},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="timeType != null  and timeType != ''  ">#{timeType},</if>
+			<if test="number != null  ">#{number},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="latticePrice != null  ">#{latticePrice},</if>
+			<if test="introduce != null  and introduce != ''  ">#{introduce},</if>
+			<if test="orderno != null  and orderno != ''  ">#{orderno},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTGiftApply" parameterType="TGiftApply">
+        update t_gift_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="giftId != null  and giftId != ''  ">gift_id = #{giftId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="timeType != null  and timeType != ''  ">time_type = #{timeType},</if>
+            <if test="number != null  ">number = #{number},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="latticePrice != null  ">lattice_price = #{latticePrice},</if>
+            <if test="introduce != null  and introduce != ''  ">introduce = #{introduce},</if>
+            <if test="orderno != null  and orderno != ''  ">orderno = #{orderno},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTGiftApplyById" parameterType="String">
+        delete from t_gift_apply where id = #{id}
+    </delete>
+	
+    <delete id="deleteTGiftApplyByIds" parameterType="String">
+        delete from t_gift_apply where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

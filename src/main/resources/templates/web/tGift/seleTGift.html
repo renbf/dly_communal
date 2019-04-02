@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <head th:include="include :: header"></head>
+<style type="text/css">
+    .topI{
+        width: 700px;
+        height: 310px;
+        border: 1px dashed  #000;
+        margin-bottom: 20px;
+    }
+    .innerz{
+        margin-left: 30px;
+    }
+    .divI{
+        height: 50px;
+        line-height: 50px;
+        margin-right: 20px;
+        float:left;
+    }
+    .ainput{
+        margin: 10px;
+        height: 20px;
+        font-size: 15px;
+    }
+    td{
+        width: 100px;
+        font-size: 15px;
+        height: 50px;
+        line-height: 50px;
+        margin-right: 20px;
+    }
+</style>
+
+<body class="white-bg" >
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+
+       <form class="form-horizontal" id="form-tGift-edit" th:object="${tGiftVo}">
+           <div class="topI">
+               <h2>礼物机信息</h2>
+               <div class="innerz">
+                   <div class="divI">
+                        <label class="ainput">礼物机名称：</label>
+                       <input id="idTGift"  th:field="*{id}" type="hidden"/>
+                       <label th:text="*{modelName}"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">礼物机类型：</label>
+                        <label th:text="*{model}"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">礼物机位置：</label>
+                        <label th:text="*{locationName}"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">租用方式：</label>
+                        <label th:text="*{timeType=='0'}?'日租':'月租'"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">剩余天数：</label>
+                        <label th:text="*{dayNumber}"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">格子单价：</label>
+                        <label th:text="*{latticePrice}"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">占用人：</label>
+                        <label th:text="*{sysUserName!=null && sysUserName!=''}?*{sysUserName}:*{nickname}"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">押金：</label>
+                        <label th:text="*{deposit}"></label>
+                   </div>
+                   <div class="divI">
+                        <label class="ainput">格子数：</label>
+                        <label th:text="*{surplusPosition}+'/'+*{latticeNum}"></label>
+                   </div>
+               </div>
+           </div>
+        </form>
+        <div class="topI">
+            <h2>礼物信息</h2>
+            <div class="innerz">
+                <table border="0" style="border-bottom:0px;margin-left: 14px;">
+                    <thead style="border: 0px;">
+                    <tr style="border: 0px;" th:each="goods:${tCommodityInformationVos}" >
+                            <td >存放礼物：</td>
+                            <td th:text="${goods.name}"></td>
+                            <td>礼物个数：</td>
+                            <td th:text="${goods.number}"></td>
+                            <td>礼物价格：</td>
+                            <td th:text="${goods.totalPrice}"></td>
+                    </tr>
+                    </thead>
+                </table>
+             </div>
+        </div>
+</div>
+
+
+</table>
+</body>
+</html>

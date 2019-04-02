@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TRefundApplicationMapper">
+    
+    <resultMap type="TRefundApplication" id="TRefundApplicationResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="money"    column="money"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="state"    column="state"    />
+    </resultMap>
+	
+	<sql id="selectTRefundApplicationVo">
+        select id, user_id, money, create_date, state from t_refund_application
+    </sql>
+	
+    <select id="selectTRefundApplicationList" parameterType="TRefundApplication" resultMap="TRefundApplicationResult">
+        <include refid="selectTRefundApplicationVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="money != null "> and money = #{money}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+         </where>
+    </select>
+    
+    <select id="selectTRefundApplicationById" parameterType="String" resultMap="TRefundApplicationResult">
+        <include refid="selectTRefundApplicationVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTRefundApplication" parameterType="TRefundApplication">
+        insert into t_refund_application
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="money != null  ">money,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="money != null  ">#{money},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTRefundApplication" parameterType="TRefundApplication">
+        update t_refund_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="money != null  ">money = #{money},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTRefundApplicationById" parameterType="String">
+        delete from t_refund_application where id = #{id}
+    </delete>
+	
+    <delete id="deleteTRefundApplicationByIds" parameterType="String">
+        delete from t_refund_application where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

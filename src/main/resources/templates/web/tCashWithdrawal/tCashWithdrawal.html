@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    <div class="container-div">
+    	<div class="col-sm-12 search-collapse">
+			<form id="tParameter-form">
+				<div class="select-list">
+					<ul>
+						<li>
+							<label>申请人名称：</label>
+							<input type="text" name="applicantUser"/>
+						</li>
+						<li>
+							<label>状态：</label><select id="state" name="state">
+								<option value="">全部</option>
+								<option value="0">申请中</option>
+								<option value="1">已同意</option>
+								<option value="2">已拒绝</option>
+							</select>
+						</li>
+						<li>
+							<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+		
+		<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+			<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="web:tCashWithdrawal:add">
+				<i class="fa fa-plus"></i> 添加
+			</a>
+			<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="web:tCashWithdrawal:edit">
+	            <i class="fa fa-edit"></i> 修改
+	        </a>
+			<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="web:tCashWithdrawal:remove">
+				<i class="fa fa-remove"></i> 删除
+			</a>
+		</div>
+			
+		<div class="col-sm-12 select-table table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+    </div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('web:tCashWithdrawal:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('web:tCashWithdrawal:remove')}]];
+        var prefix = ctx + "web/tCashWithdrawal";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: "提现申请",
+                search : false,
+				showExport: false,
+				showRefresh:false,
+				showToggle:false,
+				showSearch:false,
+				showColumns: false,
+                columns: [{
+		            checkbox: true
+		        },
+					{
+						field : 'id',
+						title : '序号',
+						width: '10%',
+						formatter: function(value, row, index) {
+							return index+1;
+						}
+					},
+				{
+					field : 'money', 
+					title : '提现金额' 
+				},
+				{
+					field : 'cashType', 
+					title : '提现方式',
+					formatter: function(value, row, index) {
+						if(value == '0'){
+							return "支付宝";
+						}else if(value == '1'){
+							return "微信";
+						}
+					}
+				},
+				{
+					field : 'account', 
+					title : '账号' 
+				},
+				{
+					field : 'extend', 
+					title : '扩展' 
+				},
+				{
+					field : 'applicantUserName', 
+					title : '申请人' 
+				},
+				{
+					field : 'applicantDate', 
+					title : '申请时间' 
+				},
+				{
+					field : 'state', 
+					title : '状态',
+					formatter: function(value, row, index) {
+						if(value == '0'){
+							return "申请中";
+						}else if(value == '1'){
+							return "已同意";
+						}else if(value == '2'){
+							return "已拒绝";
+						}
+					}
+				},
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	if(row.state == '0'){
+		            		var actions = [];
+			            	actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="examine(\'' + row.id + '\',\'1\')"><i class="fa fa-edit"></i>同意</a> ');
+	                        actions.push('<a class="btn btn-danger btn-xs ' + editFlag + '" href="#" onclick="examine(\'' + row.id + '\',\'2\')"><i class="fa fa-remove"></i>拒绝</a>');
+							return actions.join('');
+		            	}
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+        
+        
+function examine(id,state){
+	var data = {state:state,id:id};
+	var url = "/web/tCashWithdrawal/edit";
+	$.operate.post(url,data);
+}
+    </script>
+</body>
+</html>

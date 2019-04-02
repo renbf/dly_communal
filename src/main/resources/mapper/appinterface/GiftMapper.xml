@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.GiftMachineMapper">
+
+
+        <resultMap type="Gift" id="GiftResult">
+            <result property="id"    column="id"    />
+            <result property="model"    column="model"    />
+            <result property="pictureUrl"    column="picture_url"    />
+            <result property="state"    column="state"    />
+            <result property="createDate"    column="create_date"    />
+            <result property="createUser"    column="create_user"    />
+            <result property="updateDate"    column="update_date"    />
+            <result property="lng"    column="lng"    />
+            <result property="lat"    column="lat"    />
+            <result property="chargeId"    column="charge_id"    />
+            <result property="userId"    column="user_id"    />
+            <result property="modelName"    column="model_name"    />
+            <result property="lattice_price"    column="lattice_price"    />
+            <result property="locationName"    column="locationName"    />
+            <result property="totalPosition"    column="total_position"    />
+            <result property="surplusPosition"    column="surplus_position"    />
+            <result property="lcreateDate"    column="lcreateDate"    />
+            <result property="dayTotalNumber"    column="day_total_number"    />
+            <result property="isApply"    column="isApply"    />
+            <result property="modelPicture"    column="gift_picture"    />
+        </resultMap>
+
+        <sql id="selectGiftVo">
+        select id, model, picture_url, state, create_date, create_user, update_date, lng, lat, charge_id, user_id, model_name,location_name as locationName from t_gift
+    </sql>
+
+        <select id="selectGiftList" parameterType="Gift" resultMap="GiftResult">
+            select g.id, g.model, g.picture_url, g.state, g.create_date, g.create_user, g.update_date, g.lng, g.lat, g.charge_id, g.user_id, g.model_name,g.location_name as locationName
+            <if test="user_id != null  and user_id != '' ">
+            ,(select count(1) from t_gift_apply ga where ga.gift_id = g.id and ga.user_id = #{user_id} and ga.state in ('0','1')) isApply
+            </if>
+            from t_gift g
+            <where>
+            state<![CDATA[ <> ]]>'2'
+                <if test="id != null  and id != '' "> and id = #{id}</if>
+                <if test="model != null  and model != '' "> and model = #{model}</if>
+                <if test="pictureUrl != null  and pictureUrl != '' "> and picture_url = #{pictureUrl}</if>
+                <if test="state != null  and state != '' "> and state = #{state}</if>
+                <if test="createDate != null "> and create_date = #{createDate}</if>
+                <if test="createUser != null  and createUser != '' "> and create_user = #{createUser}</if>
+                <if test="updateDate != null "> and update_date = #{updateDate}</if>
+                <if test="lng != null  and lng != '' "> and lng = #{lng}</if>
+                <if test="lat != null  and lat != '' "> and lat = #{lat}</if>
+                <if test="chargeId != null  and chargeId != '' "> and charge_id = #{chargeId}</if>
+                <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+                <if test="modelName != null  and modelName != '' "> and model_name = #{modelName}</if>
+                <if test="locationName != null  and locationName != '' "> and location_name = #{locationName}</if>
+            </where>
+        </select>
+    <select id="selectGiftByIdw" parameterType="String" resultMap="GiftResult">
+        <include refid="selectGiftVo"/>
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+        </where>
+    </select>
+
+    <select id="queryGift" parameterType="String" resultMap="GiftResult">
+        SELECT
+        g.id  as id,
+        g.model as model,
+        ga.introduce model_name,
+        ga.lattice_price,
+        gm.lattice_num total_position,
+        l.surplus_position,
+        g.location_name as locationName,
+        l.create_date as lcreateDate,
+        case when ga.time_type = 0 then ga.number else 30* ga.number end day_total_number,
+		ga.state,gm.gift_picture
+        from t_gift g
+		join t_gift_apply ga on g.id = ga.gift_id
+		left join t_gift_model gm on g.model = gm.id
+        LEFT JOIN t_gift_location l on l.gift_id=g.id
+        <where>
+          1=1
+            <if test="userId != null  and userId != ''  "> and ga.user_id = #{userId}</if>
+        </where>
+    </select>
+        <select id="selectGiftById" parameterType="String" resultMap="GiftResult">
+            select t.id as id, t.model as model, t.picture_url as picture_url, t.state as state, t.create_date as create_date,
+            t.create_user as create_user, t.update_date as update_date, t.lng as lng, t.lat as lat, t.charge_id as charge_id, t.user_id as user_id,
+            t.model_name as model_name,g.lattice_price as lattice_price,t.location_name as locationName from t_gift t
+            LEFT JOIN t_gift_apply g on t.id=g.gift_id
+            <where>
+                <if test="id != null  and id != ''  ">t.id = #{id}</if>
+                <choose>
+                    <when test="state != null  and state != ''  ">
+                       and  t.state = #{state}
+                    </when>
+                    <otherwise>
+                     and    t.state='2'
+                    </otherwise>
+                </choose>
+            </where>
+        </select>
+       <select id="queryCoupon" parameterType="String" resultType="com.project.appinterface.domain.CouponReceive">
+              SELECT
+                        c.id as id,
+                        c.user_id AS userId,
+                        c.coupon_id AS couponId,
+                        c.state,
+                        c.create_date AS createDate,
+                        c.update_date AS updateDate,
+                        t.money as money,
+                        t.effective_start as effectiveStart,
+                        t.effective_end as effectiveEnd
+                    FROM
+                        t_coupon_receive c
+                    LEFT JOIN t_coupon t on t.id=c.coupon_id
+              where  c.user_id= #{userId} and c.state='0'
+        </select>
+    <select id="queryGiftModel"  resultType="com.project.appinterface.domain.GiftModel">
+              SELECT
+                       id,lattice_num,gift_picture,create_date,state
+                    FROM
+                        t_gift_model where state='0'
+        </select>
+
+    <insert id="insertCollectAddress" parameterType="com.project.appinterface.domain.UserAddress">
+        insert into t_user_address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                id,
+            </if>
+            <if test="receiver != null and receiver != ''">
+                receiver,
+            </if>
+            <if test="address != null and address != ''">
+                address,
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone,
+            </if>
+            <if test="user_id != null and user_id != ''">
+                user_id,
+            </if>
+            <if test="address_detailed != null and address_detailed != ''">
+                address_detailed,
+            </if>
+            <if test="default_address != null and default_address != ''">
+                default_address,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                #{id},
+            </if>
+            <if test="receiver != null and receiver != ''">
+                #{receiver},
+            </if>
+            <if test="address != null and address != ''">
+                #{address},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                #{telephone},
+            </if>
+            <if test="user_id != null and user_id != ''">
+                #{user_id},
+            </if>
+            <if test="address_detailed != null and address_detailed != ''">
+                #{address_detailed},
+            </if>
+            <if test="default_address != null and default_address != ''">
+                #{default_address},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="getCollectgoodsAddress" resultType="com.project.appinterface.domain.UserAddress">
+	    		select id,receiver,address,telephone,user_id,address_detailed,default_address from t_user_address where
+	    	user_id = #{user_id} order by default_address
+		</select>
+    <select id="queryaddress" resultType="com.project.appinterface.domain.UserAddress">
+		    	select id,receiver,address,telephone,user_id,address_detailed,default_address from t_user_address where
+		    	id = #{id}
+		</select>
+    <delete id="deleteCollectAddress" parameterType="map" >
+				DELETE FROM t_user_address  where id=#{id}
+			</delete>
+
+    <update id="updateCollectAddress" parameterType="map">
+        update t_user_address
+        <set>
+            <if test="receiver != null and receiver != ''">
+                receiver=#{receiver,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null and address != ''">
+                address=#{address,jdbcType=VARCHAR},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone=#{telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="user_id != null and user_id != ''">
+                user_id=#{user_id,jdbcType=VARCHAR},
+            </if>
+            <if test="address_detailed != null and address_detailed != ''">
+                address_detailed=#{address_detailed,jdbcType=VARCHAR},
+            </if>
+            <if test="default_address != null and default_address != ''">
+                default_address=#{default_address,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+        </where>
+    </update>
+    <select id="queryDefault" resultType="com.project.appinterface.domain.UserAddress">
+		    	select id,receiver,address,telephone,user_id,address_detailed,default_address from t_user_address where
+		    	user_id = #{user_id} and default_address= #{default_address}
+		</select>
+
+
+    <insert id="addPayOrder" parameterType="com.project.appinterface.domain.PayOrder">
+        insert into t_pay_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                id,
+            </if>
+            <if test="orderid != null and orderid != ''">
+                orderid,
+            </if>
+            <if test="userid != null and userid != ''">
+                userid,
+            </if>
+            <if test="orderno != null and orderno != ''">
+                orderno,
+            </if>
+            <if test="state != null and state != ''">
+                state,
+            </if>
+            <if test="createDate != null">
+                create_date,
+            </if>
+            <if test="type != null and type != ''">
+                type,
+            </if>
+            <if test="content != null and content != ''">
+                content,
+            </if>
+            <if test="payType != null and payType != ''">
+                pay_type,
+            </if>
+            <if test="money != null ">
+                money,
+            </if>
+        </trim>
+       <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="id != null and id != ''">
+            #{id},
+        </if>
+        <if test="orderid != null and orderid != ''">
+            #{orderid},
+        </if>
+        <if test="userid != null and userid != ''">
+            #{userid},
+        </if>
+        <if test="orderno != null and orderno != ''">
+            #{orderno},
+        </if>
+        <if test="state != null and state != ''">
+            #{state},
+        </if>
+        <if test="createDate != null">
+            #{createDate},
+        </if>
+        <if test="type != null and type != ''">
+            #{type},
+        </if>
+        <if test="content != null and content != ''">
+            #{content},
+        </if>
+        <if test="payType != null and payType != ''">
+            #{payType},
+        </if>
+        <if test="money != null">
+            #{money},
+        </if>
+    </trim>
+    </insert>
+
+    <select id="queryGiftId" parameterType="String" resultMap="GiftResult">
+        <include refid="selectGiftVo"/>
+        <where>
+            <if test="longitude != null  and longitude != '' "> and lng = #{longitude}</if>
+            <if test="latitude != null  and latitude != '' "> and lat = #{latitude}</if>
+        </where>
+	</select>
+    <select id="queryPayGift" resultType="com.project.appinterface.domain.PayOrder">
+		    	select p.type as type,p.money as money from t_pay_order p
+                LEFT JOIN t_gift_apply t on t.orderno=p.orderno
+                where t.gift_id=#{giftId} and  t.state='1' and t.user_id = #{userId}
+	</select>
+    <select id="queryPayOrder" resultType="com.project.appinterface.domain.PayOrder">
+		    	select id,orderid,userid,orderno,state,create_date,type,content,pay_type,money from t_pay_order where orderno=#{orderno}
+	</select>
+    <update id="updatePayOrder" parameterType="map">
+        update t_pay_order
+        <set>
+            <if test="state != null and state != ''">
+                state=#{state,jdbcType=VARCHAR},
+            </if>
+            <if test="tradeno != null and tradeno != ''">
+                tradeno=#{tradeno,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <where>
+            <if test="id != null and id != ''">
+                id = #{id}
+            </if>
+        </where>
+    </update>
+    <update id="updateTGift" parameterType="Gift">
+        update t_gift
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="model != null  and model != ''  ">model = #{model},</if>
+            <if test="pictureUrl != null  and pictureUrl != ''  ">picture_url = #{pictureUrl},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="updateDate != null  ">update_date = #{updateDate},</if>
+            <if test="lng != null  and lng != ''  ">lng = #{lng},</if>
+            <if test="lat != null  and lat != ''  ">lat = #{lat},</if>
+            <if test="chargeId != null  and chargeId != ''  ">charge_id = #{chargeId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="modelName != null  and modelName != ''  ">model_name = #{modelName},</if>
+            <if test="locationName != null  and locationName != ''  ">location_name = #{locationName},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<update id="updateTGiftReload" parameterType="java.lang.String">
+        update t_gift
+        set state = '0',
+        user_id = null,
+        source = null,
+        update_date = now()
+        where id = #{id}
+    </update>
+</mapper>

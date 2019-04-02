@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    <div class="container-div">
+
+		<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+			<form id="menu-form">
+				<div class="select-list">
+					<ul>
+						<li style="margin-left:15px">
+							礼物机类型：
+							<select name="" id="" style="width:100px">
+								<option value="">全部</option>
+							</select>
+						</li>
+						<li>
+							添加时间：
+						</li>
+						<li>
+							<input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginTime]"  style="width:100px"/>
+						</li>
+						<li><span>-</span>
+						</li>
+						<li>
+							<input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endTime]"  style="width:100px"/>
+						</li>
+						<li>
+							<a class="btn btn-primary " onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;查询</a>
+						</li>
+
+					</ul>
+				</div>
+			</form>
+			<!--<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="web:tGiftModel:add">
+				<i class="fa fa-plus"></i> 添加
+			</a>
+			<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="web:tGiftModel:edit">
+	            <i class="fa fa-edit"></i> 修改
+	        </a>
+			<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="web:tGiftModel:remove">
+				<i class="fa fa-remove"></i> 删除
+			</a>-->
+		</div>
+			
+		<div class="col-sm-12 select-table table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+    </div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('web:tGiftModel:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('web:tGiftModel:remove')}]];
+        var prefix = ctx + "web/tGiftModel";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: " 礼物机类型",
+                columns: [{
+		            checkbox: true
+		        },
+					{
+						field : 'id',
+						title : '序号',
+						width: '10%',
+						formatter: function(value, row, index) {
+							return index+1;
+						}
+					},
+				{
+					field : 'latticeNum', 
+					title : '格子数' 
+				},
+				{
+					field : 'giftPicture', 
+					title : '礼物机图片' ,
+					formatter: function(value, row, index) {
+						return "<img src='"+row.giftPicture+"' width='30' height='30'>";
+					}
+				},
+				{
+					field : 'createDate', 
+					title : '创建时间' 
+				},
+				{
+					field : 'state', 
+					title : '状态0使用中1未使用2已作废' 
+				},
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+		            	actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="resetPwd(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+
+
+		function resetPwd(id) {
+			var url = prefix + '/edit/' + id;
+			$.modal.open("发货", url, '400', '500');
+		}
+
+	</script>
+</body>
+</html>

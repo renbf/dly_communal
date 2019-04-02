@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.GiftLocationMapper">
+    
+    <resultMap type="GiftLocation" id="GiftLocationResult">
+        <result property="id"    column="id"    />
+        <result property="content"    column="content"    />
+        <result property="giftId"    column="gift_id"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="state"    column="state"    />
+        <result property="surplusPosition"    column="surplus_position"    />
+        <result property="totalPosition"    column="total_position"    />
+        <result property="giftName"    column="giftName"    />
+        <result property="latticePrice"    column="lattice_price"    />
+    </resultMap>
+	
+	<sql id="selectGiftLocationVo">
+        select id, content, gift_id, create_date, create_user, state, surplus_position, total_position, lattice_price from t_gift_location
+    </sql>
+	
+    <select id="selectGiftLocationList" parameterType="String" resultMap="GiftLocationResult">
+        <include refid="selectGiftLocationVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="content != null  and content != '' "> and content = #{content}</if>
+             <if test="giftId != null  and giftId != '' "> and gift_id = #{giftId}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="createUser != null  and createUser != '' "> and create_user = #{createUser}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="surplusPosition != null "> and surplus_position = #{surplusPosition}</if>
+             <if test="totalPosition != null "> and total_position = #{totalPosition}</if>
+             <if test="latticePrice != null "> and lattice_price = #{latticePrice}</if>
+         </where>
+    </select>
+    
+    <select id="selectGiftLocationById" parameterType="String" resultMap="GiftLocationResult">
+        SELECT
+        g.id as id,
+        g.content as content,
+        g.gift_id as gift_id,
+        g.create_date as create_date,
+        g.create_user as create_user,
+        g.state as state,
+        g.surplus_position as surplus_position,
+        g.total_position as total_position,
+        g.lattice_price as lattice_price,
+        t.model_name as giftName
+        FROM
+        t_gift_location g
+        LEFT JOIN t_gift t on t.id=g.gift_id
+        <where>
+            <if test="giftId != null  and giftId != '' "> and g.gift_id = #{giftId}</if>
+         </where>
+    </select>
+    
+    <select id="selectGiftLocationByKeys" resultMap="GiftLocationResult">
+        <include refid="selectGiftLocationVo"/>
+        where state = '0' and gift_id = #{giftId} and create_user = #{createUser}
+    </select>
+    
+    <insert id="insertGiftLocation" parameterType="GiftLocation">
+        insert into t_gift_location
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="content != null  and content != ''  ">content,</if>
+			<if test="giftId != null  and giftId != ''  ">gift_id,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="surplusPosition != null  ">surplus_position,</if>
+			<if test="totalPosition != null  ">total_position,</if>
+			<if test="latticePrice != null  ">lattice_price,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="content != null  and content != ''  ">#{content},</if>
+			<if test="giftId != null  and giftId != ''  ">#{giftId},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="surplusPosition != null  ">#{surplusPosition},</if>
+			<if test="totalPosition != null  ">#{totalPosition},</if>
+			<if test="latticePrice != null  ">#{latticePrice},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateGiftLocation" parameterType="GiftLocation">
+        update t_gift_location
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="content != null  and content != ''  ">content = #{content},</if>
+            <if test="giftId != null  and giftId != ''  ">gift_id = #{giftId},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="surplusPosition != null  ">surplus_position = #{surplusPosition},</if>
+            <if test="totalPosition != null  ">total_position = #{totalPosition},</if>
+            <if test="latticePrice != null  ">lattice_price = #{latticePrice},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteGiftLocationById" parameterType="String">
+        delete from t_gift_location where gift_id = #{giftId}
+    </delete>
+	
+    <delete id="deleteGiftLocationByIds" parameterType="String">
+        delete from t_gift_location where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

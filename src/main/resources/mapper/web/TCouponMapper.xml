@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TCouponMapper">
+    
+    <resultMap type="TCoupon" id="TCouponResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="money"    column="money"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="state"    column="state"    />
+        <result property="effectiveStart"    column="effective_start"    />
+        <result property="effectiveEnd"    column="effective_end"    />
+        <result property="rule"    column="rule"    />
+        <result property="type"    column="type"    />
+    </resultMap>
+	
+	<sql id="selectTCouponVo">
+        select id, name, money, create_date, create_user, state, effective_start, effective_end, rule, type from t_coupon
+    </sql>
+	
+    <select id="selectTCouponList" parameterType="TCoupon" resultMap="TCouponResult">
+        <include refid="selectTCouponVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="money != null "> and money = #{money}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="createUser != null  "> and create_user = #{createUser}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="effectiveStart != null "> and effective_start = #{effectiveStart}</if>
+             <if test="effectiveEnd != null "> and effective_end = #{effectiveEnd}</if>
+             <if test="rule != null  and rule != '' "> and rule = #{rule}</if>
+             <if test="type != null  and type != '' "> and type = #{type}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(create_date,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(create_date,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+         </where>
+    </select>
+    
+    <select id="selectTCouponById" parameterType="String" resultMap="TCouponResult">
+        <include refid="selectTCouponVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTCoupon" parameterType="TCoupon">
+        insert into t_coupon
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="money != null  ">money,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="createUser != null  and createUser  ">create_user,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="effectiveStart != null  ">effective_start,</if>
+			<if test="effectiveEnd != null  ">effective_end,</if>
+			<if test="rule != null  and rule != ''  ">rule,</if>
+			<if test="type != null  and type != ''  ">type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="money != null  ">#{money},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="createUser != null    ">#{createUser},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="effectiveStart != null  ">#{effectiveStart},</if>
+			<if test="effectiveEnd != null  ">#{effectiveEnd},</if>
+			<if test="rule != null  and rule != ''  ">#{rule},</if>
+			<if test="type != null  and type != ''  ">#{type},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTCoupon" parameterType="TCoupon">
+        update t_coupon
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="money != null  ">money = #{money},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null    ">create_user = #{createUser},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="effectiveStart != null  ">effective_start = #{effectiveStart},</if>
+            <if test="effectiveEnd != null  ">effective_end = #{effectiveEnd},</if>
+            <if test="rule != null  and rule != ''  ">rule = #{rule},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTCouponById" parameterType="String">
+        delete from t_coupon where id = #{id}
+    </delete>
+	
+    <delete id="deleteTCouponByIds" parameterType="String">
+        delete from t_coupon where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

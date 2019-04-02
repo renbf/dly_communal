@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.ConsumptionInformationMapper">
+    
+    <resultMap type="ConsumptionInformation" id="ConsumptionInformationResult">
+        <result property="id"    column="id"    />
+        <result property="consumptionType"    column="consumption_type"    />
+        <result property="money"    column="money"    />
+        <result property="payType"    column="pay_type"    />
+        <result property="consumptionUser"    column="consumption_user"    />
+        <result property="consumptionDate"    column="consumption_date"    />
+        <result property="state"    column="state"    />
+    </resultMap>
+	
+	<sql id="selectConsumptionInformationVo">
+        select id, consumption_type, money, pay_type, consumption_user, consumption_date, state from t_consumption_information
+    </sql>
+	
+    <select id="selectConsumptionInformationList" parameterType="ConsumptionInformation" resultMap="ConsumptionInformationResult">
+        <include refid="selectConsumptionInformationVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="consumptionType != null  and consumptionType != '' "> and consumption_type = #{consumptionType}</if>
+             <if test="money != null "> and money = #{money}</if>
+             <if test="payType != null  and payType != '' "> and pay_type = #{payType}</if>
+             <if test="consumptionUser != null  and consumptionUser != '' "> and consumption_user = #{consumptionUser}</if>
+             <if test="consumptionDate != null "> and consumption_date = #{consumptionDate}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+         </where>
+    </select>
+    
+    <select id="selectConsumptionInformationById" parameterType="String" resultMap="ConsumptionInformationResult">
+        <include refid="selectConsumptionInformationVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertConsumptionInformation" parameterType="ConsumptionInformation">
+        insert into t_consumption_information
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="consumptionType != null  and consumptionType != ''  ">consumption_type,</if>
+			<if test="money != null  ">money,</if>
+			<if test="payType != null  and payType != ''  ">pay_type,</if>
+			<if test="consumptionUser != null  and consumptionUser != ''  ">consumption_user,</if>
+			<if test="consumptionDate != null  ">consumption_date,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="consumptionType != null  and consumptionType != ''  ">#{consumptionType},</if>
+			<if test="money != null  ">#{money},</if>
+			<if test="payType != null  and payType != ''  ">#{payType},</if>
+			<if test="consumptionUser != null  and consumptionUser != ''  ">#{consumptionUser},</if>
+			<if test="consumptionDate != null  ">#{consumptionDate},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateConsumptionInformation" parameterType="ConsumptionInformation">
+        update t_consumption_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="consumptionType != null  and consumptionType != ''  ">consumption_type = #{consumptionType},</if>
+            <if test="money != null  ">money = #{money},</if>
+            <if test="payType != null  and payType != ''  ">pay_type = #{payType},</if>
+            <if test="consumptionUser != null  and consumptionUser != ''  ">consumption_user = #{consumptionUser},</if>
+            <if test="consumptionDate != null  ">consumption_date = #{consumptionDate},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteConsumptionInformationById" parameterType="String">
+        delete from t_consumption_information where id = #{id}
+    </delete>
+	
+    <delete id="deleteConsumptionInformationByIds" parameterType="String">
+        delete from t_consumption_information where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

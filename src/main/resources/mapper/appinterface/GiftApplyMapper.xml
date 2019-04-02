@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.GiftApplyMapper">
+    
+    <resultMap type="GiftApply" id="GiftApplyResult">
+        <result property="id"    column="id"    />
+        <result property="giftId"    column="gift_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="timeType"    column="time_type"    />
+        <result property="number"    column="number"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="state"    column="state"    />
+        <result property="latticePrice"    column="lattice_price"    />
+        <result property="introduce"    column="introduce"    />
+        <result property="orderno"    column="orderno"    />
+
+    </resultMap>
+	
+	<sql id="selectGiftApplyVo">
+        select id, gift_id, user_id, time_type, number, create_date, state, lattice_price, introduce,orderno from t_gift_apply
+    </sql>
+	
+    <select id="selectGiftApplyList" parameterType="GiftApply" resultMap="GiftApplyResult">
+        <include refid="selectGiftApplyVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="giftId != null  and giftId != '' "> and gift_id = #{giftId}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="timeType != null  and timeType != '' "> and time_type = #{timeType}</if>
+             <if test="number != null "> and number = #{number}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="latticePrice != null "> and lattice_price = #{latticePrice}</if>
+             <if test="introduce != null  and introduce != '' "> and introduce = #{introduce}</if>
+            <if test="orderno != null  and orderno != '' "> and orderno = #{orderno}</if>
+
+        </where>
+    </select>
+    
+    <select id="selectGiftApplyById" parameterType="String" resultMap="GiftApplyResult">
+        <include refid="selectGiftApplyVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectGiftApplyByGiftId" parameterType="java.util.Map" resultMap="GiftApplyResult">
+        <include refid="selectGiftApplyVo"/>
+        where gift_Id = #{giftId} and user_id = #{userId}
+    </select>
+    <insert id="insertGiftApply" parameterType="GiftApply">
+        insert into t_gift_apply
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="giftId != null  and giftId != ''  ">gift_id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="timeType != null  and timeType != ''  ">time_type,</if>
+			<if test="number != null  ">number,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="latticePrice != null  ">lattice_price,</if>
+			<if test="introduce != null  and introduce != ''  ">introduce,</if>
+            <if test="orderno != null  and orderno != ''  ">orderno,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="giftId != null  and giftId != ''  ">#{giftId},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="timeType != null  and timeType != ''  ">#{timeType},</if>
+			<if test="number != null  ">#{number},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="latticePrice != null  ">#{latticePrice},</if>
+			<if test="introduce != null  and introduce != ''  ">#{introduce},</if>
+            <if test="orderno != null  and orderno != ''  ">#{orderno},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateGiftApply" parameterType="GiftApply">
+        update t_gift_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="giftId != null  and giftId != ''  ">gift_id = #{giftId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="timeType != null  and timeType != ''  ">time_type = #{timeType},</if>
+            <if test="number != null  ">number = #{number},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="latticePrice != null  ">lattice_price = #{latticePrice},</if>
+            <if test="introduce != null  and introduce != ''  ">introduce = #{introduce},</if>
+            <if test="orderno != null  and orderno != ''  ">orderno = #{orderno},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteGiftApplyById" parameterType="String">
+        delete from t_gift_apply where gift_id = #{giftId}
+    </delete>
+	
+    <delete id="deleteGiftApplyByIds" parameterType="String">
+        delete from t_gift_apply where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="checkIsApply" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select count(1) from t_gift_apply
+    where gift_id = #{giftId} and user_id = #{userId} and state in ('0','1')
+    </select>
+    
+</mapper>

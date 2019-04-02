@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TOrderMapper">
+    
+    <resultMap type="TOrder" id="TOrderResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="addressId"    column="address_id"    />
+        <result property="expressNo"    column="express_no"    />
+        <result property="creatDate"    column="creat_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="state"    column="state"    />
+        <result property="goodsId"    column="goods_id"    />
+        <result property="deliveryDate"    column="delivery_date"    />
+        <result property="completionDate"    column="completion_date"    />
+    </resultMap>
+    <resultMap type="OrderVo" id="OrderVoResult">
+        <result property="orderId"    column="orderId"/>
+        <result property="receiver"    column="receiver"/>
+        <result property="telephone"    column="telephone"/>
+        <result property="address"    column="address"/>
+        <result property="addressDetailed"    column="address_detailed"/>
+        <result property="money"    column="money"/>
+        <result property="createDate"    column="creat_date"/>
+        <result property="state"    column="state"/>
+		<result property="deliveryDate"    column="delivery_date"    />
+        <result property="completionDate"    column="completion_date"    />
+        <result property="goodsName"    column="goodsName"    />
+        <result property="price"    column="price"    />
+        <result property="model"    column="model"    />
+        <result property="introduce"    column="introduce"    />
+        <result property="picture"    column="picture"    />
+        <result property="orderNo"    column="order_no"    />
+    </resultMap>
+	<sql id="selectTOrderVo">
+        select id, user_id, address_id, express_no, creat_date, create_user, state, goods_id, delivery_date, completion_date from t_order
+    </sql>
+    <select id="selectTOrderAllList" parameterType="TOrder" resultMap="OrderVoResult">
+        select o.id as orderId,u.receiver as receiver,u.telephone as telephone,
+        u.address as address,CONCAT(u.address,u.address_detailed) as address_detailed,
+        p.money as money ,o.creat_date as creat_date ,o.state as state
+        from t_order o
+        LEFT JOIN t_user_address u ON o.address_id=u.id
+        LEFT JOIN t_pay_order p on o.order_no=p.orderno
+        LEFT JOIN t_commodity_information c on o.goods_id=c.id
+        <where>
+            <if test="id != null  and id != '' "> and o.id = #{id}</if>
+            <if test="receiver != null  and receiver != '' "> and u.receiver like concat('%', #{receiver}, '%')</if>
+            <if test="goodsName != null  and goodsName != '' "> and c.name like concat('%', #{goodsName}, '%')</if>
+            <if test="userId != null  and userId != '' "> and o.user_id = #{userId}</if>
+            <if test="addressId != null  and addressId != '' "> and o.address_id = #{addressId}</if>
+            <if test="expressNo != null  and expressNo != '' "> and o.express_no = #{expressNo}</if>
+            <if test="creatDate != null "> and o.creat_date = #{creatDate}</if>
+            <if test="createUser != null  and createUser != '' "> and o.create_user = #{createUser}</if>
+            <if test="state != null  and state != '' "> and o.state = #{state}</if>
+            <if test="goodsId != null  and goodsId != '' "> and o.goods_id = #{goodsId}</if>
+            <if test="deliveryDate != null "> and o.delivery_date = #{deliveryDate}</if>
+            <if test="completionDate != null "> and o.completion_date = #{completionDate}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(o.creat_date,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(o.creat_date,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+    </select>
+    <select id="selectTOrderList" parameterType="TOrder" resultMap="TOrderResult">
+        <include refid="selectTOrderVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="addressId != null  and addressId != '' "> and address_id = #{addressId}</if>
+             <if test="expressNo != null  and expressNo != '' "> and express_no = #{expressNo}</if>
+             <if test="creatDate != null "> and creat_date = #{creatDate}</if>
+             <if test="createUser != null  and createUser != '' "> and create_user = #{createUser}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="goodsId != null  and goodsId != '' "> and goods_id = #{goodsId}</if>
+             <if test="deliveryDate != null "> and delivery_date = #{deliveryDate}</if>
+             <if test="completionDate != null "> and completion_date = #{completionDate}</if>
+         </where>
+    </select>
+    
+    <select id="selectTOrderById" parameterType="String" resultMap="TOrderResult">
+        <include refid="selectTOrderVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTOrder" parameterType="TOrder">
+        insert into t_order
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="addressId != null  and addressId != ''  ">address_id,</if>
+			<if test="expressNo != null  and expressNo != ''  ">express_no,</if>
+			<if test="creatDate != null  ">creat_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="goodsId != null  and goodsId != ''  ">goods_id,</if>
+			<if test="deliveryDate != null  ">delivery_date,</if>
+			<if test="completionDate != null  ">completion_date,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="addressId != null  and addressId != ''  ">#{addressId},</if>
+			<if test="expressNo != null  and expressNo != ''  ">#{expressNo},</if>
+			<if test="creatDate != null  ">#{creatDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="goodsId != null  and goodsId != ''  ">#{goodsId},</if>
+			<if test="deliveryDate != null  ">#{deliveryDate},</if>
+			<if test="completionDate != null  ">#{completionDate},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTOrder" parameterType="TOrder">
+        update t_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="addressId != null  and addressId != ''  ">address_id = #{addressId},</if>
+            <if test="expressNo != null  and expressNo != ''  ">express_no = #{expressNo},</if>
+            <if test="creatDate != null  ">creat_date = #{creatDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="goodsId != null  and goodsId != ''  ">goods_id = #{goodsId},</if>
+            <if test="deliveryDate != null  ">delivery_date = #{deliveryDate},</if>
+            <if test="completionDate != null  ">completion_date = #{completionDate},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTOrderById" parameterType="String">
+        delete from t_order where id = #{id}
+    </delete>
+	
+    <delete id="deleteTOrderByIds" parameterType="String">
+        delete from t_order where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="selectTOrderVoDetail" resultMap="OrderVoResult" parameterType="java.lang.String">
+    	select o.id as orderId,u.receiver as receiver,u.telephone as telephone,
+		u.address as address,CONCAT(u.address,u.address_detailed) as address_detailed,
+		p.money as money ,o.creat_date as creat_date ,o.state as state,o.delivery_date ,o.completion_date,o.order_no,
+		c.name goodsName,c.picture,c.price,c.introduce,c.model
+		from t_order o
+		LEFT JOIN t_user_address u ON o.address_id=u.id
+		LEFT JOIN t_pay_order p on o.order_no=p.orderno
+		LEFT JOIN t_commodity_information c on o.goods_id=c.id
+		where o.id = #{id}
+    </select>
+    
+</mapper>

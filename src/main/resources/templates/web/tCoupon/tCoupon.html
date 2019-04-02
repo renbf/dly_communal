@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+
+
+<div class="container-div ui-layout-center">
+	<div class="row">
+		<div class="col-sm-12 search-collapse">
+			<form id="user-form">
+				<div class="select-list">
+					<ul>
+						<li>
+							状态：<select name="state">
+							<option value="">全部</option>
+							<option value="0">正常</option>
+							<option value="1">冻结</option>
+						</select>
+						</li>
+						<li class="select-time">
+							<label>注册时间：</label>
+							<input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginTime]"/>
+
+							<span>-</span>
+							<input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endTime]"/>
+						</li>
+						<li>
+							<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+		<div class="btn-group-sm hidden-xs" id="toolbar" role="group">
+			<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:user:add">
+				<i class="fa fa-plus"></i> 新增
+			</a>
+			<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="system:user:edit">
+				<i class="fa fa-edit"></i> 修改
+			</a>
+			<a class="btn btn-danger btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:user:remove">
+				<i class="fa fa-remove"></i> 删除
+			</a>
+		</div>
+
+		<div class="col-sm-12 select-table table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+
+	</div>
+
+
+
+<!--confirm确认框-->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">提示</h4>
+				</div>
+				<div class="modal-body">
+
+					<div id="showHint">您确定要废除吗?</div>
+					<div id="showSucc" style="display:none">您已废除成功</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" id="btnclose" data-dismiss="modal">Close</button>
+					<button type="button" onclick="feichu()" id="btnfeichu" class="btn btn-primary">废除</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+</div>
+
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('web:tCoupon:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('web:tCoupon:remove')}]];
+        var prefix = ctx + "web/tCoupon";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: "优惠券",
+				search : false,
+				showExport: false,
+				showRefresh:false,
+				showToggle:false,
+				showSearch:false,
+				showColumns: false,
+                columns: [{
+		            checkbox: true
+		        },
+					{
+						field : 'id',
+						title : '序号',
+						width: '10%',
+						formatter: function(value, row, index) {
+							return index+1;
+						}
+					},
+				{
+					field : 'name', 
+					title : '优惠券名称' 
+				},
+				{
+					field : 'money', 
+					title : '优惠券价值',
+					formatter: function(value, row, index) {
+
+							return row.money/100;
+
+					}
+				},
+					{
+						field : 'effectiveStart',
+						title : '有效起始时间'
+					},
+					{
+						field : 'effectiveEnd',
+						title : '有效截止时间'
+					},
+					{
+						field : 'rule',
+						title : '规则'
+					},
+					{
+						field : 'type',
+						title : ' 类型0' ,
+						formatter: function(value, row, index) {
+							if(row.type=='0'){
+								return "分享注册";
+							}
+						}
+					},
+				{
+					field : 'createDate', 
+					title : '发布时间' 
+				},
+
+				{
+					field : 'state', 
+					title : '状态',
+					formatter: function(value, row, index) {
+						if(row.state=='0'){
+							return "有效";
+						}else if(row.state=='1'){
+							return "失效";
+						}
+					}
+				},
+
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+						if(row.state=='0'){/**/
+							actions.push('<a  class="btn btn-success btn-xs myModal ' + editFlag + '" href="#" onclick="saveRowId(\''+row.id+'\')" ><i class="fa fa-edit"></i>废除</a> ');
+						}else if(row.state=='1'){
+							actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>恢复</a> ');
+							actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+						}
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+	var rowid='';//存储点击废除id
+	function saveRowId(id){
+
+		rowid=id
+		$('#myModal').modal('show')
+	}
+
+		function feichu(){
+		var id=rowid
+				$.ajax({
+					cache : true,
+					type : "POST",
+					url : ctx + "web/tCoupon/updateState",
+					data : {
+						"id": id,
+					},
+					async : false,
+					error : function(request) {
+						$.modal.alertError("系统错误");
+					},
+					success : function(data) {
+						$('#showHint').hide()
+						$('#showSucc').show()
+						$('#btnfeichu').hide()
+						$('#btnclose').hide()
+						$('#myModal').modal('show')
+						$("#bootstrap-table").bootstrapTable('refresh');
+					}
+				});
+
+		}
+
+    </script>
+</body>
+</html>

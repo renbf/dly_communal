@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+<div class="container-div ui-layout-center">
+	<div class="row">
+		<div class="col-sm-12 search-collapse">
+			<form id="menu-form">
+				<div class="select-list">
+					<ul>
+						<li>
+							收货人：<input type="text" name="receiver"/>
+						</li>
+						<li>
+							礼物名称：<input type="text" name="goodsName"/>
+						</li>
+						<li>
+							状态：<select name="state">
+							<option value="">全部</option>
+							<option value="0">待发货</option>
+							<option value="1">待收货</option>
+							<option value="2">已完成</option>
+							<option value="3">已失效</option>
+							<option value="4">待领取</option>
+						</select>
+						</li>
+						<li class="select-time">
+							<label>订单时间：</label>
+							<input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginTime]"/>
+							<span>-</span>
+							<input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endTime]"/>
+						</li>
+						<li>
+							<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+
+
+		<div class="col-sm-12 select-table table-striped">
+			<table id="bootstrap-table" data-mobile-responsive="true"></table>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('web:tOrder:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('web:tOrder:remove')}]];
+        var prefix = ctx + "web/tOrder";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                detailUrl: prefix + "/detail/{id}",
+				search : false,
+				showExport: false,
+				showRefresh:false,
+				showToggle:false,
+				showSearch:false,
+				showColumns: false,
+                modalName: "订单",
+                columns: [{
+		            checkbox: true
+		        },
+					{
+						field : 'id',
+						title : '序号',
+						width: '10%',
+						formatter: function(value, row, index) {
+							return index+1;
+						}
+					},
+				{
+					field : 'receiver',
+					title : '收货人'
+				},
+				{
+					field : 'telephone',
+					title : '联系电话'
+				},
+				{
+					field : 'addressDetailed',
+					title : '收货地址'
+				},
+				{
+					field : 'money',
+					title : '金额',
+					formatter: function(value, row, index) {
+							return "￥"+row.money/100;
+					}
+				},
+				{
+					field : 'createDate',
+					title : '订单时间'
+				},
+				{
+					field : 'state',
+					title : '订单状态',
+					formatter: function(value, row, index) {
+						// 0待发货1待收货2已完成3已失效4
+						if(row.state=='0'){
+							return "待发货";
+						}else if(row.state=='1'){
+							return "待收货";
+						}else if(row.state=='2'){
+							return "已完成";
+						}else if(row.state=='3'){
+							return "已失效";
+						}else if(row.state=='4'){
+							return "待领取";
+						}
+					}
+				},
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+						if(row.state=='0'){
+							actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="resetPwd(\'' + row.orderId + '\')"><i class="fa fa-edit"></i>发货</a> ');
+						}else {
+							actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.detail(\'' + row.orderId + '\')"><i class="fa fa-edit"></i>查看</a> ');
+						}
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+
+		function resetPwd(id) {
+			var url = prefix + '/edit/' + id;
+			$.modal.open("发货", url, '400', '300');
+		}
+    </script>
+</body>
+</html>

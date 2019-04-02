@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TUserInfoMapper">
+    
+    <resultMap type="TUserInfo" id="TUserInfoResult">
+        <result property="id"    column="id"    />
+        <result property="phone"    column="phone"    />
+        <result property="password"    column="password"    />
+        <result property="sex"    column="sex"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="birthDay"    column="birth_day"    />
+        <result property="invitationCode"    column="invitation_code"    />
+        <result property="headPortrait"    column="head_portrait"    />
+        <result property="openid"    column="openid"    />
+        <result property="loginState"    column="login_state"    />
+        <result property="state"    column="state"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="updateDate"    column="update_date"    />
+        <result property="inviterCode"    column="inviter_code"    />
+        <result property="inviterNum"    column="inviterNum"    />
+        <result property="profit"    column="profit"    />
+        <result property="balance"    column="balance"    />
+        <result property="deposit"    column="deposit"    />
+
+    </resultMap>
+	
+	<sql id="selectTUserInfoVo">
+        select id, phone, password, sex, nickname, birth_day, invitation_code, head_portrait, openid, login_state, state, create_date, update_date,inviter_code from t_user_info
+    </sql>
+	
+    <select id="selectTUserInfoList" parameterType="TUserInfo" resultMap="TUserInfoResult">
+        select id, phone, password, sex, nickname, birth_day, invitation_code, head_portrait,
+        openid, login_state, state, create_date, update_date,inviter_code,count(invitation_code) as inviterNum from t_user_info
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+             <if test="password != null  and password != '' "> and password = #{password}</if>
+             <if test="sex != null  and sex != '' "> and sex = #{sex}</if>
+             <if test="nickname != null  and nickname != '' "> and nickname = #{nickname}</if>
+             <if test="birthDay != null "> and birth_day = #{birthDay}</if>
+             <if test="invitationCode != null  and invitationCode != '' "> and invitation_code = #{invitationCode}</if>
+             <if test="headPortrait != null  and headPortrait != '' "> and head_portrait = #{headPortrait}</if>
+             <if test="openid != null  and openid != '' "> and openid = #{openid}</if>
+             <if test="loginState != null  and loginState != '' "> and login_state = #{loginState}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="updateDate != null "> and update_date = #{updateDate}</if>
+            <if test="inviterCode != null and inviterCode != ''  "> and inviter_code = #{inviterCode}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(create_date,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(create_date,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+        GROUP BY invitation_code
+    </select>
+    
+    <select id="selectTUserInfoById" parameterType="String" resultMap="TUserInfoResult">
+          select t.id, t.phone,t.password, t.sex, t.nickname, t.birth_day, t.invitation_code, t.head_portrait, t.openid,
+          t.login_state, t.state, t.create_date, t.update_date,
+          t.inviter_code,w.profit/100 as profit,w.balance/100 as balance,w.deposit/100 as deposit from t_user_info t left join t_wallet w on w.user_id=t.id
+        where t.id = #{id}
+    </select>
+        
+    <insert id="insertTUserInfo" parameterType="TUserInfo">
+        insert into t_user_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="phone != null  and phone != ''  ">phone,</if>
+			<if test="password != null  and password != ''  ">password,</if>
+			<if test="sex != null  and sex != ''  ">sex,</if>
+			<if test="nickname != null  and nickname != ''  ">nickname,</if>
+			<if test="birthDay != null  ">birth_day,</if>
+			<if test="invitationCode != null  and invitationCode != ''  ">invitation_code,</if>
+			<if test="headPortrait != null  and headPortrait != ''  ">head_portrait,</if>
+			<if test="openid != null  and openid != ''  ">openid,</if>
+			<if test="loginState != null  and loginState != ''  ">login_state,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="updateDate != null  ">update_date,</if>
+            <if test="inviterCode != null  and inviterCode != ''  ">inviter_code,</if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="phone != null  and phone != ''  ">#{phone},</if>
+			<if test="password != null  and password != ''  ">#{password},</if>
+			<if test="sex != null  and sex != ''  ">#{sex},</if>
+			<if test="nickname != null  and nickname != ''  ">#{nickname},</if>
+			<if test="birthDay != null  ">#{birthDay},</if>
+			<if test="invitationCode != null  and invitationCode != ''  ">#{invitationCode},</if>
+			<if test="headPortrait != null  and headPortrait != ''  ">#{headPortrait},</if>
+			<if test="openid != null  and openid != ''  ">#{openid},</if>
+			<if test="loginState != null  and loginState != ''  ">#{loginState},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="updateDate != null  ">#{updateDate},</if>
+            <if test="inviterCode != null  and inviterCode != ''  ">#{inviterCode},</if>
+
+        </trim>
+    </insert>
+	 
+    <update id="updateTUserInfo" parameterType="TUserInfo">
+        update t_user_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="phone != null  and phone != ''  ">phone = #{phone},</if>
+            <if test="password != null  and password != ''  ">password = #{password},</if>
+            <if test="sex != null  and sex != ''  ">sex = #{sex},</if>
+            <if test="nickname != null  and nickname != ''  ">nickname = #{nickname},</if>
+            <if test="birthDay != null  ">birth_day = #{birthDay},</if>
+            <if test="invitationCode != null  and invitationCode != ''  ">invitation_code = #{invitationCode},</if>
+            <if test="headPortrait != null  and headPortrait != ''  ">head_portrait = #{headPortrait},</if>
+            <if test="openid != null  and openid != ''  ">openid = #{openid},</if>
+            <if test="loginState != null  and loginState != ''  ">login_state = #{loginState},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="updateDate != null  ">update_date = #{updateDate},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTUserInfoById" parameterType="String">
+        delete from t_user_info where id = #{id}
+    </delete>
+	
+    <delete id="deleteTUserInfoByIds" parameterType="String">
+        delete from t_user_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="reportRegisterCount" resultType="java.util.Map">
+    	select count(1) num,DATE_FORMAT(DATE_ADD(now(),INTERVAL -1 day),'%Y-%m-%d') date
+		from t_user_info
+		where create_date >= DATE_FORMAT(DATE_ADD(now(),INTERVAL -1 day),'%Y-%m-%d 00:00:00') 
+		and create_date &lt; DATE_FORMAT(DATE_ADD(now(),INTERVAL -1 day),'%Y-%m-%d 23:59:59')
+		union ALL
+		select count(1) num,DATE_FORMAT(DATE_ADD(now(),INTERVAL -2 day),'%Y-%m-%d') date
+		from t_user_info
+		where create_date >= DATE_FORMAT(DATE_ADD(now(),INTERVAL -2 day),'%Y-%m-%d 00:00:00') 
+		and create_date &lt; DATE_FORMAT(DATE_ADD(now(),INTERVAL -2 day),'%Y-%m-%d 23:59:59')
+		union ALL
+		select count(1) num,DATE_FORMAT(DATE_ADD(now(),INTERVAL -3 day),'%Y-%m-%d') date
+		from t_user_info
+		where create_date >= DATE_FORMAT(DATE_ADD(now(),INTERVAL -3 day),'%Y-%m-%d 00:00:00') 
+		and create_date &lt; DATE_FORMAT(DATE_ADD(now(),INTERVAL -3 day),'%Y-%m-%d 23:59:59')
+		union ALL
+		select count(1) num,DATE_FORMAT(DATE_ADD(now(),INTERVAL -4 day),'%Y-%m-%d') date
+		from t_user_info
+		where create_date >= DATE_FORMAT(DATE_ADD(now(),INTERVAL -4 day),'%Y-%m-%d 00:00:00') 
+		and create_date &lt; DATE_FORMAT(DATE_ADD(now(),INTERVAL -4 day),'%Y-%m-%d 23:59:59')
+		union ALL
+		select count(1) num,DATE_FORMAT(DATE_ADD(now(),INTERVAL -5 day),'%Y-%m-%d') date
+		from t_user_info
+		where create_date >= DATE_FORMAT(DATE_ADD(now(),INTERVAL -5 day),'%Y-%m-%d 00:00:00') 
+		and create_date &lt; DATE_FORMAT(DATE_ADD(now(),INTERVAL -5 day),'%Y-%m-%d 23:59:59')
+		union ALL
+		select count(1) num,DATE_FORMAT(DATE_ADD(now(),INTERVAL -6 day),'%Y-%m-%d') date
+		from t_user_info
+		where create_date >= DATE_FORMAT(DATE_ADD(now(),INTERVAL -6 day),'%Y-%m-%d 00:00:00') 
+		and create_date &lt; DATE_FORMAT(DATE_ADD(now(),INTERVAL -6 day),'%Y-%m-%d 23:59:59')
+		union ALL
+		select count(1) num,DATE_FORMAT(DATE_ADD(now(),INTERVAL -7 day),'%Y-%m-%d') date
+		from t_user_info
+		where create_date >= DATE_FORMAT(DATE_ADD(now(),INTERVAL -7 day),'%Y-%m-%d 00:00:00') 
+		and create_date &lt; DATE_FORMAT(DATE_ADD(now(),INTERVAL -7 day),'%Y-%m-%d 23:59:59')
+    </select>
+    
+</mapper>

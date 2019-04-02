@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TGoodsTypeMapper">
+    
+    <resultMap type="TGoodsType" id="TGoodsTypeResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="state"    column="state"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="updateDate"    column="update_date"    />
+    </resultMap>
+	
+	<sql id="selectTGoodsTypeVo">
+        select id, name, state, create_date, create_user, update_date from t_goods_type
+    </sql>
+	
+    <select id="selectTGoodsTypeList" parameterType="TGoodsType" resultMap="TGoodsTypeResult">
+        <include refid="selectTGoodsTypeVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="state != null "> and state = #{state}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="createUser != null  and createUser != '' "> and create_user = #{createUser}</if>
+             <if test="updateDate != null "> and update_date = #{updateDate}</if>
+         </where>
+    </select>
+    
+    <select id="selectTGoodsTypeById" parameterType="String" resultMap="TGoodsTypeResult">
+        <include refid="selectTGoodsTypeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTGoodsType" parameterType="TGoodsType">
+        insert into t_goods_type
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="state != null  ">state,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+			<if test="updateDate != null  ">update_date,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="state != null  ">#{state},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+			<if test="updateDate != null  ">#{updateDate},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTGoodsType" parameterType="TGoodsType">
+        update t_goods_type
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="state != null  ">state = #{state},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="updateDate != null  ">update_date = #{updateDate},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTGoodsTypeById" parameterType="String">
+        delete from t_goods_type where id = #{id}
+    </delete>
+	
+    <delete id="deleteTGoodsTypeByIds" parameterType="String">
+        delete from t_goods_type where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

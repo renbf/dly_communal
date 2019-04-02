@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.OrderMapper">
+    
+    <resultMap type="Order" id="OrderResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="addressId"    column="address_id"    />
+        <result property="expressNo"    column="express_no"    />
+        <result property="creatDate"    column="creat_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="state"    column="state"    />
+        <result property="goodsId"    column="goods_id"    />
+        <result property="delivery_date"    column="deliveryDate"    />
+        <result property="completion_date"    column="completionDate"    />
+        <result property="address"    column="address"    />
+        <result property="telephone"    column="telephone"    />
+        <result property="picture"    column="picture"    />
+        <result property="receiver"    column="receiver"    />
+        <result property="orderNo"    column="order_no"    />
+        <result property="goodsName"    column="name"    />
+        <result property="price"    column="price"    />
+    </resultMap>
+	
+	<sql id="selectOrderVo">
+        select id, user_id, address_id, express_no, creat_date, create_user, state, goods_id,delivery_date,completion_date from t_order
+    </sql>
+	
+    <select id="selectOrderList" parameterType="Order" resultMap="OrderResult">
+        <include refid="selectOrderVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="addressId != null  and addressId != '' "> and address_id = #{addressId}</if>
+             <if test="expressNo != null  and expressNo != '' "> and express_no = #{expressNo}</if>
+             <if test="creatDate != null "> and creat_date = #{creatDate}</if>
+             <if test="createUser != null  and createUser != '' "> and create_user = #{createUser}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="goodsId != null  and goodsId != '' "> and goods_id = #{goodsId}</if>
+            <if test="deliveryDate != null  and deliveryDate != '' "> and delivery_date = #{deliveryDate}</if>
+            <if test="completionDate != null  and completionDate != '' "> and completion_date = #{completionDate}</if>
+            <if test="orderNo != null  and orderNo != '' "> and order_no = #{orderNo}</if>
+        </where>
+    </select>
+    <select id="selectOrderGoodsList" parameterType="Order" resultMap="OrderResult">
+        select c.name,c.picture,t.id,t.state,t.order_no from t_order t
+        LEFT JOIN t_commodity_information c on c.id=t.goods_id
+        <where>
+            <if test="userId != null  and userId != '' "> and t.user_id = #{userId}</if>
+            <if test="state != null  and state != ''"> and t.state = #{state}</if>
+        </where>
+    </select>
+    <select id="selectOrderById" parameterType="String" resultMap="OrderResult">
+        <include refid="selectOrderVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectOrderByUserId" parameterType="Order" resultMap="OrderResult">
+        select
+                o.id as id , o.user_id as userId, o.address_id as addressId, o.express_no as expressNo, o.creat_date as createDate,o.order_no as orderNo,
+                 o.create_user as createDate, o.state as state, o.goods_id as goodsId,o.delivery_date as defaultAddress,
+                o.completion_date as completionDate,
+                a.receiver as receiver,a.address asaddress,a.telephone as telephone,c.name as oodsName,c.picture as picture,c.price
+                from t_order o
+                LEFT JOIN t_commodity_information c on o.goods_id=c.id
+                LEFT JOIN t_user_address a on o.address_id=a.id
+        <where>
+            <if test="id != null  and id != '' "> and o.id = #{id}</if>
+            <if test="userId != null  and userId != '' "> and o.user_id= #{userId}</if>
+        </where>
+    </select>
+    <insert id="insertOrder" parameterType="Order">
+        insert into t_order
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="addressId != null  and addressId != ''  ">address_id,</if>
+			<if test="expressNo != null  and expressNo != ''  ">express_no,</if>
+			<if test="creatDate != null  ">creat_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="goodsId != null  and goodsId != ''  ">goods_id,</if>
+            <if test="deliveryDate != null  and deliveryDate != ''  ">delivery_date,</if>
+            <if test="completionDate != null  and completionDate != ''  ">completion_date,</if>
+            <if test="orderNo != null  and orderNo != ''  ">order_no,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="addressId != null  and addressId != ''  ">#{addressId},</if>
+			<if test="expressNo != null  and expressNo != ''  ">#{expressNo},</if>
+			<if test="creatDate != null  ">#{creatDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="goodsId != null  and goodsId != ''  ">#{goodsId},</if>
+            <if test="deliveryDate != null  and deliveryDate != ''  ">#{deliveryDate},</if>
+            <if test="completionDate != null  and completionDate != ''  ">#{completionDate},</if>
+            <if test="orderNo != null  and orderNo != ''  ">#{orderNo},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateOrder" parameterType="Order">
+        update t_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="addressId != null  and addressId != ''  ">address_id = #{addressId},</if>
+            <if test="expressNo != null  and expressNo != ''  ">express_no = #{expressNo},</if>
+            <if test="creatDate != null  ">creat_date = #{creatDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="goodsId != null  and goodsId != ''  ">goods_id = #{goodsId},</if>
+            <if test="deliveryDate != null  and deliveryDate != ''  ">delivery_date = #{deliveryDate},</if>
+            <if test="completionDate != null">completion_date = #{completionDate},</if>
+            <if test="orderNo != null  and orderNo != ''  ">order_no = #{orderNo},</if>
+        </trim>
+        where 1=1
+        <if test="orderNo != null  and orderNo != ''  ">and order_no = #{orderNo}</if>
+        <if test="userId != null  and userId != ''  "> and user_id = #{userId}</if>
+        <if test="id != null  and id != ''  "> and id = #{id}</if>
+
+    </update>
+
+	<delete id="deleteOrderById" parameterType="String">
+        delete from t_order where id = #{id}
+    </delete>
+	
+    <delete id="deleteOrderByIds" parameterType="String">
+        delete from t_order where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.WalletMapper">
+    
+    <resultMap type="Wallet" id="WalletResult">
+        <result property="id"    column="id"    />
+        <result property="profit"    column="profit"    />
+        <result property="balance"    column="balance"    />
+        <result property="deposit"    column="deposit"    />
+        <result property="userId"    column="user_id"    />
+    </resultMap>
+	
+	<sql id="selectWalletVo">
+        select id, profit, balance, deposit, user_id from t_wallet
+    </sql>
+	
+    <select id="selectWalletList" parameterType="Wallet" resultMap="WalletResult">
+        <include refid="selectWalletVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="profit != null "> and profit = #{profit}</if>
+             <if test="balance != null "> and balance = #{balance}</if>
+             <if test="deposit != null "> and deposit = #{deposit}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+         </where>
+    </select>
+    
+    <select id="selectWalletById" parameterType="String" resultMap="WalletResult">
+        <include refid="selectWalletVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectWalletByUserId" parameterType="String" resultMap="WalletResult">
+        <include refid="selectWalletVo"/>
+        where user_id = #{userId}
+    </select>
+    <insert id="insertWallet" parameterType="Wallet">
+        insert into t_wallet
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="profit != null  ">profit,</if>
+			<if test="balance != null  ">balance,</if>
+			<if test="deposit != null  ">deposit,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="profit != null  ">#{profit},</if>
+			<if test="balance != null  ">#{balance},</if>
+			<if test="deposit != null  ">#{deposit},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateWallet" parameterType="Wallet">
+        update t_wallet
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="profit != null  ">profit = #{profit},</if>
+            <if test="balance != null  ">balance = #{balance},</if>
+            <if test="deposit != null  ">deposit = #{deposit},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteWalletById" parameterType="String">
+        delete from t_wallet where id = #{id}
+    </delete>
+	
+    <delete id="deleteWalletByIds" parameterType="String">
+        delete from t_wallet where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

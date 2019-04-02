@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.CollectionMapper">
+    
+    <resultMap type="TCollection" id="CollectionResult">
+        <result property="id"    column="id"    />
+        <result property="giftId"    column="gift_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="createDate"    column="create_date"    />
+    </resultMap>
+	
+	<sql id="selectCollectionVo">
+        select id, gift_id, user_id, create_date from t_collection
+    </sql>
+	
+    <select id="selectCollectionList" parameterType="TCollection" resultMap="CollectionResult">
+        <include refid="selectCollectionVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="giftId != null  and giftId != '' "> and gift_id = #{giftId}</if>
+             <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+         </where>
+    </select>
+    
+    <select id="selectCollectionById" parameterType="TCollection" resultMap="CollectionResult">
+        <include refid="selectCollectionVo"/>
+        <where>
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+            <if test="giftId != null  and giftId != '' "> and gift_id = #{giftId}</if>
+            <if test="userId != null  and userId != '' "> and user_id = #{userId}</if>
+            <if test="createDate != null "> and create_date = #{createDate}</if>
+        </where>
+    </select>
+        
+    <insert id="insertCollection" parameterType="TCollection">
+        insert into t_collection
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="giftId != null  and giftId != ''  ">gift_id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="createDate != null  ">create_date,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="giftId != null  and giftId != ''  ">#{giftId},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateCollection" parameterType="TCollection">
+        update t_collection
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="giftId != null  and giftId != ''  ">gift_id = #{giftId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteCollectionById" parameterType="String">
+        delete from t_collection where id = #{id}
+    </delete>
+	
+    <delete id="deleteCollectionByIds" parameterType="String">
+        delete from t_collection where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

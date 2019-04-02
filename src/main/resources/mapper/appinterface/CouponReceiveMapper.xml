@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.CouponReceiveMapper">
+    
+    <resultMap type="com.project.appinterface.domain.CouponReceive" id="CouponReceiveResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="couponId"    column="coupon_id"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="state"    column="state"    />
+        <result property="updateDate"    column="update_date"    />
+    </resultMap>
+	
+	<sql id="selectCouponReceive">
+        select cr.id, cr.user_id, cr.coupon_id, cr.state, cr.create_date, cr.update_date 
+    </sql>
+	
+    <select id="selectCouponReceiveList" parameterType="com.project.appinterface.domain.CouponReceive" resultMap="CouponReceiveResult">
+        <include refid="selectCouponReceive"/>
+        from t_coupon_receive cr
+        <where>  
+            <if test="id != null  and id != '' "> and cr.id = #{id}</if>
+             <if test="userId != null  and userId != '' "> and cr.user_id = #{userId}</if>
+             <if test="couponId != null and couponId != ''"> and cr.coupon_id = #{couponId}</if>
+             <if test="createDate != null and createDate != ''"> and cr.create_date = #{createDate}</if>
+             <if test="updateDate != null and updateDate != ''"> and cr.update_date = #{updateDate}</if>
+             <if test="state != null  and state != '' "> and cr.state = #{state}</if>
+         </where>
+    </select>
+    
+    <select id="selectCouponReceiveById" parameterType="String" resultMap="CouponReceiveResult">
+        <include refid="selectCouponReceive"/>
+        from t_coupon_receive cr
+        where cr.id = #{id}
+    </select>
+        
+    <insert id="insertCouponReceive" parameterType="com.project.appinterface.domain.CouponReceive">
+        insert into t_coupon_receive
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="couponId != null  ">coupon_id,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="couponId != null  ">#{couponId},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateCouponReceive" parameterType="com.project.appinterface.domain.CouponReceive">
+        update t_coupon_receive
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="couponId != null  ">coupon_id = #{couponId},</if>
+            <if test="updateDate != null    ">update_date = #{updateDate},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteCouponReceiveById" parameterType="String">
+        delete from t_coupon_receive where id = #{id}
+    </delete>
+	
+    <delete id="deleteCouponReceiveByIds" parameterType="String">
+        delete from t_coupon_receive where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.GiftGoodsMapper">
+    
+    <resultMap type="GiftGoods" id="GiftGoodsResult">
+        <result property="id"    column="id"    />
+        <result property="giftId"    column="gift_id"    />
+        <result property="goodsId"    column="goods_id"    />
+        <result property="state"    column="state"    />
+        <result property="giftApplyId"    column="gift_apply_id"    />
+        <result property="price"    column="price"    />
+    </resultMap>
+	
+	<sql id="selectGiftGoodsVo">
+        select id, gift_id, goods_id, state,gift_apply_id from t_gift_goods
+    </sql>
+	
+    <select id="selectGiftGoodsList" parameterType="GiftGoods" resultMap="GiftGoodsResult">
+        <include refid="selectGiftGoodsVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="giftId != null  and giftId != '' "> and gift_id = #{giftId}</if>
+             <if test="goodsId != null  and goodsId != '' "> and goods_id = #{goodsId}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="giftApplyId != null  and giftApplyId != '' "> and gift_apply_id = #{giftApplyId}</if>
+         </where>
+    </select>
+    
+    <select id="selectGiftGoodsById" parameterType="String" resultMap="GiftGoodsResult">
+        <include refid="selectGiftGoodsVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertGiftGoods" parameterType="GiftGoods">
+        insert into t_gift_goods
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="giftId != null  and giftId != ''  ">gift_id,</if>
+			<if test="goodsId != null  and goodsId != ''  ">goods_id,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="giftApplyId != null  and giftApplyId != ''  ">gift_apply_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="giftId != null  and giftId != ''  ">#{giftId},</if>
+			<if test="goodsId != null  and goodsId != ''  ">#{goodsId},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="giftApplyId != null  and giftApplyId != ''  ">#{giftApplyId},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateGiftGoods" parameterType="GiftGoods">
+        update t_gift_goods
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="giftId != null  and giftId != ''  ">gift_id = #{giftId},</if>
+            <if test="goodsId != null  and goodsId != ''  ">goods_id = #{goodsId},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="giftApplyId != null  and giftApplyId != ''  ">gift_apply_id = #{giftApplyId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteGiftGoodsById" parameterType="String">
+        delete from t_gift_goods where gift_id = #{giftId}
+    </delete>
+	
+    <delete id="deleteGiftGoodsByIds" parameterType="String">
+        delete from t_gift_goods where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <insert id="insertGiftGoodsBatch" parameterType="java.util.List">
+        insert into t_gift_goods (id, gift_id, goods_id, state,gift_apply_id) values
+         <foreach item="item" collection="list" separator="," >
+         <trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="item.id != null  and item.id != ''  ">#{item.id},</if>
+			<if test="item.giftId != null  and item.giftId != ''  ">#{item.giftId},</if>
+			<if test="item.goodsId != null  and item.goodsId != ''  ">#{item.goodsId},</if>
+			<if test="item.state != null  and item.state != ''  ">#{item.state},</if>
+			<if test="item.giftApplyId != null  and item.giftApplyId != ''  ">#{item.giftApplyId},</if>
+         </trim>
+         </foreach>
+    </insert>
+    
+    <select id="selectGiftGoodsInfoList" parameterType="GiftGoods" resultMap="GiftGoodsResult">
+    	select gg.id, gg.gift_id, gg.goods_id, gg.state,gg.gift_apply_id,
+    	ci.price
+    	from t_gift_goods gg
+    	left join t_commodity_information ci on ci.id = gg.goods_id
+    	<where>  
+            <if test="id != null  and id != '' "> and gg.id = #{id}</if>
+             <if test="giftId != null  and giftId != '' "> and gg.gift_id = #{giftId}</if>
+             <if test="goodsId != null  and goodsId != '' "> and gg.goods_id = #{goodsId}</if>
+             <if test="state != null  and state != '' "> and gg.state = #{state}</if>
+             <if test="giftApplyId != null  and giftApplyId != '' "> and gg.gift_apply_id = #{giftApplyId}</if>
+         </where>
+    </select>
+</mapper>

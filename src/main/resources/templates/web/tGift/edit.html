@@ -1,0 +1,196 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style type="text/css">
+    .trTG{
+        float: left;
+        width: 80px;
+        padding: 3px 6px;
+        border: 1px solid #000;
+        margin-top: 15px;
+        margin-left: 8px;
+        -moz-border-radius: 15px;
+        -webkit-border-radius: 15px;
+        border-radius:15px;
+        text-align: center;
+    }
+    .trA td{
+        width: 75px;
+        text-align: center;
+        height: 30px;
+        line-height: 30px;
+    }
+    .trTG1{
+        float: left;
+        width: 80px;
+        padding: 3px 6px;
+        border: 1px solid #000;
+        margin-top: 15px;
+        margin-left: 8px;
+        -moz-border-radius: 15px;
+        -webkit-border-radius: 15px;
+        border-radius:15px;
+        background-color: lightgray;
+
+    }
+</style>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-tGift-edit">
+        	<input id="giftId" name="giftId" type="hidden" th:value="${tGiftVo.id}" />
+            <div class="form-group">
+                <label class="col-sm-3 control-label">礼物机名称：</label>
+                <div class="col-sm-8">
+                    <input id="modelName" name="modelName" th:field="${tGiftVo.modelName}" style="width: 100px;" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">礼物机类型：</label>
+                <div class="col-sm-8">
+                    <select id="model" name="model" class="form-control">
+					</select>
+                </div>
+            </div>
+            <div class="form-group">	
+                <label class="col-sm-3 control-label">位置名称：</label>
+                <div class="col-sm-8">
+                	<select id="locationName" name="locationName" class="form-control">
+					</select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">租赁方式：</label>
+                <div class="col-sm-8" style="width: 30px;">
+                    <select name="timeType" th:field="${tGiftVo.timeType}">
+                        <option value="">请选择</option>
+                        <option value="0">日租/天</option>
+                        <option value="1">月租/月</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">数量：</label>
+                <div class="col-sm-8">
+                    <input id="number" name="number" th:field="${tGiftVo.number}" class="form-control" style="width: 50px;" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">格子单价：</label>
+                <div class="col-sm-8">
+                    <input id="latticePrice" name="latticePrice" class="form-control" style="width: 50px;" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">选择礼物：</label>
+                <div class="col-sm-8">
+                   <table style="border: 1px solid #000; width: 300px; height: 150px; margin-bottom: 15px;" id="trTG">
+                       <tr onclick="sele(this)" class="trTG" th:each="good:${goods}" th:id="${good.id}">
+                       	<input type="hidden" th:id="'input_'+${good.id}" th:value="${good.id}+','+${good.name}+','+${good.price}"/>
+                           <td class="tableTGif" name="introduce" style="text-align: center; width: 80px;" th:text="${good.name}"></td>
+                       </tr>
+                   </table>
+                    <table id="showTable" border="1" style="width: 300px; border-color: #000;">
+                        <tr class="trA" >
+                            <td>礼物名称</td>
+                            <td>单价</td>
+                            <td>数量</td>
+                        </tr>
+                        <!-- <tr class="trA" th:each="good:${goods}">
+                            <td  th:text="${good.id}"></td>
+                            <td  th:text="${good.name}"></td>
+                            <td  th:text="${good.price}"></td>
+                            <td></td>
+                        </tr> -->
+                    </table>
+                </div>
+            </div>
+
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script th:src="@{/project/js/utils.js}"></script>
+    <script th:inline="javascript">
+    $(function() {
+    	init();
+    });
+		var prefix = ctx + "web/tGift"
+		var pattern = /^[1-9][0-9]{0,8}$/;
+		$("#form-tGift-edit").validate({
+			rules:{
+				modelName:{
+					required:true
+				},
+				model:{
+					required:true
+				},
+				locationName:{
+					required:true
+				},
+				timeType:{
+					required:true
+				},
+				number:{
+					required:true,
+					zdy:[pattern,"数量的格式内容不对"]
+				},
+				latticePrice:{
+					required:true,
+					zdy:[pattern,"格子单价的格式内容不对"]
+				}
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            console.log($('#form-tGift-edit').serialize());
+	            var tr = $("#trTG").find("tr.trTG1");
+	            if(tr.length <= 0){
+	            	$.modal.alertWarning("至少选择一个商品");
+	            	return;
+	            }else{
+	            	$.each($("input[name='goodsNumber']"),function(i,detail){
+	            		var value = $(this).val();
+	            		if($.common.isEmpty(value)){
+	            			$.modal.alertWarning("商品数量不能为空");
+	    	            	return;
+	            		}
+	            		var pattern = /^[1-9][0-9]{0,2}$/;
+	        			if(!pattern.test(value)){
+	        				$.modal.alertWarning("商品数量格式有效值不正确");
+	    	            	return;
+	        		    }
+	            	})
+	            	$.operate.save(prefix + "/edit", $('#form-tGift-edit').serialize());
+	            }
+	        }
+	    }
+
+	    //  点击礼物
+	    function sele(target){
+	    	var id = $(target).attr("id");
+	    	var inputvalue = $("#input_"+id).val();
+	    	var goodsArr = inputvalue.split(",");
+	    	if($(target).hasClass("trTG")){
+	    		$(target).removeClass("trTG");
+	            $(target).addClass("trTG1");
+			    $("#showTable").append('<tr id="addtr_'+id+'" class="trA">'+
+			    		'<td>'+goodsArr[1]+'</td>'+
+			    		'<td>'+goodsArr[2]+'</td>'+
+			    		'<td><input type="hidden" name="goodsId" value="'+id+'"/><input type="text" name="goodsNumber"/></td>'+
+			    		'</tr>'
+			    );
+	    	}else{
+	    		$(target).removeClass("trTG1");
+	            $(target).addClass("trTG");
+	            $("#addtr_"+id).remove();
+	    	}
+        }
+	    function init(){
+			showTGiftModelSelect("model",[[${tGiftVo.model}]]);
+			showAddressSelect("100000","locationName",[[${tGiftVo.locationCode}]]);
+		}
+	</script>
+</body>
+</html>

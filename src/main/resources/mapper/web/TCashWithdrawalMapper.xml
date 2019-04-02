@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TCashWithdrawalMapper">
+    
+    <resultMap type="TCashWithdrawal" id="TCashWithdrawalResult">
+        <result property="id"    column="id"    />
+        <result property="money"    column="money"    />
+        <result property="cashType"    column="cash_type"    />
+        <result property="applicantUser"    column="applicant_user"    />
+        <result property="applicantDate"    column="applicant_date"    />
+        <result property="state"    column="state"    />
+        <result property="account"    column="account"    />
+        <result property="extend"    column="extend"    />
+    </resultMap>
+	
+	<resultMap type="TCashWithdrawalVo" id="TCashWithdrawalVoResult">
+        <result property="id"    column="id"    />
+        <result property="money"    column="money"    />
+        <result property="cashType"    column="cash_type"    />
+        <result property="applicantUser"    column="applicant_user"    />
+        <result property="applicantUserName"    column="applicantUserName"    />
+        <result property="applicantDate"    column="applicant_date"    />
+        <result property="state"    column="state"    />
+        <result property="account"    column="account"    />
+        <result property="extend"    column="extend"    />
+    </resultMap>
+    
+	<sql id="selectTCashWithdrawalVo">
+        select id, money, cash_type, applicant_user, applicant_date, state ,account ,extend from t_cash_withdrawal
+    </sql>
+    
+    <select id="selectTCashWithdrawalList" parameterType="TCashWithdrawal" resultMap="TCashWithdrawalVoResult">
+        select tcw.id, tcw.money, tcw.cash_type, tcw.applicant_user, tcw.applicant_date, tcw.state ,tcw.account ,tcw.extend,u.nickname as applicantUserName
+        from t_cash_withdrawal tcw
+        LEFT JOIN t_user_info u on tcw.applicant_user = u.id
+        <where>  
+            <if test="id != null  and id != '' "> and tcw.id = #{id}</if>
+             <if test="money != null "> and tcw.money = #{money}</if>
+             <if test="cashType != null  and cashType != '' "> and tcw.cash_type = #{cashType}</if>
+             <if test="applicantUser != null  and applicantUser != '' "> and u.nickname like concat('%', #{applicantUser}, '%')</if>
+             <if test="applicantDate != null "> and tcw.applicant_date = #{applicantDate}</if>
+             <if test="state != null  and state != '' "> and tcw.state = #{state}</if>
+         </where>
+    </select>
+    
+    <select id="selectTCashWithdrawalById" parameterType="String" resultMap="TCashWithdrawalResult">
+        <include refid="selectTCashWithdrawalVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTCashWithdrawal" parameterType="TCashWithdrawal">
+        insert into t_cash_withdrawal
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="money != null  ">money,</if>
+			<if test="cashType != null  and cashType != ''  ">cash_type,</if>
+			<if test="applicantUser != null  and applicantUser != ''  ">applicant_user,</if>
+			<if test="applicantDate != null  ">applicant_date,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="money != null  ">#{money},</if>
+			<if test="cashType != null  and cashType != ''  ">#{cashType},</if>
+			<if test="applicantUser != null  and applicantUser != ''  ">#{applicantUser},</if>
+			<if test="applicantDate != null  ">#{applicantDate},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTCashWithdrawal" parameterType="TCashWithdrawal">
+        update t_cash_withdrawal
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="money != null  ">money = #{money},</if>
+            <if test="cashType != null  and cashType != ''  ">cash_type = #{cashType},</if>
+            <if test="applicantUser != null  and applicantUser != ''  ">applicant_user = #{applicantUser},</if>
+            <if test="applicantDate != null  ">applicant_date = #{applicantDate},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTCashWithdrawalById" parameterType="String">
+        delete from t_cash_withdrawal where id = #{id}
+    </delete>
+	
+    <delete id="deleteTCashWithdrawalByIds" parameterType="String">
+        delete from t_cash_withdrawal where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

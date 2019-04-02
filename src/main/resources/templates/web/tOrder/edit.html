@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    .layui-layer-iframe .layui-layer-btn, .layui-layer-page .layui-layer-btn{
+        display:none;
+    }
+    .layui-layer-btn .layui-layer-btn0{
+        display:none
+    }
+    .layui-layer-btn a{
+        display:none
+    }
+    .my_button_container{
+        text-align:center;
+    }
+</style>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content" id="wrapperClose">
+        <form class="form-horizontal m" id="form-tOrder-edit" th:object="${tOrder}">
+            <input id="id" name="id" th:field="*{id}"  type="hidden">
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">快递编号：</label>
+                <!--<div class="col-sm-8">-->
+                    <input id="expressNo" name="expressNo" th:field="*{expressNo}" class="form-control" type="text" style="width:180px;display:inline">
+                <!--</div>-->
+            </div>
+
+
+
+
+
+		</form>
+    </div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "web/tOrder"
+		$("#form-tOrder-edit").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/edit", $('#form-tOrder-edit').serialize());
+	        }
+	    }
+
+	</script>
+</body>
+</html>

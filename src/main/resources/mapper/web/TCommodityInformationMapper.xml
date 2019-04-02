@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TCommodityInformationMapper">
+    
+    <resultMap type="TCommodityInformation" id="TCommodityInformationResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="price"    column="price"    />
+        <result property="model"    column="model"    />
+        <result property="introduce"    column="introduce"    />
+        <result property="picture"    column="picture"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="createBy"    column="createBy"    />
+        <result property="goodsTypeId"    column="goods_type_id"    />
+        <result property="goodsTypeName"    column="goods_type_name"    />
+    </resultMap>
+    
+	<resultMap type="com.project.web.domain.vo.TCommodityInformationVo" id="TCommodityInformationVoResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="price"    column="price"    />
+        <result property="model"    column="model"    />
+        <result property="introduce"    column="introduce"    />
+        <result property="picture"    column="picture"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="createBy"    column="createBy"    />
+        <result property="totalPrice"    column="total_price"    />
+        <result property="number"    column="number"    />
+        <result property="giftId"    column="gift_id"    />
+    </resultMap>
+	<sql id="selectTCommodityInformationVo">
+        select id, name, price, model, introduce, picture, create_date, create_user,goods_type_id from t_commodity_information
+    </sql>
+	
+	<sql id="selectTCommodityInformationColumn">
+        select tci.id, tci.name, tci.price, tci.model, tci.introduce, tci.picture, tci.create_date, tci.create_user ,tci.goods_type_id
+    </sql>
+    
+    <select id="selectTCommodityInformationList" parameterType="TCommodityInformation" resultMap="TCommodityInformationResult">
+        <include refid="selectTCommodityInformationColumn"/>,su.user_name createBy,gt.name goods_type_name
+        from t_commodity_information tci
+        left join sys_user su on su.user_id = tci.create_user
+        left join t_goods_type gt on gt.id = tci.goods_type_id
+        <where>  
+            <if test="id != null  and id != '' "> and tci.id = #{id}</if>
+             <if test="name != null  and name != '' "> and tci.name = #{name}</if>
+             <if test="price != null "> and tci.price = #{price}</if>
+             <if test="model != null  and model != '' "> and tci.model = #{model}</if>
+             <if test="introduce != null  and introduce != '' "> and tci.introduce = #{introduce}</if>
+             <if test="picture != null  and picture != '' "> and tci.picture = #{picture}</if>
+             <if test="createDate != null "> and tci.create_date = #{createDate}</if>
+             <if test="createUser != null  and createUser != '' "> and tci.create_user = #{createUser}</if>
+         </where>
+         order by tci.create_date desc
+    </select>
+    
+    <select id="selectTCommodityInformationById" parameterType="String" resultMap="TCommodityInformationResult">
+        <include refid="selectTCommodityInformationVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTCommodityInformation" parameterType="TCommodityInformation">
+        insert into t_commodity_information
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="price != null  ">price,</if>
+			<if test="model != null  and model != ''  ">model,</if>
+			<if test="introduce != null  and introduce != ''  ">introduce,</if>
+			<if test="picture != null  and picture != ''  ">picture,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+			<if test="goodsTypeId != null  and goodsTypeId != ''  ">goods_type_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="price != null  ">#{price},</if>
+			<if test="model != null  and model != ''  ">#{model},</if>
+			<if test="introduce != null  and introduce != ''  ">#{introduce},</if>
+			<if test="picture != null  and picture != ''  ">#{picture},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+			<if test="goodsTypeId != null  and goodsTypeId != ''  ">#{goodsTypeId},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTCommodityInformation" parameterType="TCommodityInformation">
+        update t_commodity_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="price != null  ">price = #{price},</if>
+            <if test="model != null  and model != ''  ">model = #{model},</if>
+            <if test="introduce != null  and introduce != ''  ">introduce = #{introduce},</if>
+            <if test="picture != null  and picture != ''  ">picture = #{picture},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="goodsTypeId != null  and goodsTypeId != ''  ">goods_type_id = #{goodsTypeId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTCommodityInformationById" parameterType="String">
+        delete from t_commodity_information where id = #{id}
+    </delete>
+	
+    <delete id="deleteTCommodityInformationByIds" parameterType="String">
+        delete from t_commodity_information where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="getTCommodityInformationVosByGiftId" parameterType="java.lang.String" resultMap="TCommodityInformationVoResult">
+    	<include refid="selectTCommodityInformationColumn"/>,
+    	count(1) number,sum(tci.price) total_price,gg.gift_id
+        from t_commodity_information tci
+        join t_gift_goods gg on gg.goods_id = tci.id
+        join t_gift_apply ga on ga.id = gg.gift_apply_id and ga.state = 1
+        where gg.gift_id = #{giftId}
+        group by tci.id
+    </select>
+    
+</mapper>

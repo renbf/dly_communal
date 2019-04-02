@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TGiftModelMapper">
+    
+    <resultMap type="TGiftModel" id="TGiftModelResult">
+        <result property="id"    column="id"    />
+        <result property="latticeNum"    column="lattice_num"    />
+        <result property="giftPicture"    column="gift_picture"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="state"    column="state"    />
+    </resultMap>
+	
+	<sql id="selectTGiftModelVo">
+        select id, lattice_num, gift_picture, create_date, state from t_gift_model
+    </sql>
+	
+    <select id="selectTGiftModelList" parameterType="TGiftModel" resultMap="TGiftModelResult">
+        <include refid="selectTGiftModelVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="latticeNum != null "> and lattice_num = #{latticeNum}</if>
+             <if test="giftPicture != null  and giftPicture != '' "> and gift_picture = #{giftPicture}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+         </where>
+    </select>
+    
+    <select id="selectTGiftModelById" parameterType="String" resultMap="TGiftModelResult">
+        <include refid="selectTGiftModelVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTGiftModel" parameterType="TGiftModel">
+        insert into t_gift_model
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="latticeNum != null  ">lattice_num,</if>
+			<if test="giftPicture != null  and giftPicture != ''  ">gift_picture,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="latticeNum != null  ">#{latticeNum},</if>
+			<if test="giftPicture != null  and giftPicture != ''  ">#{giftPicture},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTGiftModel" parameterType="TGiftModel">
+        update t_gift_model
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="latticeNum != null  ">lattice_num = #{latticeNum},</if>
+            <if test="giftPicture != null  and giftPicture != ''  ">gift_picture = #{giftPicture},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTGiftModelById" parameterType="String">
+        delete from t_gift_model where id = #{id}
+    </delete>
+	
+    <delete id="deleteTGiftModelByIds" parameterType="String">
+        delete from t_gift_model where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

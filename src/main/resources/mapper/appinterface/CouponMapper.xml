@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.CouponMapper">
+    
+    <resultMap type="Coupon" id="CouponResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="money"    column="money"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="state"    column="state"    />
+        <result property="effectiveStart"    column="effective_start"    />
+        <result property="effectiveEnd"    column="effective_end"    />
+    </resultMap>
+	
+	<sql id="selectCouponVo">
+        select id, name, money, create_date, create_user, state, effective_start, effective_end from t_coupon
+    </sql>
+	
+    <select id="selectCouponList" parameterType="Coupon" resultMap="CouponResult">
+        <include refid="selectCouponVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="name != null  and name != '' "> and name = #{name}</if>
+             <if test="money != null "> and money = #{money}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="createUser != null  and createUser != '' "> and create_user = #{createUser}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="effectiveStart != null "> and effective_start = #{effectiveStart}</if>
+             <if test="effectiveEnd != null "> and effective_end = #{effectiveEnd}</if>
+         </where>
+    </select>
+    
+    <select id="selectCouponById" parameterType="String" resultMap="CouponResult">
+        <include refid="selectCouponVo"/>
+        where state = '0'
+    </select>
+        
+    <insert id="insertCoupon" parameterType="Coupon">
+        insert into t_coupon
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="money != null  ">money,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="effectiveStart != null  ">effective_start,</if>
+			<if test="effectiveEnd != null  ">effective_end,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="money != null  ">#{money},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="effectiveStart != null  ">#{effectiveStart},</if>
+			<if test="effectiveEnd != null  ">#{effectiveEnd},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateCoupon" parameterType="Coupon">
+        update t_coupon
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="money != null  ">money = #{money},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="effectiveStart != null  ">effective_start = #{effectiveStart},</if>
+            <if test="effectiveEnd != null  ">effective_end = #{effectiveEnd},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteCouponById" parameterType="String">
+        delete from t_coupon where id = #{id}
+    </delete>
+	
+    <delete id="deleteCouponByIds" parameterType="String">
+        delete from t_coupon where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

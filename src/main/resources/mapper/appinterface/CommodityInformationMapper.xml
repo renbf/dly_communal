@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.CommodityInformationMapper">
+    
+    <resultMap type="CommodityInformation" id="CommodityInformationResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="price"    column="price"    />
+        <result property="model"    column="model"    />
+        <result property="introduce"    column="introduce"    />
+        <result property="picture"    column="picture"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="gift_id"    column="gift_id"    />
+        <result property="goodsId"    column="goods_id"    />
+        <result property="num"    column="num"    />
+        <result property="goodsSumMoney"    column="goodsSumMoney"    />
+        <result property="goodsTypeId"    column="goods_type_id"    />
+        <result property="goodsTypeName"    column="goods_type_name"    />
+    </resultMap>
+
+	<sql id="selectCommodityInformationVo">
+        select id, name, price, model, introduce, picture, create_date, create_user from t_commodity_information
+    </sql>
+
+    <select id="querySumMoney" parameterType="String" resultMap="CommodityInformationResult">
+        select SUM(t.price) as goodsSumMoney from t_commodity_information t
+        LEFT JOIN t_gift_goods gg on gg.goods_id=t.id
+        where gg.state='0'
+        <if test="gift_id!=null and gift_id !=''">
+            and   gg.gift_id=#{gift_id}
+        </if>
+    </select>
+    <select id="selectCommodityInformationList" parameterType="String" resultMap="CommodityInformationResult">
+        SELECT
+        c.id as id,
+        c.NAME as name,
+        c.price as price,
+        c.model as model,
+        c.introduce as introduce,
+        c.picture as picture,
+        c.create_date as createDate,
+        c.create_user as createUser
+        FROM
+        t_commodity_information c
+        LEFT JOIN t_gift_goods gg on gg.goods_id=c.id
+        where 1=1
+        <if test="gift_id!=null and gift_id !=''">
+          and   gg.gift_id=#{gift_id}
+        </if>
+    </select>
+    <select id="queryGoodsAll" parameterType="String" resultMap="CommodityInformationResult">
+        select ci.id, ci.name, ci.price, ci.model, ci.introduce, ci.picture, ci.create_date, ci.create_user,ci.goods_type_id,gt.name goods_type_name
+        from t_commodity_information ci
+        join t_goods_type gt on gt.id = ci.goods_type_id
+        <where>
+            <if test="name != null and name !=''">
+                ci.name  LIKE '%${name}%'
+            </if>
+        </where>
+        order by ci.goods_type_id
+    </select>
+    <select id="selectCommodityInformationById" parameterType="String" resultMap="CommodityInformationResult">
+        <include refid="selectCommodityInformationVo"/>
+        where id = #{id}
+    </select>
+
+
+    <select id="selectGiftGoods" parameterType="String" resultMap="CommodityInformationResult">
+         select t.id as id,t.name as name,t.price as price,t.picture as picture,count(*) as num from t_commodity_information t
+    LEFT JOIN t_gift_goods g on g.goods_id=t.id
+    where g.gift_apply_id=#{giftApplyId}
+    GROUP BY t.id
+    </select>
+    <insert id="insertCommodityInformation" parameterType="CommodityInformation">
+        insert into t_commodity_information
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="name != null  and name != ''  ">name,</if>
+			<if test="price != null  ">price,</if>
+			<if test="model != null  and model != ''  ">model,</if>
+			<if test="introduce != null  and introduce != ''  ">introduce,</if>
+			<if test="picture != null  and picture != ''  ">picture,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+            <if test="goodsId != null  and goodsId != ''  ">goods_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="name != null  and name != ''  ">#{name},</if>
+			<if test="price != null  ">#{price},</if>
+			<if test="model != null  and model != ''  ">#{model},</if>
+			<if test="introduce != null  and introduce != ''  ">#{introduce},</if>
+			<if test="picture != null  and picture != ''  ">#{picture},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+            <if test="goodsId != null  and goodsId != ''  ">#{goodsId},</if>
+
+        </trim>
+    </insert>
+	 
+    <update id="updateCommodityInformation" parameterType="CommodityInformation">
+        update t_commodity_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null  and name != ''  ">name = #{name},</if>
+            <if test="price != null  ">price = #{price},</if>
+            <if test="model != null  and model != ''  ">model = #{model},</if>
+            <if test="introduce != null  and introduce != ''  ">introduce = #{introduce},</if>
+            <if test="picture != null  and picture != ''  ">picture = #{picture},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="goodsId != null  and goodsId != ''  ">goods_id = #{goodsId},</if>
+
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteCommodityInformationById" parameterType="String">
+        delete from t_commodity_information where id = #{id}
+    </delete>
+	
+    <delete id="deleteCommodityInformationByIds" parameterType="String">
+        delete from t_commodity_information where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

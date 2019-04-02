@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TGiftMapper">
+    
+    <resultMap type="TGift" id="TGiftResult">
+        <result property="id"    column="id"    />
+        <result property="model"    column="model"    />
+        <result property="pictureUrl"    column="picture_url"    />
+        <result property="state"    column="state"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="updateDate"    column="update_date"    />
+        <result property="lng"    column="lng"    />
+        <result property="lat"    column="lat"    />
+        <result property="chargeId"    column="charge_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="modelName"    column="model_name"    />
+        <result property="locationName"    column="location_name"    />
+        <result property="source"    column="source"    />
+    </resultMap>
+	
+	<resultMap type="TGiftVo" id="TGiftVoResult">
+        <result property="id"    column="id"    />
+        <result property="model"    column="model"    />
+        <result property="pictureUrl"    column="picture_url"    />
+        <result property="state"    column="state"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="updateDate"    column="update_date"    />
+        <result property="lng"    column="lng"    />
+        <result property="lat"    column="lat"    />
+        <result property="chargeId"    column="charge_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="modelName"    column="model_name"    />
+        <result property="locationName"    column="location_name"    />
+        <result property="source"    column="source"    />
+        <result property="dayUsed"    column="day_used"    />
+        <result property="dayTotalNumber"    column="day_total_number"    />
+        <result property="goodsNames"    column="goodsNames"    />
+        <result property="goodsIds"    column="goodsIds"    />
+        <result property="sysUserName"    column="sys_user_name"    />
+        <result property="sysUserId"    column="sys_user_id"    />
+        <result property="timeType"    column="time_type"    />
+        <result property="number"    column="number"    />
+        <result property="locationCode"    column="locationCode"    />
+        <result property="latticePrice"    column="lattice_price"    />
+        <result property="latticeNum"    column="lattice_num"    />
+        <result property="deposit"    column="deposit"    />
+        <result property="surplusPosition"    column="surplus_position"    />
+    </resultMap>
+    
+	<sql id="selectTGiftVo">
+        select id, model, picture_url, state, create_date, create_user, update_date, lng, lat, charge_id, user_id, model_name, location_name,source from t_gift
+    </sql>
+	
+    <select id="selectTGiftList" parameterType="TGift" resultMap="TGiftVoResult">
+        select g.id,g.model_name,g.model,sa.id locationCode,sa.short_name location_name,g.state,g.source,ga.user_id,ui.nickname,su.user_id sys_user_id,su.user_name sys_user_name,
+		ga.lattice_price,ga.time_type,timestampdiff(day,gl.create_date,now()) day_used,
+		case when ga.time_type = 0 then ga.number else 30* ga.number end day_total_number,
+		(select GROUP_CONCAT(ci.name) from t_commodity_information ci join t_gift_goods gg on gg.goods_id = ci.id where gg.gift_apply_id = ga.id) goodsNames,
+		(select GROUP_CONCAT(gg.goods_id) from t_gift_goods gg where gg.gift_apply_id = ga.id) goodsIds
+		from t_gift g
+		left join t_gift_apply ga on g.id = ga.gift_id and ga.state = 1
+		left join t_user_info ui on ga.user_id = ui.id
+		left join sys_user su on su.user_id = ga.user_id
+		left join t_sys_areas sa on sa.id = g.location_name
+		left join t_gift_location gl on gl.gift_id = g.id
+        <where>  
+            <if test="id != null  and id != '' "> and g.id = #{id}</if>
+             <if test="model != null  and model != '' "> and g.model = #{model}</if>
+             <if test="pictureUrl != null  and pictureUrl != '' "> and g.picture_url = #{pictureUrl}</if>
+             <if test="state != null  and state != '' "> and g.state = #{state}</if>
+             <if test="createDate != null "> and g.create_date = #{createDate}</if>
+             <if test="createUser != null  and createUser != '' "> and g.create_user = #{createUser}</if>
+             <if test="updateDate != null "> and g.update_date = #{updateDate}</if>
+             <if test="lng != null  and lng != '' "> and g.lng = #{lng}</if>
+             <if test="lat != null  and lat != '' "> and g.lat = #{lat}</if>
+             <if test="chargeId != null  and chargeId != '' "> and g.charge_id = #{chargeId}</if>
+             <if test="userId != null  and userId != '' "> and g.user_id = #{userId}</if>
+             <if test="modelName != null  and modelName != '' "> and g.model_name = #{modelName}</if>
+             <if test="locationName != null  and locationName != '' "> and g.location_name = #{locationName}</if>
+             <if test="source != null  and source != '' "> and g.source = #{source}</if>
+         </where>
+         order by g.create_date desc
+    </select>
+    
+    <select id="selectTGiftVoById" parameterType="java.lang.String" resultMap="TGiftVoResult" >
+    	select g.id,g.model_name,g.model,sa.id locationCode,sa.short_name location_name,g.state,g.source,ga.user_id,ui.nickname,su.user_id sys_user_id,su.user_name sys_user_name,
+		ga.lattice_price,ga.time_type,timestampdiff(day,gl.create_date,now()) day_used,
+		case when ga.time_type = 0 then ga.number else 30* ga.number end day_total_number,
+		m.lattice_num,gl.surplus_position,p.money as deposit
+		from t_gift g
+		left join t_gift_apply ga on g.id = ga.gift_id and ga.state = 1
+		left join t_user_info ui on ga.user_id = ui.id
+		left join sys_user su on su.user_id = ga.user_id
+		left join t_sys_areas sa on sa.id = g.location_name
+		left join t_gift_location gl on gl.gift_id = g.id
+		left join t_gift_model m on m.id = g.model
+		LEFT JOIN t_pay_order p on p.orderno=ga.orderno
+		where g.id = #{id}
+    </select>
+    
+    <select id="selectTGiftListModel" resultMap="TGiftResult">
+        select distinct model from t_gift
+    </select>
+
+    <select id="selectTGiftById" parameterType="String" resultMap="TGiftResult">
+        <include refid="selectTGiftVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTGift" parameterType="TGift">
+        insert into t_gift
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="model != null  and model != ''  ">model,</if>
+			<if test="pictureUrl != null  and pictureUrl != ''  ">picture_url,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="createUser != null  and createUser != ''  ">create_user,</if>
+			<if test="updateDate != null  ">update_date,</if>
+			<if test="lng != null  and lng != ''  ">lng,</if>
+			<if test="lat != null  and lat != ''  ">lat,</if>
+			<if test="chargeId != null  and chargeId != ''  ">charge_id,</if>
+			<if test="userId != null  and userId != ''  ">user_id,</if>
+			<if test="modelName != null  and modelName != ''  ">model_name,</if>
+			<if test="locationName != null  and locationName != ''  ">location_name,</if>
+			<if test="source != null  and source != ''  ">source,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="model != null  and model != ''  ">#{model},</if>
+			<if test="pictureUrl != null  and pictureUrl != ''  ">#{pictureUrl},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="createUser != null  and createUser != ''  ">#{createUser},</if>
+			<if test="updateDate != null  ">#{updateDate},</if>
+			<if test="lng != null  and lng != ''  ">#{lng},</if>
+			<if test="lat != null  and lat != ''  ">#{lat},</if>
+			<if test="chargeId != null  and chargeId != ''  ">#{chargeId},</if>
+			<if test="userId != null  and userId != ''  ">#{userId},</if>
+			<if test="modelName != null  and modelName != ''  ">#{modelName},</if>
+			<if test="locationName != null  and locationName != ''  ">#{locationName},</if>
+			<if test="source != null  and source != ''  ">#{source},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTGift" parameterType="TGift">
+        update t_gift
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="model != null  and model != ''  ">model = #{model},</if>
+            <if test="pictureUrl != null  and pictureUrl != ''  ">picture_url = #{pictureUrl},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="updateDate != null  ">update_date = #{updateDate},</if>
+            <if test="lng != null  and lng != ''  ">lng = #{lng},</if>
+            <if test="lat != null  and lat != ''  ">lat = #{lat},</if>
+            <if test="chargeId != null  and chargeId != ''  ">charge_id = #{chargeId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="modelName != null  and modelName != ''  ">model_name = #{modelName},</if>
+            <if test="locationName != null  and locationName != ''  ">location_name = #{locationName},</if>
+            <if test="source != null  and source != ''">source = #{source},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updateTGiftState" parameterType="TGift">
+        update t_gift
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="model != null  and model != ''  ">model = #{model},</if>
+            <if test="pictureUrl != null  and pictureUrl != ''  ">picture_url = #{pictureUrl},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="createUser != null  and createUser != ''  ">create_user = #{createUser},</if>
+            <if test="updateDate != null  ">update_date = #{updateDate},</if>
+            <if test="lng != null  and lng != ''  ">lng = #{lng},</if>
+            <if test="lat != null  and lat != ''  ">lat = #{lat},</if>
+            <if test="chargeId != null  and chargeId != ''  ">charge_id = #{chargeId},</if>
+            <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="modelName != null  and modelName != ''  ">model_name = #{modelName},</if>
+            <if test="locationName != null  and locationName != ''  ">location_name = #{locationName},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTGiftById" parameterType="String">
+        delete from t_gift where id = #{id}
+    </delete>
+	
+    <delete id="deleteTGiftByIds" parameterType="String">
+        delete from t_gift where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="selectTGiftByLngLat" parameterType="java.util.Map" resultMap="TGiftResult">
+    	<include refid="selectTGiftVo"/>
+    	where lng = #{lng} and lat = #{lat}
+    </select>
+</mapper>

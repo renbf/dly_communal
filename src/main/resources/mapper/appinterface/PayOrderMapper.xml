@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.appinterface.mapper.PayOrderMapper">
+    
+    <resultMap type="PayOrder" id="PayOrderResult">
+        <result property="id"    column="id"    />
+        <result property="orderid"    column="orderid"    />
+        <result property="userid"    column="userid"    />
+        <result property="orderno"    column="orderno"    />
+        <result property="state"    column="state"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="type"    column="type"    />
+        <result property="content"    column="content"    />
+        <result property="payType"    column="pay_type"    />
+        <result property="tradeno"    column="tradeno"    />
+    </resultMap>
+	
+	<sql id="selectPayOrderVo">
+        select id, orderid, userid, orderno, state, create_date, type, content, pay_type, tradeno from t_pay_order
+    </sql>
+	
+    <select id="selectPayOrderList" parameterType="PayOrder" resultMap="PayOrderResult">
+        <include refid="selectPayOrderVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="orderid != null  and orderid != '' "> and orderid = #{orderid}</if>
+             <if test="userid != null  and userid != '' "> and userid = #{userid}</if>
+             <if test="orderno != null  and orderno != '' "> and orderno = #{orderno}</if>
+             <if test="state != null  and state != '' "> and state = #{state}</if>
+             <if test="createDate != null "> and create_date = #{createDate}</if>
+             <if test="type != null  and type != '' "> and type = #{type}</if>
+             <if test="content != null  and content != '' "> and content = #{content}</if>
+             <if test="payType != null  and payType != '' "> and pay_type = #{payType}</if>
+             <if test="tradeno != null  and tradeno != '' "> and tradeno = #{tradeno}</if>
+         </where>
+    </select>
+    
+    <select id="selectPayOrderById" parameterType="String" resultMap="PayOrderResult">
+        <include refid="selectPayOrderVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertPayOrder" parameterType="PayOrder">
+        insert into t_pay_order
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="orderid != null  and orderid != ''  ">orderid,</if>
+			<if test="userid != null  and userid != ''  ">userid,</if>
+			<if test="orderno != null  and orderno != ''  ">orderno,</if>
+			<if test="state != null  and state != ''  ">state,</if>
+			<if test="createDate != null  ">create_date,</if>
+			<if test="type != null  and type != ''  ">type,</if>
+			<if test="content != null  and content != ''  ">content,</if>
+			<if test="payType != null  and payType != ''  ">pay_type,</if>
+			<if test="tradeno != null  and tradeno != ''  ">tradeno,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="orderid != null  and orderid != ''  ">#{orderid},</if>
+			<if test="userid != null  and userid != ''  ">#{userid},</if>
+			<if test="orderno != null  and orderno != ''  ">#{orderno},</if>
+			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="createDate != null  ">#{createDate},</if>
+			<if test="type != null  and type != ''  ">#{type},</if>
+			<if test="content != null  and content != ''  ">#{content},</if>
+			<if test="payType != null  and payType != ''  ">#{payType},</if>
+			<if test="tradeno != null  and tradeno != ''  ">#{tradeno},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updatePayOrder" parameterType="PayOrder">
+        update t_pay_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderid != null  and orderid != ''  ">orderid = #{orderid},</if>
+            <if test="userid != null  and userid != ''  ">userid = #{userid},</if>
+            <if test="orderno != null  and orderno != ''  ">orderno = #{orderno},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+            <if test="content != null  and content != ''  ">content = #{content},</if>
+            <if test="payType != null  and payType != ''  ">pay_type = #{payType},</if>
+            <if test="tradeno != null  and tradeno != ''  ">tradeno = #{tradeno},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deletePayOrderById" parameterType="String">
+        delete from t_pay_order where id = #{id}
+    </delete>
+	
+    <delete id="deletePayOrderByIds" parameterType="String">
+        delete from t_pay_order where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <update id="updatePayOrderByOrderNo" parameterType="PayOrder">
+        update t_pay_order
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderid != null  and orderid != ''  ">orderid = #{orderid},</if>
+            <if test="userid != null  and userid != ''  ">userid = #{userid},</if>
+            <if test="state != null  and state != ''  ">state = #{state},</if>
+            <if test="createDate != null  ">create_date = #{createDate},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+            <if test="content != null  and content != ''  ">content = #{content},</if>
+            <if test="payType != null  and payType != ''  ">pay_type = #{payType},</if>
+            <if test="tradeno != null  and tradeno != ''  ">tradeno = #{tradeno},</if>
+        </trim>
+        where orderno = #{orderno}
+    </update>
+    
+</mapper>

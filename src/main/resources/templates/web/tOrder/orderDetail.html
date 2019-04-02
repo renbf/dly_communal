@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+	.orderDetail{
+		overflow:hidden;
+		height: 100px;
+	}
+	.orderDetail div{
+		float:left;
+		width:20%;
+		line-height:100px;
+	}
+	.orderImg{
+		display: inline!important;
+		width: 95px!important;
+	}
+	.layui-layer-btn0{
+		display:none!important;
+	}
+</style>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				收货信息
+			</div>
+			<div class="panel-body">
+				<div>
+					收货人：张三
+				</div>
+				<div>
+					联系方式：15652793546
+				</div>
+				<div>
+					收货地址：呵呵呵呵呵呵呵哈哈哈哈哈哈哈哈哈哈哈
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default" style="margin-top:50px">
+			<div class="panel-heading">
+				订单信息
+			</div>
+			<div class="panel-body">
+				<div class="orderDetail">
+					<div>
+						礼物图片：
+						<img  src="http://m.360buyimg.com/n12/g14/M07/07/12/rBEhVlHzd8UIAAAAAAJgdT_qvWkAABe1QP7GQQAAmCN330.jpg%21q70.jpg" class="img-thumbnail orderImg" >
+					</div>
+					<div>
+						礼物名称：
+						睫毛膏
+					</div>
+					<div>
+						礼物数量：
+						1
+					</div>
+					<div>
+						礼物金额：
+						1
+					</div>
+					<div>
+						礼物金额：
+						1
+					</div>
+				</div>
+			</div>
+		</div>
+		<ul class="list-group">
+			<li class="list-group-item">订单合计：￥20.00</li>
+			<li class="list-group-item">订单编号：1357897945341</li>
+			<li class="list-group-item">订单时间：2019-01-01 10:20:03</li>
+			<li class="list-group-item">发货时间：2019-01-01 10:20:03</li>
+			<li class="list-group-item">完成时间：2019-01-01 10:20:03</li>
+		</ul>
+
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "web/tOrder"
+		$("#form-tOrder-add").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			}
+		});
+		document.getElementsByClassName('layui-layer-btn0')[0].style.display="none"
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.web.mapper.TExpressCompanyMapper">
+    
+    <resultMap type="TExpressCompany" id="TExpressCompanyResult">
+        <result property="id"    column="id"    />
+        <result property="companyCode"    column="company_code"    />
+        <result property="companyName"    column="company_name"    />
+    </resultMap>
+	
+	<sql id="selectTExpressCompanyVo">
+        select id, company_code, company_name from t_express_company
+    </sql>
+	
+    <select id="selectTExpressCompanyList" parameterType="TExpressCompany" resultMap="TExpressCompanyResult">
+        <include refid="selectTExpressCompanyVo"/>
+        <where>  
+            <if test="id != null  and id != '' "> and id = #{id}</if>
+             <if test="companyCode != null  and companyCode != '' "> and company_code = #{companyCode}</if>
+             <if test="companyName != null  and companyName != '' "> and company_name = #{companyName}</if>
+         </where>
+    </select>
+    
+    <select id="selectTExpressCompanyById" parameterType="String" resultMap="TExpressCompanyResult">
+        <include refid="selectTExpressCompanyVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTExpressCompany" parameterType="TExpressCompany">
+        insert into t_express_company
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">id,</if>
+			<if test="companyCode != null  and companyCode != ''  ">company_code,</if>
+			<if test="companyName != null  and companyName != ''  ">company_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null  and id != ''  ">#{id},</if>
+			<if test="companyCode != null  and companyCode != ''  ">#{companyCode},</if>
+			<if test="companyName != null  and companyName != ''  ">#{companyName},</if>
+         </trim>
+    </insert>
+	 
+    <update id="updateTExpressCompany" parameterType="TExpressCompany">
+        update t_express_company
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyCode != null  and companyCode != ''  ">company_code = #{companyCode},</if>
+            <if test="companyName != null  and companyName != ''  ">company_name = #{companyName},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<delete id="deleteTExpressCompanyById" parameterType="String">
+        delete from t_express_company where id = #{id}
+    </delete>
+	
+    <delete id="deleteTExpressCompanyByIds" parameterType="String">
+        delete from t_express_company where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="selectTExpressCompanyByCode">
+    	<include refid="selectTExpressCompanyVo"/>
+    	where company_code = #{companyCode}
+    </select>
+    
+</mapper>
