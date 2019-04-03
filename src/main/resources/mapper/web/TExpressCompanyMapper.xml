@@ -62,7 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
     
-    <select id="selectTExpressCompanyByCode">
+    <select id="selectTExpressCompanyByCode" parameterType="java.lang.String" resultMap="TExpressCompanyResult">
     	<include refid="selectTExpressCompanyVo"/>
     	where company_code = #{companyCode}
     </select>

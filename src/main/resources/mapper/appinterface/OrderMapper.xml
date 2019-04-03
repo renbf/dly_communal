@@ -22,10 +22,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="orderNo"    column="order_no"    />
         <result property="goodsName"    column="name"    />
         <result property="price"    column="price"    />
+        <result property="companyCode"    column="company_code"    />
     </resultMap>
 	
 	<sql id="selectOrderVo">
-        select id, user_id, address_id, express_no, creat_date, create_user, state, goods_id,delivery_date,completion_date from t_order
+        select id, user_id, address_id, express_no, creat_date, create_user, state, goods_id,delivery_date,completion_date,company_code from t_order
     </sql>
 	
     <select id="selectOrderList" parameterType="Order" resultMap="OrderResult">
@@ -42,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryDate != null  and deliveryDate != '' "> and delivery_date = #{deliveryDate}</if>
             <if test="completionDate != null  and completionDate != '' "> and completion_date = #{completionDate}</if>
             <if test="orderNo != null  and orderNo != '' "> and order_no = #{orderNo}</if>
+            <if test="companyCode != null  and companyCode != '' "> and company_code = #{companyCode}</if>
         </where>
     </select>
     <select id="selectOrderGoodsList" parameterType="Order" resultMap="OrderResult">
@@ -84,6 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryDate != null  and deliveryDate != ''  ">delivery_date,</if>
             <if test="completionDate != null  and completionDate != ''  ">completion_date,</if>
             <if test="orderNo != null  and orderNo != ''  ">order_no,</if>
+            <if test="companyCode != null  and companyCode != ''  ">company_code,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null  and id != ''  ">#{id},</if>
@@ -97,6 +100,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryDate != null  and deliveryDate != ''  ">#{deliveryDate},</if>
             <if test="completionDate != null  and completionDate != ''  ">#{completionDate},</if>
             <if test="orderNo != null  and orderNo != ''  ">#{orderNo},</if>
+            <if test="companyCode != null  and companyCode != ''  ">#{company_code},</if>
          </trim>
     </insert>
 	 
@@ -113,6 +117,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryDate != null  and deliveryDate != ''  ">delivery_date = #{deliveryDate},</if>
             <if test="completionDate != null">completion_date = #{completionDate},</if>
             <if test="orderNo != null  and orderNo != ''  ">order_no = #{orderNo},</if>
+            <if test="companyCode != null  and companyCode != ''  ">company_code = #{company_code},</if>
         </trim>
         where 1=1
         <if test="orderNo != null  and orderNo != ''  ">and order_no = #{orderNo}</if>
@@ -132,4 +137,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
     
+    <select id="selectOrderByOrderNo" parameterType="String" resultMap="OrderResult">
+        <include refid="selectOrderVo"/>
+        where order_no = #{orderNo}
+    </select>
 </mapper>

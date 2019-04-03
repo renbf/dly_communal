@@ -74,4 +74,12 @@ public interface OrderMapper
      */
 	public int deleteOrderByIds(String[] ids);
 	
+	/**
+     * 查询订单信息
+     * 
+     * @param orderNo 订单ID
+     * @return 订单信息
+     */
+	public Order selectOrderByOrderNo(@Param("orderNo") String orderNo);
+	
 }

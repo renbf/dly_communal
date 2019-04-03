@@ -22,7 +22,7 @@ public interface GiftApplyMapper
 	public GiftApply selectGiftApplyById(@Param("id")String id);
 	/**
 	 * 查询礼物机申请信息
-	 *
+	 *查询状态为0和1的
 	 * @param giftId 礼物机申请ID
 	 * @return 礼物机申请信息
 	 */

@@ -118,6 +118,13 @@ public class Global {
         return getConfig("project.pictureUrl");
     }
     /**
+     * 微信证书路径
+     */
+    public static String getWeixinCertPath() {
+        return getConfig("project.weixinCertPath");
+    }
+    
+    /**
      * 获取头像上传路径
      */
     public static String getAvatarPath() {

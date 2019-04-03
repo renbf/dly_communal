@@ -290,7 +290,7 @@ public class UploadUtil {
                             }
                             localFile.createNewFile();
                             file.transferTo(localFile);
-                            list.add(Global.getProfile()+dateNowStr+"/"+id+"/"+fileName);
+                            list.add(Global.getPictureUrl()+dateNowStr+"/"+id+"/"+fileName);
                             //list.add("http://192.168.0.140:8090/image/"+dateNowStr+"/"+id+"/"+fileName);
                             //list.add("http://192.168.0.117:8080/headImg/"+dateNowStr+"/"+id+"/"+fileName);
                             ///

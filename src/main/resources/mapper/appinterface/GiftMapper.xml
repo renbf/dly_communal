@@ -26,6 +26,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <result property="dayTotalNumber"    column="day_total_number"    />
             <result property="isApply"    column="isApply"    />
             <result property="modelPicture"    column="gift_picture"    />
+            <result property="giftApplyId"    column="giftApplyId"    />
+            <result property="applyState"    column="applyState"    />
         </resultMap>
 
         <sql id="selectGiftVo">
@@ -73,7 +75,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         g.location_name as locationName,
         l.create_date as lcreateDate,
         case when ga.time_type = 0 then ga.number else 30* ga.number end day_total_number,
-		ga.state,gm.gift_picture
+		ga.state applyState,ga.id giftApplyId,gm.gift_picture
         from t_gift g
 		join t_gift_apply ga on g.id = ga.gift_id
 		left join t_gift_model gm on g.model = gm.id

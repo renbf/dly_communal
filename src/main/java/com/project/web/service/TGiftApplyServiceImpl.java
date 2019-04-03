@@ -195,6 +195,7 @@ public class TGiftApplyServiceImpl implements ITGiftApplyService
 					tGift.setUserId(userId);
 					//后台审核通过的来源我认为都是用户
 					tGift.setSource("1");
+					tGift.setModel(tGiftApply.getGiftModelId());
 					tGift.setUpdateDate(new Date());
 					tGiftMapper.updateTGift(tGift);
 					GiftGoods giftGoods = new GiftGoods();
@@ -247,6 +248,7 @@ public class TGiftApplyServiceImpl implements ITGiftApplyService
 		TWallet tWallet = new TWallet();
 		tWallet.setUserId(userId);
 		if(wallet != null){
+			tWallet.setId(wallet.getId());
 			Long banlance = wallet.getBalance();
 			banlance = banlance + money;
 			tWallet.setBalance(banlance);

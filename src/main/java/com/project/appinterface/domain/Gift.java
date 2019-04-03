@@ -85,6 +85,10 @@ public class Gift extends BaseEntity {
 	/**礼物机类型图片*/
 	private String modelPicture;
 	
+	/**礼物机申请id*/
+	private String giftApplyId;
+	/**礼物机申请状态*/
+	private String applyState;
 	public int getTotalPosition() {
 		return totalPosition;
 	}
@@ -253,6 +257,22 @@ public class Gift extends BaseEntity {
 		this.modelPicture = modelPicture;
 	}
 
+	public String getGiftApplyId() {
+		return giftApplyId;
+	}
+
+	public void setGiftApplyId(String giftApplyId) {
+		this.giftApplyId = giftApplyId;
+	}
+
+	public String getApplyState() {
+		return applyState;
+	}
+
+	public void setApplyState(String applyState) {
+		this.applyState = applyState;
+	}
+
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
 				.append("id", getId())
@@ -268,6 +288,8 @@ public class Gift extends BaseEntity {
 				.append("userId", getUserId())
 				.append("modelName", getModelName())
 				.append("dayTotalNumber", getDayTotalNumber())
+				.append("giftApplyId", getGiftApplyId())
+				.append("applyState", getApplyState())
 				.toString();
 	}
 }

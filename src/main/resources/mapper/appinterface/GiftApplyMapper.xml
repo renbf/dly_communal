@@ -15,11 +15,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="latticePrice"    column="lattice_price"    />
         <result property="introduce"    column="introduce"    />
         <result property="orderno"    column="orderno"    />
-
+		<result property="giftModelId"    column="gift_model_id"    />
     </resultMap>
 	
 	<sql id="selectGiftApplyVo">
-        select id, gift_id, user_id, time_type, number, create_date, state, lattice_price, introduce,orderno from t_gift_apply
+        select id, gift_id, user_id, time_type, number, create_date, state, lattice_price, introduce,orderno,gift_model_id from t_gift_apply
     </sql>
 	
     <select id="selectGiftApplyList" parameterType="GiftApply" resultMap="GiftApplyResult">
@@ -45,7 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="selectGiftApplyByGiftId" parameterType="java.util.Map" resultMap="GiftApplyResult">
         <include refid="selectGiftApplyVo"/>
-        where gift_Id = #{giftId} and user_id = #{userId}
+        where gift_Id = #{giftId} and user_id = #{userId} and state in ('0','1')
     </select>
     <insert id="insertGiftApply" parameterType="GiftApply">
         insert into t_gift_apply
@@ -60,6 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="latticePrice != null  ">lattice_price,</if>
 			<if test="introduce != null  and introduce != ''  ">introduce,</if>
             <if test="orderno != null  and orderno != ''  ">orderno,</if>
+            <if test="giftModelId != null  and giftModelId != ''  ">gift_model_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null  and id != ''  ">#{id},</if>
@@ -72,6 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="latticePrice != null  ">#{latticePrice},</if>
 			<if test="introduce != null  and introduce != ''  ">#{introduce},</if>
             <if test="orderno != null  and orderno != ''  ">#{orderno},</if>
+            <if test="giftModelId != null  and giftModelId != ''  ">#{giftModelId},</if>
          </trim>
     </insert>
 	 
@@ -87,6 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="latticePrice != null  ">lattice_price = #{latticePrice},</if>
             <if test="introduce != null  and introduce != ''  ">introduce = #{introduce},</if>
             <if test="orderno != null  and orderno != ''  ">orderno = #{orderno},</if>
+            <if test="giftModelId != null  and giftModelId != ''  ">gift_model_id = #{giftModelId},</if>
         </trim>
         where id = #{id}
     </update>

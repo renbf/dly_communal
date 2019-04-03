@@ -1,7 +1,11 @@
 package com.project.appinterface.util.wxpayutil;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import com.github.wxpay.sdk.WXPayConfig;
+import com.project.common.config.Global;
 import com.project.util.PayParameter;
 
 public class MyConfig implements WXPayConfig{
@@ -9,7 +13,7 @@ public class MyConfig implements WXPayConfig{
     private byte[] certData;
 
     public MyConfig() throws Exception {
-        String certPath = "/home/gift/weixin/cert/apiclient_cert.p12";
+        String certPath = Global.getWeixinCertPath();
 //        String certPath = "C:/Users/admin/Desktop/gift/weixin/weixinXCX/apiclient_cert.p12";
         File file = new File(certPath);
         InputStream certStream = new FileInputStream(file);

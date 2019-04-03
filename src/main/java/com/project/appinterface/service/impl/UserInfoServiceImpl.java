@@ -389,29 +389,34 @@ public class UserInfoServiceImpl implements IUserInfoService
 		List<Map<String,Object>> rlist=new ArrayList<>();
 		for (Gift gift:glist){
 			Map<String,Object> rmap=new HashMap<>();
-			GiftApply giftApply=giftApplyMapper.selectGiftApplyByGiftId(gift.getId(),userId);
-			if(gift.getLcreateDate() != null){
-				//0按天1按月
-				Calendar c = Calendar.getInstance();
-				c.setTime(gift.getLcreateDate());   //设置时间
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // 日期格式
-				//剩余多少天
-				int num=0;
-				if(giftApply.getTimeType().equals("0")){
-					c.add(Calendar.DATE, giftApply.getNumber()); //日期分钟加1,Calendar.DATE(天),Calendar.HOUR(小时)
-					Date newDate = c.getTime(); //结果
-					num=daysBetween(dateFormat.format(new Date()),dateFormat.format(newDate));
+			GiftApply giftApply=giftApplyMapper.selectGiftApplyById(gift.getGiftApplyId());
+			//失效
+			if("2".equals(gift.getApplyState())) {
+				rmap.put("day",0);
+			}else {
+				if(gift.getLcreateDate() != null){
+					//0按天1按月
+					Calendar c = Calendar.getInstance();
+					c.setTime(gift.getLcreateDate());   //设置时间
+					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // 日期格式
+					//剩余多少天
+					int num=0;
+					if(giftApply.getTimeType().equals("0")){
+						c.add(Calendar.DATE, giftApply.getNumber()); //日期分钟加1,Calendar.DATE(天),Calendar.HOUR(小时)
+						Date newDate = c.getTime(); //结果
+						num=daysBetween(dateFormat.format(new Date()),dateFormat.format(newDate));
+					}else{
+						c.add(Calendar.MINUTE, giftApply.getNumber()); //日期分钟加1,Calendar.DATE(天),Calendar.HOUR(小时)
+						Date newDate = c.getTime(); //结果
+						num=daysBetween(dateFormat.format(new Date()),dateFormat.format(newDate));
+					}
+					if(num < 0) {
+						num = 0;
+					}
+					rmap.put("day",num);
 				}else{
-					c.add(Calendar.MINUTE, giftApply.getNumber()); //日期分钟加1,Calendar.DATE(天),Calendar.HOUR(小时)
-					Date newDate = c.getTime(); //结果
-					num=daysBetween(dateFormat.format(new Date()),dateFormat.format(newDate));
+					rmap.put("day",gift.getDayTotalNumber());
 				}
-				if(num < 0) {
-					num = 0;
-				}
-				rmap.put("day",num);
-			}else{
-				rmap.put("day",gift.getDayTotalNumber());
 			}
 			if(gift.getModelName()==null){
 				rmap.put("giftName","");
@@ -419,7 +424,7 @@ public class UserInfoServiceImpl implements IUserInfoService
 				rmap.put("giftName",gift.getModelName());
 			}
 			rmap.put("giftId", gift.getId());
-			rmap.put("state", gift.getState());
+			rmap.put("state", gift.getApplyState());
 			rmap.put("modelPicture",gift.getModelPicture());
 			rmap.put("model",gift.getModel());
 			rmap.put("latticePrice",MoneyUtil.toYuan(gift.getLattice_price()));

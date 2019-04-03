@@ -35,7 +35,8 @@ public class GiftApply extends BaseEntity
 	private String introduce;
 	//订单号
 	private String orderno;
-
+	/** 礼物机类型id */
+	private String giftModelId;
 	public String getOrderno() {
 		return orderno;
 	}
@@ -126,7 +127,15 @@ public class GiftApply extends BaseEntity
 		return introduce;
 	}
 
-    public String toString() {
+    public String getGiftModelId() {
+		return giftModelId;
+	}
+
+	public void setGiftModelId(String giftModelId) {
+		this.giftModelId = giftModelId;
+	}
+
+	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("giftId", getGiftId())

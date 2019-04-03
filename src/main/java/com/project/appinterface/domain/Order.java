@@ -50,7 +50,8 @@ public class Order extends BaseEntity
 
 	/** 商品价格 */
 	private Long price;
-	
+	/**快递公司编码*/
+	private String companyCode;
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -196,6 +197,14 @@ public class Order extends BaseEntity
 		this.price = price;
 	}
 
+	public String getCompanyCode() {
+		return companyCode;
+	}
+
+	public void setCompanyCode(String companyCode) {
+		this.companyCode = companyCode;
+	}
+
 	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
@@ -206,6 +215,7 @@ public class Order extends BaseEntity
             .append("createUser", getCreateUser())
             .append("state", getState())
             .append("goodsId", getGoodsId())
+            .append("companyCode", getCompanyCode())
             .toString();
     }
 }

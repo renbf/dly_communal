@@ -2,6 +2,8 @@ package com.project.appinterface.service.impl;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.project.appinterface.domain.CommodityInformation;
 import com.project.appinterface.domain.ConsumptionInformation;
@@ -60,6 +64,7 @@ import com.project.appinterface.mapper.WalletMapper;
 import com.project.appinterface.mapper.WinningRecordMapper;
 import com.project.appinterface.service.GiftMachineService;
 import com.project.appinterface.util.AliPayUtil;
+import com.project.appinterface.util.AlipayNotifyParam;
 import com.project.appinterface.util.JedisUtil;
 import com.project.appinterface.util.OrderNo;
 import com.project.appinterface.util.WXPayExample;
@@ -543,6 +548,9 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				model.setTimeoutExpress("30m");
 				model.setTotalAmount(paramArrayVo.getPayMoney().trim());
 				model.setProductCode("QUICK_MSECURITY_PAY");
+				String passbackParams = JSON.toJSONString(paramArrayVo);
+				passbackParams = URLEncoder.encode(passbackParams,"UTF-8");
+				model.setPassbackParams(passbackParams);
 				String notifyUrl = "http://60.205.187.254:80/gift/giftMachine/aliNotice";
 				String returnstr = AliPayUtil.aliPay(model, notifyUrl).trim();
 
@@ -685,7 +693,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 		}
 		try {
 			for (String index : indexArr) {
-				boolean getLock = JedisUtil.tryGetDistributedLock(giftId + "_" + index, requestId, 60000);
+				boolean getLock = JedisUtil.tryGetDistributedLock("tryPayGift_"+giftId + "_" + index, requestId, 60000);
 				if (getLock == false) {
 					result.setMessage("第" + (index + 1) + "个盒子已被占用了");
 					result.setStatus(Result.FAILED);
@@ -714,6 +722,8 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				model.setTimeoutExpress("30m");
 				model.setTotalAmount(paramArrayVo.getPayMoney().trim());
 				model.setProductCode("QUICK_MSECURITY_PAY");
+				String passbackParams = JSON.toJSONString(paramArrayVo);
+				model.setPassbackParams(passbackParams);
 				String notifyUrl = " http://http://60.205.187.254:80/gift/giftMachine/aliNotice";
 				String returnstr = AliPayUtil.aliPay(model, notifyUrl).trim();
 				if (returnstr != null) {
@@ -781,6 +791,8 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			boolean flag = (Boolean) map.get("flag");
 			if (flag) {
 				Map<String, String> params = (Map<String, String>) map.get("data");
+				String json = JSON.toJSONString(params);
+				AlipayNotifyParam alipayNotifyParam = JSON.parseObject(json, AlipayNotifyParam.class);
 				String out_trade_no = params.get("out_trade_no");
 				String app_id = params.get("app_id");
 				if (out_trade_no == null) {
@@ -799,25 +811,181 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 					AliPayUtil.responseService(response, "failure");
 					return;
 				}
-				AliPayUtil.responseService(response, "success");
-				Map<String, String> rmap = new HashMap<String, String>();
-				rmap.put("id", orders.getId());
-				rmap.put("state", "1");
-				if (orders.getPayType().equals("0")) {
-					GiftApply ga = new GiftApply();
-					ga.setState("0");
-					ga.setOrderno(orders.getOrderno());
-					giftApplyMapper.updateGiftApply(ga);
-				} else {
-					// 给商家添加收入
-					GiftLocation giftLocation = giftLocationMapper.selectGiftLocationById(orders.getOrderid());
-					Wallet wallet = walletMapper.selectWalletByUserId(giftLocation.getCreateUser());
-					Wallet walletu = new Wallet();
-					walletu.setId(wallet.getId());
-					walletu.setProfit(wallet.getProfit() + giftLocation.getLatticePrice());
-					walletMapper.updateWallet(walletu);
+//				AliPayUtil.responseService(response, "success");
+//				Map<String, String> rmap = new HashMap<String, String>();
+//				rmap.put("id", orders.getId());
+//				rmap.put("state", "1");
+//				if (orders.getPayType().equals("0")) {
+//					GiftApply ga = new GiftApply();
+//					ga.setState("0");
+//					ga.setOrderno(orders.getOrderno());
+//					giftApplyMapper.updateGiftApply(ga);
+//				} else {
+//					// 给商家添加收入
+//					GiftLocation giftLocation = giftLocationMapper.selectGiftLocationById(orders.getOrderid());
+//					Wallet wallet = walletMapper.selectWalletByUserId(giftLocation.getCreateUser());
+//					Wallet walletu = new Wallet();
+//					walletu.setId(wallet.getId());
+//					walletu.setProfit(wallet.getProfit() + giftLocation.getLatticePrice());
+//					walletMapper.updateWallet(walletu);
+//				}
+//				giftMachineMapper.updatePayOrder(rmap);
+				
+				//回调
+				String passbackParams = alipayNotifyParam.getPassbackParams();
+				passbackParams = URLDecoder.decode(passbackParams,"UTF-8");
+				JSONObject jsStr = JSONObject.parseObject(passbackParams);
+				ParamArrayVo paramArrayVo = (ParamArrayVo) JSONObject.toJavaObject(jsStr, ParamArrayVo.class);
+				String orderNo = out_trade_no;
+				String requestId = UUIDUtil.getUUID();
+				try {
+					boolean getLock = JedisUtil.tryGetDistributedLock("notice_" + orderNo, requestId, 60000);
+					if (getLock == false) {
+						AliPayUtil.responseService(response, "failure");
+					}
+					PayOrder payOrderIsCheck = payOrderMapper.selectPayOrderByOrderNo(orderNo);
+					//支付已成功
+					if ("1".equals(payOrderIsCheck.getState())) {
+						AliPayUtil.responseService(response, "success");
+						return ;
+					}
+					if (paramArrayVo.getCouponId() != null && !"".equals(paramArrayVo.getCouponId())) {
+						CouponReceive couponReceive = new CouponReceive();
+						couponReceive.setCouponId(paramArrayVo.getCouponId());
+						couponReceive.setState("1");
+						couponReceiveMapper.updateCouponReceive(couponReceive);
+					}
+					String giftId = paramArrayVo.getGiftId();
+					String userId = paramArrayVo.getUserId();
+					// 申请
+					if (paramArrayVo.getType().equals("0")) {
+						GiftApply ga = new GiftApply();
+						String giftApplyId = UUIDUtil.getUUID();
+						ga.setId(giftApplyId);
+						ga.setGiftId(giftId);
+						ga.setUserId(userId);
+						ga.setTimeType(paramArrayVo.getTimeType());
+						ga.setNumber(paramArrayVo.getNumber());
+						ga.setCreateDate(new Date());
+						ga.setState("0");
+						ga.setOrderno(orderNo);
+						ga.setGiftModelId(paramArrayVo.getGiftModel());
+						ga.setLatticePrice(MoneyUtil.toFen(paramArrayVo.getUnivalent()));
+						ga.setIntroduce(paramArrayVo.getGiftName());
+						giftApplyMapper.insertGiftApply(ga);
+						List<GoodsVo> gvlist = paramArrayVo.getGoodsList();
+						for (GoodsVo g : gvlist) {
+							int goodsNumber = g.getGoodsNumber();
+							for (int i = 0; i < goodsNumber; i++) {
+								GiftGoods gg = new GiftGoods();
+								gg.setId(UUIDUtil.getUUID());
+								gg.setGoodsId(g.getGoodsId());
+								gg.setGiftId(giftId);
+								gg.setState("0");
+								gg.setGiftApplyId(giftApplyId);
+								giftGoodsMapper.insertGiftGoods(gg);
+							}
+						}
+						Wallet wallet = walletMapper.selectWalletByUserId(userId);
+						if(wallet == null) {
+							Wallet walletu = new Wallet();
+							walletu.setId(UUIDUtil.getUUID());
+							walletu.setUserId(userId);
+							walletMapper.insertWallet(walletu);
+						}
+					} else {
+						//开盒子
+						String indexs = paramArrayVo.getIndexs();
+						// 1.查询礼物机礼物格子信息
+						GiftLocation giftLocation = giftLocationMapper.selectGiftLocationById(giftId);
+						Integer surplusPosition = giftLocation.getSurplusPosition();
+						String[] contentArr = giftLocation.getContent().split(",");
+						String[] indexArr = indexs.split(",");
+						for (String index : indexArr) {
+							if (surplusPosition >= 1) {
+								// 1 未中奖2已中奖
+								String prize = "1";
+								if (contentArr[Integer.valueOf(index)].equals("2")) {
+									prize = "2";
+								}
+								// 3.记录抽奖信息
+								WinningRecord winningRecord = new WinningRecord();
+								winningRecord.setId(UUIDUtil.getUUID());
+								winningRecord.setCreateDate(new Date());
+								winningRecord.setUserId(userId);
+								winningRecord.setGiftId(giftId);
+								winningRecord.setIndex(Integer.valueOf(index));
+								winningRecord.setPayOrderNo(orderNo);
+								if (prize.equals("2")) {
+									// 查询中奖商品
+									GiftGoods giftGoods = new GiftGoods();
+									giftGoods.setGiftId(giftId);
+									giftGoods.setState("0");
+									List<GiftGoods> glist = giftGoodsMapper.selectGiftGoodsList(giftGoods);
+									int n = (int) (Math.random() * glist.size());
+									GiftGoods gg = glist.get(n);
+									winningRecord.setState("1");
+									winningRecord.setGoodsId(gg.getGoodsId());
+									String orderId = UUIDUtil.getUUID();
+									winningRecord.setOrderId(orderId);
+									// 修改中奖物品中间表\
+									GiftGoods ugiftGoods = new GiftGoods();
+									ugiftGoods.setId(gg.getId());
+									ugiftGoods.setState("1");
+									giftGoodsMapper.updateGiftGoods(ugiftGoods);
+									Order order = new Order();
+									order.setId(orderId);
+									order.setState("4");
+									order.setOrderNo(getOrderIdByTime());
+									order.setCreatDate(new Date());
+									order.setUserId(userId);
+									order.setGoodsId(gg.getGoodsId());
+									order.setCreateUser(userId);
+									orderMapper.insertOrder(order);
+								} else {
+									winningRecord.setState("0");
+								}
+								winningRecordMapper.insertWinningRecord(winningRecord);
+								// 4.修改礼物机中奖格子
+
+								contentArr[Integer.valueOf(index)] = "3";
+								String context = "";
+								for (String a : contentArr) {
+									context += a + ",";
+								}
+								context = context.substring(0, context.length() - 1);
+								GiftLocation ugiftLocation = new GiftLocation();
+								ugiftLocation.setContent(context);
+								ugiftLocation.setId(giftLocation.getId());
+								ugiftLocation.setSurplusPosition(giftLocation.getSurplusPosition() - 1);
+								giftLocationMapper.updateGiftLocation(ugiftLocation);
+								Wallet wallet = walletMapper.selectWalletByUserId(giftLocation.getCreateUser());
+								Long profit = 0l;
+								if(wallet.getProfit() != null) {
+									profit = wallet.getProfit();
+								}
+								Wallet walletu = new Wallet();
+								walletu.setId(wallet.getId());
+								walletu.setProfit(profit + giftLocation.getLatticePrice());
+								walletMapper.updateWallet(walletu);
+							}
+						}
+					}
+					PayOrder payOrder = new PayOrder();
+					payOrder.setState("1");
+					payOrder.setOrderno(orderNo);
+					int l = payOrderMapper.updatePayOrderByOrderNo(payOrder);
+					if (l != 1) {
+						AliPayUtil.responseService(response, "failure");
+						return;
+					} 
+				} catch (Exception e) {
+					log.error("查询支付宝接口异常",e);
+					throw new RuntimeException();
+				}finally{
+					JedisUtil.releaseDistributedLock("notice_"+orderNo, requestId);
 				}
-				giftMachineMapper.updatePayOrder(rmap);
+				
 			} else {
 				AliPayUtil.responseService(response, "failure");
 			}
@@ -1071,7 +1239,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 		DataResult result = new DataResult();
 		WinningRecord wr = new WinningRecord();
 		wr.setUserId(userId);
-		wr.setState("1");
+		wr.setState("0");
 		List<WinningRecord> wlist = winningRecordMapper.queryNoPrize(wr);
 		List<Map<String, Object>> rlist = new ArrayList<>();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1186,122 +1354,162 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			}
 			result = AliPayUtil.queryPayInfoByOrderNo(orderNo);
 			if (Result.SUCCESS.equals(result.getStatus())) {
-				if (paramArrayVo.getCouponId() != null && !"".equals(paramArrayVo.getCouponId())) {
-					CouponReceive couponReceive = new CouponReceive();
-					couponReceive.setCouponId(paramArrayVo.getCouponId());
-					couponReceive.setState("1");
-					couponReceiveMapper.updateCouponReceive(couponReceive);
-				}
-				String giftId = paramArrayVo.getGiftId();
-				String userId = paramArrayVo.getUserId();
-				// 申请
-				if (paramArrayVo.getType().equals("0")) {
-					GiftApply ga = new GiftApply();
-					String giftApplyId = UUIDUtil.getUUID();
-					ga.setId(giftApplyId);
-					ga.setGiftId(giftId);
-					ga.setUserId(userId);
-					ga.setTimeType(paramArrayVo.getTimeType());
-					ga.setNumber(paramArrayVo.getNumber());
-					ga.setCreateDate(new Date());
-					ga.setState("0");
-					ga.setOrderno(orderNo);
-					ga.setLatticePrice(MoneyUtil.toFen(paramArrayVo.getUnivalent()));
-					ga.setIntroduce(paramArrayVo.getGiftName());
-					giftApplyMapper.insertGiftApply(ga);
-					List<GoodsVo> gvlist = paramArrayVo.getGoodsList();
-					for (GoodsVo g : gvlist) {
-						int goodsNumber = g.getGoodsNumber();
-						for (int i = 0; i < goodsNumber; i++) {
-							GiftGoods gg = new GiftGoods();
-							gg.setId(UUIDUtil.getUUID());
-							gg.setGoodsId(g.getGoodsId());
-							gg.setGiftId(giftId);
-							gg.setState("0");
-							gg.setGiftApplyId(giftApplyId);
-							giftGoodsMapper.insertGiftGoods(gg);
-						}
+				String requestId = UUIDUtil.getUUID();
+				try {
+					boolean getLock = JedisUtil.tryGetDistributedLock("notice_" + orderNo, requestId, 60000);
+					if (getLock == false) {
+						result.setMessage("系统正忙");
+						result.setStatus(Result.FAILED);
+						return result;
 					}
-				} else {
-					String indexs = paramArrayVo.getIndexs();
-					// 1.查询礼物机礼物格子信息
-					GiftLocation giftLocation = giftLocationMapper.selectGiftLocationById(giftId);
-					Integer surplusPosition = giftLocation.getSurplusPosition();
-					String[] contentArr = giftLocation.getContent().split(",");
-					String[] indexArr = indexs.split(",");
-					for (String index : indexArr) {
-						if (surplusPosition >= 1) {
-							// 1 未中奖2已中奖
-							String prize = "1";
-							if (contentArr[Integer.valueOf(index)].equals("2")) {
-								prize = "2";
+					PayOrder payOrderIsCheck = payOrderMapper.selectPayOrderByOrderNo(orderNo);
+					//支付已成功
+					if ("1".equals(payOrderIsCheck.getState())) {
+						return result;
+					}
+					if (paramArrayVo.getCouponId() != null && !"".equals(paramArrayVo.getCouponId())) {
+						CouponReceive couponReceive = new CouponReceive();
+						couponReceive.setCouponId(paramArrayVo.getCouponId());
+						couponReceive.setState("1");
+						couponReceiveMapper.updateCouponReceive(couponReceive);
+					}
+					String giftId = paramArrayVo.getGiftId();
+					String userId = paramArrayVo.getUserId();
+					// 申请
+					if (paramArrayVo.getType().equals("0")) {
+						GiftApply ga = new GiftApply();
+						String giftApplyId = UUIDUtil.getUUID();
+						ga.setId(giftApplyId);
+						ga.setGiftId(giftId);
+						ga.setUserId(userId);
+						ga.setTimeType(paramArrayVo.getTimeType());
+						ga.setNumber(paramArrayVo.getNumber());
+						ga.setCreateDate(new Date());
+						ga.setState("0");
+						ga.setOrderno(orderNo);
+						ga.setGiftModelId(paramArrayVo.getGiftModel());
+						ga.setLatticePrice(MoneyUtil.toFen(paramArrayVo.getUnivalent()));
+						ga.setIntroduce(paramArrayVo.getGiftName());
+						giftApplyMapper.insertGiftApply(ga);
+						List<GoodsVo> gvlist = paramArrayVo.getGoodsList();
+						for (GoodsVo g : gvlist) {
+							int goodsNumber = g.getGoodsNumber();
+							for (int i = 0; i < goodsNumber; i++) {
+								GiftGoods gg = new GiftGoods();
+								gg.setId(UUIDUtil.getUUID());
+								gg.setGoodsId(g.getGoodsId());
+								gg.setGiftId(giftId);
+								gg.setState("0");
+								gg.setGiftApplyId(giftApplyId);
+								giftGoodsMapper.insertGiftGoods(gg);
 							}
-							// 3.记录抽奖信息
-							WinningRecord winningRecord = new WinningRecord();
-							winningRecord.setId(UUIDUtil.getUUID());
-							winningRecord.setCreateDate(new Date());
-							winningRecord.setUserId(userId);
-							winningRecord.setGiftId(giftId);
-							winningRecord.setIndex(Integer.valueOf(index));
-							winningRecord.setPayOrderNo(orderNo);
-							if (prize.equals("2")) {
-								// 查询中奖商品
-								GiftGoods giftGoods = new GiftGoods();
-								giftGoods.setGiftId(giftId);
-								giftGoods.setState("0");
-								List<GiftGoods> glist = giftGoodsMapper.selectGiftGoodsList(giftGoods);
-								int n = (int) (Math.random() * glist.size());
-								GiftGoods gg = glist.get(n);
-								winningRecord.setState("1");
-								winningRecord.setGoodsId(gg.getGoodsId());
-								String orderId = UUIDUtil.getUUID();
-								winningRecord.setOrderId(orderId);
-								// 修改中奖物品中间表\
-								GiftGoods ugiftGoods = new GiftGoods();
-								ugiftGoods.setId(gg.getId());
-								ugiftGoods.setState("1");
-								giftGoodsMapper.updateGiftGoods(ugiftGoods);
-								Order order = new Order();
-								order.setId(orderId);
-								order.setState("4");
-								order.setOrderNo(getOrderIdByTime());
-								order.setCreatDate(new Date());
-								order.setUserId(userId);
-								order.setGoodsId(gg.getGoodsId());
-								order.setCreateUser(userId);
-								orderMapper.insertOrder(order);
-							} else {
-								winningRecord.setState("0");
-							}
-							winningRecordMapper.insertWinningRecord(winningRecord);
-							// 4.修改礼物机中奖格子
+						}
+						Wallet wallet = walletMapper.selectWalletByUserId(userId);
+						if(wallet == null) {
+							Wallet walletu = new Wallet();
+							walletu.setId(UUIDUtil.getUUID());
+							walletu.setUserId(userId);
+							walletu.setBalance(0l);
+							walletu.setProfit(0l);
+							walletu.setDeposit(0l);
+							walletMapper.insertWallet(walletu);
+						}
+					} else {
+						//开盒子
+						String indexs = paramArrayVo.getIndexs();
+						// 1.查询礼物机礼物格子信息
+						GiftLocation giftLocation = giftLocationMapper.selectGiftLocationById(giftId);
+						Integer surplusPosition = giftLocation.getSurplusPosition();
+						String[] contentArr = giftLocation.getContent().split(",");
+						String[] indexArr = indexs.split(",");
+						for (String index : indexArr) {
+							if (surplusPosition >= 1) {
+								// 1 未中奖2已中奖
+								String prize = "1";
+								if (contentArr[Integer.valueOf(index)].equals("2")) {
+									prize = "2";
+								}
+								// 3.记录抽奖信息
+								WinningRecord winningRecord = new WinningRecord();
+								winningRecord.setId(UUIDUtil.getUUID());
+								winningRecord.setCreateDate(new Date());
+								winningRecord.setUserId(userId);
+								winningRecord.setGiftId(giftId);
+								winningRecord.setIndex(Integer.valueOf(index));
+								winningRecord.setPayOrderNo(orderNo);
+								if (prize.equals("2")) {
+									// 查询中奖商品
+									GiftGoods giftGoods = new GiftGoods();
+									giftGoods.setGiftId(giftId);
+									giftGoods.setState("0");
+									List<GiftGoods> glist = giftGoodsMapper.selectGiftGoodsList(giftGoods);
+									int n = (int) (Math.random() * glist.size());
+									GiftGoods gg = glist.get(n);
+									winningRecord.setState("1");
+									winningRecord.setGoodsId(gg.getGoodsId());
+									String orderId = UUIDUtil.getUUID();
+									winningRecord.setOrderId(orderId);
+									// 修改中奖物品中间表\
+									GiftGoods ugiftGoods = new GiftGoods();
+									ugiftGoods.setId(gg.getId());
+									ugiftGoods.setState("1");
+									giftGoodsMapper.updateGiftGoods(ugiftGoods);
+									Order order = new Order();
+									order.setId(orderId);
+									order.setState("4");
+									order.setOrderNo(getOrderIdByTime());
+									order.setCreatDate(new Date());
+									order.setUserId(userId);
+									order.setGoodsId(gg.getGoodsId());
+									order.setCreateUser(userId);
+									orderMapper.insertOrder(order);
+								} else {
+									winningRecord.setState("0");
+								}
+								winningRecordMapper.insertWinningRecord(winningRecord);
+								// 4.修改礼物机中奖格子
 
-							contentArr[Integer.valueOf(index)] = "3";
-							String context = "";
-							for (String a : contentArr) {
-								context += a + ",";
+								contentArr[Integer.valueOf(index)] = "3";
+								String context = "";
+								for (String a : contentArr) {
+									context += a + ",";
+								}
+								context = context.substring(0, context.length() - 1);
+								GiftLocation ugiftLocation = new GiftLocation();
+								ugiftLocation.setContent(context);
+								ugiftLocation.setId(giftLocation.getId());
+								ugiftLocation.setSurplusPosition(giftLocation.getSurplusPosition() - 1);
+								giftLocationMapper.updateGiftLocation(ugiftLocation);
+								Wallet wallet = walletMapper.selectWalletByUserId(userId);
+								Long profit = 0l;
+								if(wallet.getProfit() != null) {
+									profit = wallet.getProfit();
+								}
+								Wallet walletu = new Wallet();
+								walletu.setId(wallet.getId());
+								walletu.setProfit(profit + giftLocation.getLatticePrice());
+								walletMapper.updateWallet(walletu);
 							}
-							context = context.substring(0, context.length() - 1);
-							GiftLocation ugiftLocation = new GiftLocation();
-							ugiftLocation.setContent(context);
-							ugiftLocation.setId(giftLocation.getId());
-							ugiftLocation.setSurplusPosition(giftLocation.getSurplusPosition() - 1);
-							giftLocationMapper.updateGiftLocation(ugiftLocation);
 						}
 					}
-				}
-				PayOrder payOrder = new PayOrder();
-				payOrder.setState("1");
-				payOrder.setOrderno(orderNo);
-				int l = payOrderMapper.updatePayOrderByOrderNo(payOrder);
-				if (l != 1) {
-					result.setStatus(Result.FAILED);
-					result.setMessage("更新订单状态失败");
+					PayOrder payOrder = new PayOrder();
+					payOrder.setState("1");
+					payOrder.setOrderno(orderNo);
+					int l = payOrderMapper.updatePayOrderByOrderNo(payOrder);
+					if (l != 1) {
+						result.setStatus(Result.FAILED);
+						result.setMessage("更新订单状态失败");
+					} 
+				} catch (Exception e) {
+					log.error("查询支付宝接口异常",e);
+					throw new RuntimeException();
+				}finally{
+					JedisUtil.releaseDistributedLock("notice_"+orderNo, requestId);
 				}
 			}
 			return result;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("查询支付宝接口失败",e);
 			throw new RuntimeException();
 		}
 	}
@@ -1408,20 +1616,33 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			tCashWithdrawal.setState("0");
 			tCashWithdrawalMapper.insertTCashWithdrawal(tCashWithdrawal);
 			result.setStatus(Result.SUCCESS);
-			result.setMessage("提现成功");
+			result.setMessage("提现申请成功");
 			return result;
 		} catch (Exception e) {
-			log.error("提现失败",e);
+			log.error("提现申请失败",e);
 			result.setStatus(Result.FAILED);
-			result.setMessage("提现失败");
+			result.setMessage("提现申请失败");
 			return result;
 		}
 	}
 
 	@Override
-	public DataResult queryKuaidiInfo(String companyCode, String expressNo) {
+	public DataResult queryKuaidiInfo(String orderId) {
 		DataResult result = new DataResult();
 		try {
+			Order order = orderMapper.selectOrderById(orderId);
+			if(order == null) {
+				result.setStatus(Result.FAILED);
+				result.setMessage("查询订单信息失败");
+				return result;
+			}
+			String companyCode = order.getCompanyCode();
+			String expressNo = order.getExpressNo();
+			if(StringUtils.isEmpty(companyCode) || StringUtils.isEmpty(expressNo)) {
+				result.setStatus(Result.FAILED);
+				result.setMessage("查询订单信息异常");
+				return result;
+			}
 			KuaidiResult kuaidiResult = Kuaidi100Util.getString(companyCode, expressNo);
 			TExpressCompany tExpressCompany = tExpressCompanyMapper.selectTExpressCompanyByCode(companyCode);
 			if(tExpressCompany != null) {

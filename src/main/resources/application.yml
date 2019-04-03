@@ -22,6 +22,8 @@ project:
     host: http://jgg.free.idcfengye.com
   # 获取ip地址开关
   addressEnabled: true
+  #weixinCertPath: /home/gift/weixin/cert/apiclient_cert.p12
+  weixinCertPath: C:/Users/Admin/Desktop/gift/weixin/weixinXCX/apiclient_cert.p12
 # 客户端通信配置
 client:
   # tcp服务端口

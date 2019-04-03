@@ -66,5 +66,11 @@ public interface PayOrderMapper
 	 * @return
 	 */
 	public int updatePayOrderByOrderNo(PayOrder payOrder);
+	/**
+	 * 根据订单号查询
+	 * @param orderNo
+	 * @return
+	 */
+	public PayOrder selectPayOrderByOrderNo(String orderNo);
 	
 }

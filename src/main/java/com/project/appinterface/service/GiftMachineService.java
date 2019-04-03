@@ -198,9 +198,8 @@ public interface GiftMachineService
 	public DataResult cashWithdrawal(String money,String cashType,String userId);
 	/**
 	 * 查询快递信息
-	 * @param companyCode
-	 * @param expressNo
+	 * @param orderId
 	 * @return
 	 */
-	public DataResult queryKuaidiInfo(String companyCode,String expressNo);
+	public DataResult queryKuaidiInfo(String orderId);
 }

@@ -595,16 +595,15 @@ public class GiftMachineController {
 	@ApiOperation(value = "查询快递接口", httpMethod="POST",response=Result.class)
 	@RequestMapping(value="/queryKuaidiInfo",method=RequestMethod.POST)
 	public @ResponseBody Result queryKuaidiInfo(HttpServletRequest request,
-			@ApiParam(name="companyCode",value="快递公司编号",required=true)@RequestParam String companyCode,
-			@ApiParam(name="expressNo",value="快递编号",required=true)@RequestParam String expressNo){
+			@ApiParam(name="orderId",value="订单编号",required=true)@RequestParam String orderId){
 		DataResult result=new DataResult();
 		try {
-			result = giftMachineService.queryKuaidiInfo(companyCode,expressNo);
+			result = giftMachineService.queryKuaidiInfo(orderId);
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			result.setStatus(Result.FAILED);
-			result.setMessage("申请提现失败");
+			result.setMessage("查询快递失败");
 			return result;
 		}
 	}

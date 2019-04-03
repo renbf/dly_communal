@@ -35,7 +35,8 @@ public class TGiftApply extends BaseEntity
 	private String introduce;
 	/** 订单编号 */
 	private String orderno;
-
+	/** 礼物机类型id */
+	private String giftModelId;
 	public void setId(String id) 
 	{
 		this.id = id;
@@ -127,7 +128,15 @@ public class TGiftApply extends BaseEntity
 		return orderno;
 	}
 
-    public String toString() {
+    public String getGiftModelId() {
+		return giftModelId;
+	}
+
+	public void setGiftModelId(String giftModelId) {
+		this.giftModelId = giftModelId;
+	}
+
+	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("giftId", getGiftId())
@@ -139,6 +148,7 @@ public class TGiftApply extends BaseEntity
             .append("latticePrice", getLatticePrice())
             .append("introduce", getIntroduce())
             .append("orderno", getOrderno())
+            .append("giftModelId", getGiftModelId())
             .toString();
     }
 }

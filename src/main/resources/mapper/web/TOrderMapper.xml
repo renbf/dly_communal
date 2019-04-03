@@ -15,6 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="goodsId"    column="goods_id"    />
         <result property="deliveryDate"    column="delivery_date"    />
         <result property="completionDate"    column="completion_date"    />
+        <result property="companyCode"    column="company_code"    />
     </resultMap>
     <resultMap type="OrderVo" id="OrderVoResult">
         <result property="orderId"    column="orderId"/>
@@ -35,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="orderNo"    column="order_no"    />
     </resultMap>
 	<sql id="selectTOrderVo">
-        select id, user_id, address_id, express_no, creat_date, create_user, state, goods_id, delivery_date, completion_date from t_order
+        select id, user_id, address_id, express_no, creat_date, create_user, state, goods_id, delivery_date, completion_date,company_code from t_order
     </sql>
     <select id="selectTOrderAllList" parameterType="TOrder" resultMap="OrderVoResult">
         select o.id as orderId,u.receiver as receiver,u.telephone as telephone,
@@ -100,6 +101,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="goodsId != null  and goodsId != ''  ">goods_id,</if>
 			<if test="deliveryDate != null  ">delivery_date,</if>
 			<if test="completionDate != null  ">completion_date,</if>
+			<if test="companyCode != null  ">company_code,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null  and id != ''  ">#{id},</if>
@@ -112,6 +114,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="goodsId != null  and goodsId != ''  ">#{goodsId},</if>
 			<if test="deliveryDate != null  ">#{deliveryDate},</if>
 			<if test="completionDate != null  ">#{completionDate},</if>
+			<if test="companyCode != null  ">#{companyCode},</if>
          </trim>
     </insert>
 	 
@@ -127,6 +130,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="goodsId != null  and goodsId != ''  ">goods_id = #{goodsId},</if>
             <if test="deliveryDate != null  ">delivery_date = #{deliveryDate},</if>
             <if test="completionDate != null  ">completion_date = #{completionDate},</if>
+            <if test="companyCode != null  ">company_code = #{companyCode},</if>
         </trim>
         where id = #{id}
     </update>

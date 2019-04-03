@@ -112,4 +112,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where orderno = #{orderno}
     </update>
     
+    <select id="selectPayOrderByOrderNo" parameterType="java.lang.String" resultMap="PayOrderResult">
+        <include refid="selectPayOrderVo"/>
+        where orderno = #{orderno}
+    </select>
 </mapper>

@@ -39,7 +39,8 @@ public class TOrder extends BaseEntity
 	private String goodsName;
 	/** 收货人 **/
 	private String receiver;
-
+	/** 快递公司编码 **/
+	private String companyCode;
 	public String getReceiver() {
 		return receiver;
 	}
@@ -147,7 +148,15 @@ public class TOrder extends BaseEntity
 		return completionDate;
 	}
 
-    public String toString() {
+    public String getCompanyCode() {
+		return companyCode;
+	}
+
+	public void setCompanyCode(String companyCode) {
+		this.companyCode = companyCode;
+	}
+
+	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("userId", getUserId())
@@ -159,6 +168,7 @@ public class TOrder extends BaseEntity
             .append("goodsId", getGoodsId())
             .append("deliveryDate", getDeliveryDate())
             .append("completionDate", getCompletionDate())
+            .append("companyCode", getCompanyCode())
             .toString();
     }
 }

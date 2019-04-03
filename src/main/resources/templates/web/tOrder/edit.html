@@ -28,7 +28,10 @@
                     <input id="expressNo" name="expressNo" th:field="*{expressNo}" class="form-control" type="text" style="width:180px;display:inline">
                 <!--</div>-->
             </div>
-
+			<div class="form-group">
+                <label class="col-sm-3 control-label">快递公司编码：</label>
+                    <input id="companyCode" name="companyCode" th:field="*{companyCode}" class="form-control" type="text" style="width:180px;display:inline">
+            </div>
 
 
 
@@ -40,9 +43,12 @@
 		var prefix = ctx + "web/tOrder"
 		$("#form-tOrder-edit").validate({
 			rules:{
-				xxxx:{
-					required:true,
-				},
+				expressNo:{
+                    required:true
+                },
+                companyCode:{
+                    required:true
+                }
 			}
 		});
 		
