@@ -15,10 +15,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="content"    column="content"    />
         <result property="payType"    column="pay_type"    />
         <result property="tradeno"    column="tradeno"    />
+        <result property="payParams"    column="pay_params"    />
     </resultMap>
 	
 	<sql id="selectPayOrderVo">
-        select id, orderid, userid, orderno, state, create_date, type, content, pay_type, tradeno from t_pay_order
+        select id, orderid, userid, orderno, state, create_date, type, content, pay_type, tradeno,pay_params from t_pay_order
     </sql>
 	
     <select id="selectPayOrderList" parameterType="PayOrder" resultMap="PayOrderResult">

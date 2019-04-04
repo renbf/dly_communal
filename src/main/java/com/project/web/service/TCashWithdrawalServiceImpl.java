@@ -76,17 +76,21 @@ public class TCashWithdrawalServiceImpl implements ITCashWithdrawalService
 			TCashWithdrawal cashWithdrawal = tCashWithdrawalMapper.selectTCashWithdrawalById(tCashWithdrawal.getId());
 			//同意
 			if ("1".equals(tCashWithdrawal.getState())) {
-				String outBizNo = String.valueOf(OrderNo.getOrderNo());
-				String amount = String.valueOf(cashWithdrawal.getMoney());
-				result = AliPayUtil.fundTransToaccountTransfer(outBizNo, cashWithdrawal.getAccount(), amount, "备注");
-				if (Result.SUCCESS.equals(result.getStatus())) {
-					tCashWithdrawalMapper.updateTCashWithdrawal(tCashWithdrawal);
-					result.setMessage("提现申请成功");
-					result.setStatus(Result.SUCCESS);
-					return result;
-				} else {
-					return result;
-				}
+//				String outBizNo = String.valueOf(OrderNo.getOrderNo());
+//				String amount = String.valueOf(cashWithdrawal.getMoney());
+//				result = AliPayUtil.fundTransToaccountTransfer(outBizNo, cashWithdrawal.getAccount(), amount, "备注");
+//				if (Result.SUCCESS.equals(result.getStatus())) {
+//					tCashWithdrawalMapper.updateTCashWithdrawal(tCashWithdrawal);
+//					result.setMessage("提现申请成功");
+//					result.setStatus(Result.SUCCESS);
+//					return result;
+//				} else {
+//					return result;
+//				}
+				tCashWithdrawalMapper.updateTCashWithdrawal(tCashWithdrawal);
+				result.setMessage("提现申请成功");
+				result.setStatus(Result.SUCCESS);
+				return result;
 			} else {
 				tCashWithdrawalMapper.updateTCashWithdrawal(tCashWithdrawal);
 				result.setMessage("提现申请拒绝");

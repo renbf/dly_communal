@@ -254,6 +254,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="money != null ">
                 money,
             </if>
+            <if test="payParams != null ">
+                pay_params,
+            </if>
         </trim>
        <trim prefix="values (" suffix=")" suffixOverrides=",">
         <if test="id != null and id != ''">
@@ -286,6 +289,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="money != null">
             #{money},
         </if>
+        <if test="payParams != null ">
+        	#{payParams},
+        </if>
     </trim>
     </insert>
 
@@ -302,7 +308,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 where t.gift_id=#{giftId} and  t.state='1' and t.user_id = #{userId}
 	</select>
     <select id="queryPayOrder" resultType="com.project.appinterface.domain.PayOrder">
-		    	select id,orderid,userid,orderno,state,create_date,type,content,pay_type,money from t_pay_order where orderno=#{orderno}
+		    	select id,orderid,userid,orderno,state,create_date,type,content,pay_type,money,pay_params from t_pay_order where orderno=#{orderno}
 	</select>
     <update id="updatePayOrder" parameterType="map">
         update t_pay_order

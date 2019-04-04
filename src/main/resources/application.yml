@@ -8,10 +8,10 @@ project:
   copyrightYear: 2018
   # 文件上传路径
   #profile: D:/profile/
-  profile: F:/yingyong/apache-tomcat-8.5.29/webapps/image
-  pictureUrl: http://192.168.0.140:8090/image/
-  #profile: /home/apache-tomcat-8.5.8/webapps/image
-  #pictureUrl: http://60.205.187.254:8088/image/
+  #profile: F:/yingyong/apache-tomcat-8.5.29/webapps/image
+  #pictureUrl: http://192.168.0.140:8090/image/
+  profile: /home/apache-tomcat-8.5.8/webapps/image
+  pictureUrl: http://60.205.187.254:8088/image/
   model:
     word:
       path: C:\Users\juguoguo\Desktop #word模板路径
@@ -22,8 +22,8 @@ project:
     host: http://jgg.free.idcfengye.com
   # 获取ip地址开关
   addressEnabled: true
-  #weixinCertPath: /home/gift/weixin/cert/apiclient_cert.p12
-  weixinCertPath: C:/Users/Admin/Desktop/gift/weixin/weixinXCX/apiclient_cert.p12
+  weixinCertPath: /home/gift/weixin/cert/apiclient_cert.p12
+  #weixinCertPath: C:/Users/Admin/Desktop/gift/weixin/weixinXCX/apiclient_cert.p12
 # 客户端通信配置
 client:
   # tcp服务端口

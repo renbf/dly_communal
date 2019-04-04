@@ -548,9 +548,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				model.setTimeoutExpress("30m");
 				model.setTotalAmount(paramArrayVo.getPayMoney().trim());
 				model.setProductCode("QUICK_MSECURITY_PAY");
-				String passbackParams = JSON.toJSONString(paramArrayVo);
-				passbackParams = URLEncoder.encode(passbackParams,"UTF-8");
-				model.setPassbackParams(passbackParams);
+				String paramArrayVoJson = JSON.toJSONString(paramArrayVo);
 				String notifyUrl = "http://60.205.187.254:80/gift/giftMachine/aliNotice";
 				String returnstr = AliPayUtil.aliPay(model, notifyUrl).trim();
 
@@ -566,6 +564,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 					po.setType("1");
 					po.setOrderid(paramArrayVo.getGiftId());
 					po.setContent(returnstr);
+					po.setPayParams(paramArrayVoJson);
 					// 申请
 					if (paramArrayVo.getType().equals("0")) {
 						gi.setPayType("0");
@@ -722,8 +721,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				model.setTimeoutExpress("30m");
 				model.setTotalAmount(paramArrayVo.getPayMoney().trim());
 				model.setProductCode("QUICK_MSECURITY_PAY");
-				String passbackParams = JSON.toJSONString(paramArrayVo);
-				model.setPassbackParams(passbackParams);
+				String paramArrayVoJson = JSON.toJSONString(paramArrayVo);
 				String notifyUrl = " http://http://60.205.187.254:80/gift/giftMachine/aliNotice";
 				String returnstr = AliPayUtil.aliPay(model, notifyUrl).trim();
 				if (returnstr != null) {
@@ -738,7 +736,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 					po.setType("1");
 					po.setOrderid(paramArrayVo.getGiftId() + "_" + indexs);
 					po.setContent(returnstr);
-
+					po.setPayParams(paramArrayVoJson);
 					po.setPayType("1");
 					gi.setConsumptionType("1");
 					gi.setState("抽奖");
@@ -832,10 +830,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 //				giftMachineMapper.updatePayOrder(rmap);
 				
 				//回调
-				String passbackParams = alipayNotifyParam.getPassbackParams();
-				passbackParams = URLDecoder.decode(passbackParams,"UTF-8");
-				JSONObject jsStr = JSONObject.parseObject(passbackParams);
-				ParamArrayVo paramArrayVo = (ParamArrayVo) JSONObject.toJavaObject(jsStr, ParamArrayVo.class);
+				
 				String orderNo = out_trade_no;
 				String requestId = UUIDUtil.getUUID();
 				try {
@@ -849,6 +844,8 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 						AliPayUtil.responseService(response, "success");
 						return ;
 					}
+					JSONObject jsStr = JSONObject.parseObject(payOrderIsCheck.getPayParams());
+					ParamArrayVo paramArrayVo = (ParamArrayVo) JSONObject.toJavaObject(jsStr, ParamArrayVo.class);
 					if (paramArrayVo.getCouponId() != null && !"".equals(paramArrayVo.getCouponId())) {
 						CouponReceive couponReceive = new CouponReceive();
 						couponReceive.setCouponId(paramArrayVo.getCouponId());
@@ -891,6 +888,9 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 							Wallet walletu = new Wallet();
 							walletu.setId(UUIDUtil.getUUID());
 							walletu.setUserId(userId);
+							walletu.setBalance(0l);
+							walletu.setProfit(0l);
+							walletu.setDeposit(0l);
 							walletMapper.insertWallet(walletu);
 						}
 					} else {

@@ -37,7 +37,8 @@ public class PayOrder extends BaseEntity
 	private String tradeno;
 	/** 支付金额**/
 	private long money;
-
+	/** 支付回调参数**/
+	private String payParams;
 	public long getMoney() {
 		return money;
 	}
@@ -137,7 +138,15 @@ public class PayOrder extends BaseEntity
 		return tradeno;
 	}
 
-    public String toString() {
+    public String getPayParams() {
+		return payParams;
+	}
+
+	public void setPayParams(String payParams) {
+		this.payParams = payParams;
+	}
+
+	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("orderid", getOrderid())
