@@ -47,22 +47,24 @@ public class WebSocketUtils {
 				bean.setCurrentStateMap(currentStateMap);
 				bean.setGiftId(giftId);
 				bean.setUserId(userId);
-				bean.setSessionId(session.getId());
-				sessionMap.put(session.getId(), session);
+				bean.setSessionId("sessionId_"+session.getId());
+				sessionMap.put("sessionId_"+session.getId(), session);
 			}
 		}
 		Map<String, String> giftIdMap = JedisUtil.getMap(giftId);
 		if(giftIdMap == null) {
 			giftIdMap = new ConcurrentHashMap<String, String>();
 			String beanStr = JSON.toJSONString(bean);
-			giftIdMap.put(session.getId(), beanStr);
+			giftIdMap.put("sessionId_"+session.getId(), beanStr);
 		}else {
 			Map<String, String> currentStateMap = bean.getCurrentStateMap();
 			//消息指令
 			Map<String, String> checkedStateMap = new ConcurrentHashMap<String, String>();
 			for(String sessionid : giftIdMap.keySet()){
-				String sessionidBean = giftIdMap.get(sessionid);
-				WebSocketSelectGoodsBean item = JSON.parseObject(sessionidBean, WebSocketSelectGoodsBean.class);
+				String sessionidBean = null;
+				sessionidBean = giftIdMap.get(sessionid);
+				WebSocketSelectGoodsBean item = new WebSocketSelectGoodsBean();
+				item = JSON.parseObject(sessionidBean, WebSocketSelectGoodsBean.class);
 				Map<String, String> currentStateMapItem = item.getCurrentStateMap();
 				for (String index : currentStateMapItem.keySet()) {
 					//遍历所有选中的下标
@@ -81,7 +83,7 @@ public class WebSocketUtils {
 			String messages = JSON.toJSONString(selectGoodsMessage);
 			sendMessage(messages,sessionMap.get(bean.getSessionId()));
 			String beanStr = JSON.toJSONString(bean);
-			giftIdMap.put(session.getId(), beanStr);
+			giftIdMap.put("sessionId_"+session.getId(), beanStr);
 		}
 		
 		JedisUtil.mapPut(giftId, giftIdMap);
@@ -120,7 +122,7 @@ public class WebSocketUtils {
     	log.info("giftId="+giftId+",userId="+userId+",sessionId="+session.getId());
     	String sessionId = session.getId();
     	Map<String, String> giftIdMap = JedisUtil.getMap(giftId);
-    	String sessionidBean = giftIdMap.get(sessionId);
+    	String sessionidBean = giftIdMap.get("sessionId_"+sessionId);
 		WebSocketSelectGoodsBean bean = JSON.parseObject(sessionidBean, WebSocketSelectGoodsBean.class);
 		Map<String, String> indexStateMap = new ConcurrentHashMap<String, String>();
 		if (bean.getOriginalStateMap() != null && bean.getOriginalStateMap().size() > 0 && bean.getCurrentStateMap() != null
@@ -139,13 +141,18 @@ public class WebSocketUtils {
 			selectGoodsMessage.setIndexStateMap(indexStateMap);
 			
 			for (String sessionid : giftIdMap.keySet()) {
-				String sessionidBeanItem = giftIdMap.get(sessionid);
-				WebSocketSelectGoodsBean item = JSON.parseObject(sessionidBeanItem, WebSocketSelectGoodsBean.class);
+				String sessionidBeanItem = null;
+				sessionidBeanItem = giftIdMap.get(sessionid);
+				WebSocketSelectGoodsBean item = new WebSocketSelectGoodsBean();
+				item = JSON.parseObject(sessionidBeanItem, WebSocketSelectGoodsBean.class);
 				for (String index : indexStateMap.keySet()) {
 					if (item.getCurrentStateMap() != null) {
 						// 其他用户
 						if (!item.getUserId().equals(userId)) {
 							item.getCurrentStateMap().put(index, indexStateMap.get(index));
+							String beanStr = JSON.toJSONString(item);
+							giftIdMap.put(session.getId(), beanStr);
+							JedisUtil.mapPut(giftId, giftIdMap);
 							String messages = JSON.toJSONString(selectGoodsMessage);
 							sendMessage(messages,sessionMap.get(item.getSessionId()));
 						}
@@ -153,8 +160,8 @@ public class WebSocketUtils {
 				}
 			}
 		}
-		JedisUtil.mapRemove(giftId, sessionId);
-		sessionMap.remove(session.getId());
+		JedisUtil.mapRemove(giftId, "sessionId_"+sessionId);
+		sessionMap.remove("sessionId_"+session.getId());
 //    	Map<String,WebSocketSelectGoodsBean> webSocketSet = webSocketMap.get(giftId);
 //    	WebSocketSelectGoodsBean bean = webSocketSet.get(sessionId);
 //    	
@@ -204,11 +211,14 @@ public class WebSocketUtils {
 		// 消息指令
 		Map<String, String> indexStateMap = selectGoodsMessage.getIndexStateMap();
 		
-		Map<String, String> giftIdMap = JedisUtil.getMap(selectGoodsMessage.getGiftId());
+		String giftId = selectGoodsMessage.getGiftId();
+		Map<String, String> giftIdMap = JedisUtil.getMap(giftId);
 		// 群发消息
 				for (String sessionid : giftIdMap.keySet()) {
-					String sessionidBean = giftIdMap.get(sessionid);
-					WebSocketSelectGoodsBean item = JSON.parseObject(sessionidBean, WebSocketSelectGoodsBean.class);
+					String sessionidBean = null;
+					sessionidBean = giftIdMap.get(sessionid);
+					WebSocketSelectGoodsBean item = new WebSocketSelectGoodsBean();
+					item = JSON.parseObject(sessionidBean, WebSocketSelectGoodsBean.class);
 					for (String index : indexStateMap.keySet()) {
 						if (item.getCurrentStateMap() != null) {
 							// 其他用户
@@ -225,6 +235,9 @@ public class WebSocketUtils {
 									item.getCurrentStateMap().put(index, indexStateMap.get(index));
 								}
 							}
+							String beanStr = JSON.toJSONString(item);
+							giftIdMap.put(sessionid, beanStr);
+							JedisUtil.mapPut(giftId, giftIdMap);
 						}
 					}
 				}
