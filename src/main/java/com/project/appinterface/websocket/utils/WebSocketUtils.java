@@ -25,15 +25,16 @@ public class WebSocketUtils {
 	private static Logger log = LoggerFactory.getLogger(WebSocketUtils.class);
 	// concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。
 //	private static Map<String, Map<String,WebSocketSelectGoodsBean>> webSocketMap = new ConcurrentHashMap<>();
-	private static Map<String, Session> sessionMap = new ConcurrentHashMap<String, Session>();
+	
     /*
     Add Session
      */
-    public static void add(String giftId,String userId, Session session) throws Exception{
+    public static void add(String giftId,String userId, Session session,Map<String, Session> sessionMap) throws Exception{
     	log.info("giftId="+giftId+",userId="+userId+",sessionId="+session.getId());
         Map<String, List<String>> paramMap = session.getRequestParameterMap();
 		List<String> contentList = paramMap.get("content");
 		WebSocketSelectGoodsBean bean = new WebSocketSelectGoodsBean();
+		Map<String, String> giftIdMap = JedisUtil.getMap("websocket_"+giftId);
 		if (CollectionUtils.isNotEmpty(contentList)) {
 			Map<String, String> originalStateMap = new ConcurrentHashMap<String, String>();
 			Map<String, String> currentStateMap = new ConcurrentHashMap<String, String>();
@@ -48,10 +49,10 @@ public class WebSocketUtils {
 				bean.setGiftId(giftId);
 				bean.setUserId(userId);
 				bean.setSessionId("sessionId_"+session.getId());
-				sessionMap.put("sessionId_"+session.getId(), session);
 			}
 		}
-		Map<String, String> giftIdMap = JedisUtil.getMap(giftId);
+		
+		
 		if(giftIdMap == null) {
 			giftIdMap = new ConcurrentHashMap<String, String>();
 			String beanStr = JSON.toJSONString(bean);
@@ -86,7 +87,8 @@ public class WebSocketUtils {
 			giftIdMap.put("sessionId_"+session.getId(), beanStr);
 		}
 		
-		JedisUtil.mapPut(giftId, giftIdMap);
+		JedisUtil.mapPut("websocket_"+giftId, giftIdMap);
+		
 //		if (webSocketMap.containsKey(giftId)) {
 //			Map<String,WebSocketSelectGoodsBean> webSocketSet = webSocketMap.get(giftId);
 //			Map<String, String> currentStateMap = bean.getCurrentStateMap();
@@ -118,10 +120,10 @@ public class WebSocketUtils {
 //			webSocketMap.put(giftId, webSocketSet);
 //		}
     }
-    public static void close(String giftId,String userId, Session session) throws Exception{
+    public static void close(String giftId,String userId, Session session,Map<String, Session> sessionMap) throws Exception{
     	log.info("giftId="+giftId+",userId="+userId+",sessionId="+session.getId());
     	String sessionId = session.getId();
-    	Map<String, String> giftIdMap = JedisUtil.getMap(giftId);
+    	Map<String, String> giftIdMap = JedisUtil.getMap("websocket_"+giftId);
     	String sessionidBean = giftIdMap.get("sessionId_"+sessionId);
 		WebSocketSelectGoodsBean bean = JSON.parseObject(sessionidBean, WebSocketSelectGoodsBean.class);
 		Map<String, String> indexStateMap = new ConcurrentHashMap<String, String>();
@@ -151,8 +153,8 @@ public class WebSocketUtils {
 						if (!item.getUserId().equals(userId)) {
 							item.getCurrentStateMap().put(index, indexStateMap.get(index));
 							String beanStr = JSON.toJSONString(item);
-							giftIdMap.put(session.getId(), beanStr);
-							JedisUtil.mapPut(giftId, giftIdMap);
+							giftIdMap.put("sessionId_"+session.getId(), beanStr);
+							JedisUtil.mapPut("websocket_"+giftId, giftIdMap);
 							String messages = JSON.toJSONString(selectGoodsMessage);
 							sendMessage(messages,sessionMap.get(item.getSessionId()));
 						}
@@ -160,8 +162,7 @@ public class WebSocketUtils {
 				}
 			}
 		}
-		JedisUtil.mapRemove(giftId, "sessionId_"+sessionId);
-		sessionMap.remove("sessionId_"+session.getId());
+		JedisUtil.mapRemove("websocket_"+giftId, "sessionId_"+sessionId);
 //    	Map<String,WebSocketSelectGoodsBean> webSocketSet = webSocketMap.get(giftId);
 //    	WebSocketSelectGoodsBean bean = webSocketSet.get(sessionId);
 //    	
@@ -204,7 +205,7 @@ public class WebSocketUtils {
     /*
     Receive Message
      */
-    public static void message(String message, Session session) throws Exception{
+    public static void message(String message, Session session,Map<String, Session> sessionMap) throws Exception{
     	JSONObject jsStr = JSONObject.parseObject(message); // 将字符串{“id”：1}
 		SelectGoodsMessage selectGoodsMessage = (SelectGoodsMessage) JSONObject.toJavaObject(jsStr,
 				SelectGoodsMessage.class);
@@ -212,7 +213,7 @@ public class WebSocketUtils {
 		Map<String, String> indexStateMap = selectGoodsMessage.getIndexStateMap();
 		
 		String giftId = selectGoodsMessage.getGiftId();
-		Map<String, String> giftIdMap = JedisUtil.getMap(giftId);
+		Map<String, String> giftIdMap = JedisUtil.getMap("websocket_"+giftId);
 		// 群发消息
 				for (String sessionid : giftIdMap.keySet()) {
 					String sessionidBean = null;
@@ -237,7 +238,7 @@ public class WebSocketUtils {
 							}
 							String beanStr = JSON.toJSONString(item);
 							giftIdMap.put(sessionid, beanStr);
-							JedisUtil.mapPut(giftId, giftIdMap);
+							JedisUtil.mapPut("websocket_"+giftId, giftIdMap);
 						}
 					}
 				}
