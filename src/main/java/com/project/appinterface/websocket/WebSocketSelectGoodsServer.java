@@ -30,7 +30,6 @@ public class WebSocketSelectGoodsServer {
 	// 静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
 	private static int onlineCount = 0;
 	// 与某个客户端的连接会话，需要通过它来给客户端发送数据
-	private Session session;
 	
 	/**
 	 * 连接建立成功调用的方法

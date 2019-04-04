@@ -3,8 +3,6 @@ package com.project.appinterface.websocket.domain;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.websocket.Session;
-
 public class WebSocketSelectGoodsBean implements Serializable{
 	/**
 	 * 
@@ -21,7 +19,7 @@ public class WebSocketSelectGoodsBean implements Serializable{
 	/** 当前状态 */
 	private Map<String, String> currentStateMap;
 	// 与某个客户端的连接会话，需要通过它来给客户端发送数据
-	private Session session;
+//	private Session session;
 	public String getSessionId() {
 		return sessionId;
 	}
@@ -52,11 +50,11 @@ public class WebSocketSelectGoodsBean implements Serializable{
 	public void setCurrentStateMap(Map<String, String> currentStateMap) {
 		this.currentStateMap = currentStateMap;
 	}
-	public Session getSession() {
-		return session;
-	}
-	public void setSession(Session session) {
-		this.session = session;
-	}
+//	public Session getSession() {
+//		return session;
+//	}
+//	public void setSession(Session session) {
+//		this.session = session;
+//	}
 	
 }

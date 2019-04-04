@@ -405,10 +405,11 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 		try {
 			if (map.get("default_address").equals("0")) {
 				Map<String, String> rmap = new HashMap<>();
-				rmap.put("id", map.get("id"));
+				rmap.put("user_id", map.get("user_id"));
 				rmap.put("default_address", "1");
 				giftMachineMapper.updateCollectAddress(rmap);
 			}
+			map.remove("user_id");
 			giftMachineMapper.updateCollectAddress(map);
 			result.setMessage("修改成功");
 			result.setStatus(Result.SUCCESS);

@@ -213,6 +213,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="id != null and id != ''">
                 and id = #{id}
             </if>
+            <if test="user_id != null and user_id != ''">
+                and user_id = #{user_id}
+            </if>
         </where>
     </update>
     <select id="queryDefault" resultType="com.project.appinterface.domain.UserAddress">
@@ -305,7 +308,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryPayGift" resultType="com.project.appinterface.domain.PayOrder">
 		    	select p.type as type,p.money as money from t_pay_order p
                 LEFT JOIN t_gift_apply t on t.orderno=p.orderno
-                where t.gift_id=#{giftId} and  t.state='1' and t.user_id = #{userId}
+                where t.gift_id=#{giftId} and t.user_id = #{userId}
 	</select>
     <select id="queryPayOrder" resultType="com.project.appinterface.domain.PayOrder">
 		    	select id,orderid,userid,orderno,state,create_date,type,content,pay_type,money,pay_params from t_pay_order where orderno=#{orderno}

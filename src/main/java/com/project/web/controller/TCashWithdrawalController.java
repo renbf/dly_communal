@@ -104,7 +104,7 @@ public class TCashWithdrawalController extends BaseController
 	{		
 		DataResult result=new DataResult();
 		try {
-			AliPayUtil.getUserInfoAuth();
+//			AliPayUtil.getUserInfoAuth();
 			result = tCashWithdrawalService.updateTCashWithdrawal(tCashWithdrawal);
 			return result;
 		} catch (Exception e) {
