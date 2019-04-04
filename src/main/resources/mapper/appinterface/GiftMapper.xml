@@ -29,17 +29,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <result property="giftApplyId"    column="giftApplyId"    />
             <result property="applyState"    column="applyState"    />
         </resultMap>
-
+        
+		<resultMap type="com.project.appinterface.domain.GiftVo" id="GiftVoResult">
+            <result property="giftId"    column="gift_id"    />
+            <result property="introduce"    column="introduce"    />
+            <result property="latticePrice"    column="lattice_price"    />
+            <result property="latticeNum"    column="lattice_num"    />
+            <result property="surplusPosition"    column="surplus_position"    />
+            <result property="goodsNames"    column="goodsNames"    />
+        </resultMap>
         <sql id="selectGiftVo">
         select id, model, picture_url, state, create_date, create_user, update_date, lng, lat, charge_id, user_id, model_name,location_name as locationName from t_gift
     </sql>
 
         <select id="selectGiftList" parameterType="Gift" resultMap="GiftResult">
-            select g.id, g.model, g.picture_url, g.state, g.create_date, g.create_user, g.update_date, g.lng, g.lat, g.charge_id, g.user_id, g.model_name,g.location_name as locationName
+            select g.id, g.model, g.picture_url, g.state, g.create_date, g.create_user, g.update_date, g.lng, g.lat, g.charge_id, g.user_id, g.model_name,g.location_name ,sa.short_name locationName
             <if test="user_id != null  and user_id != '' ">
             ,(select count(1) from t_gift_apply ga where ga.gift_id = g.id and ga.user_id = #{user_id} and ga.state in ('0','1')) isApply
             </if>
             from t_gift g
+            left join t_sys_areas sa on sa.id = g.location_name
             <where>
             state<![CDATA[ <> ]]>'2'
                 <if test="id != null  and id != '' "> and id = #{id}</if>
@@ -356,4 +365,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update_date = now()
         where id = #{id}
     </update>
+    
+    <select id="selectGiftByGiftId" parameterType="java.lang.String" resultMap="GiftVoResult">
+    	select ga.gift_id,ga.introduce,ga.lattice_price,gm.lattice_num,gl.surplus_position,
+    	(select GROUP_CONCAT(ci.name) from t_commodity_information ci join t_gift_goods gg on gg.goods_id = ci.id where gg.gift_apply_id = ga.id) goodsNames
+		from t_gift_apply ga 
+		left join t_gift_location gl on gl.gift_id = ga.gift_id
+		left join t_gift_model gm on gm.id = ga.gift_model_id
+		where ga.gift_id = #{giftId} and ga.state = '1'
+    </select>
+    
 </mapper>

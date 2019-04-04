@@ -58,5 +58,11 @@ public interface ConsumptionInformationMapper
      * @return 结果
      */
 	public int deleteConsumptionInformationByIds(String[] ids);
+	/**
+	 * 根据订单号查询
+	 * @param orderNo
+	 * @return
+	 */
+	public ConsumptionInformation selectConsumptionInformationByOrderNo(String orderNo);
 	
 }

@@ -154,7 +154,7 @@ public class WebSocketUtils {
 			}
 		}
 		JedisUtil.mapRemove(giftId, sessionId);
-		
+		sessionMap.remove(session.getId());
 //    	Map<String,WebSocketSelectGoodsBean> webSocketSet = webSocketMap.get(giftId);
 //    	WebSocketSelectGoodsBean bean = webSocketSet.get(sessionId);
 //    	

@@ -12,10 +12,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="consumptionUser"    column="consumption_user"    />
         <result property="consumptionDate"    column="consumption_date"    />
         <result property="state"    column="state"    />
+        <result property="account"    column="account"    />
+        <result property="extend"    column="extend"    />
     </resultMap>
 	
 	<sql id="selectConsumptionInformationVo">
-        select id, consumption_type, money, pay_type, consumption_user, consumption_date, state from t_consumption_information
+        select id, consumption_type, money, pay_type, consumption_user, consumption_date, state,account,extend from t_consumption_information
     </sql>
 	
     <select id="selectConsumptionInformationList" parameterType="ConsumptionInformation" resultMap="ConsumptionInformationResult">
@@ -29,6 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="consumptionDate != null "> and consumption_date = #{consumptionDate}</if>
              <if test="state != null  and state != '' "> and state = #{state}</if>
          </where>
+         order by consumption_date desc
     </select>
     
     <select id="selectConsumptionInformationById" parameterType="String" resultMap="ConsumptionInformationResult">
@@ -46,6 +49,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="consumptionUser != null  and consumptionUser != ''  ">consumption_user,</if>
 			<if test="consumptionDate != null  ">consumption_date,</if>
 			<if test="state != null  and state != ''  ">state,</if>
+			<if test="account != null  and account != ''  ">account,</if>
+			<if test="extend != null  and extend != ''  ">extend,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null  and id != ''  ">#{id},</if>
@@ -55,6 +60,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="consumptionUser != null  and consumptionUser != ''  ">#{consumptionUser},</if>
 			<if test="consumptionDate != null  ">#{consumptionDate},</if>
 			<if test="state != null  and state != ''  ">#{state},</if>
+			<if test="account != null  and account != ''  ">#{account},</if>
+			<if test="extend != null  and extend != ''  ">#{extend},</if>
          </trim>
     </insert>
 	 
@@ -81,5 +88,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+    
+    <select id="selectConsumptionInformationByOrderNo" parameterType="String" resultMap="ConsumptionInformationResult">
+    	<include refid="selectConsumptionInformationVo"/>
+        where extend = #{orderNo}
+    </select>
     
 </mapper>

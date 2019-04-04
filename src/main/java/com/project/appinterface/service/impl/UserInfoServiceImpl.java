@@ -163,6 +163,16 @@ public class UserInfoServiceImpl implements IUserInfoService
 				user.setNickname("用户_"+phone);
 				user.setInviterCode(invitationCode);
 				userInfoMapper.insertUserInfo(user);
+				Wallet wallet = walletMapper.selectWalletByUserId(user.getId());
+				if(wallet == null) {
+					Wallet walletu = new Wallet();
+					walletu.setId(UUIDUtil.getUUID());
+					walletu.setUserId(user.getId());
+					walletu.setBalance(0l);
+					walletu.setProfit(0l);
+					walletu.setDeposit(0l);
+					walletMapper.insertWallet(walletu);
+				}
 				Map<String, String> map = new HashMap<String, String>();
 				map.put("userid", user.getId());
 				result.setMessage("注册成功");

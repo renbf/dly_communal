@@ -6,8 +6,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.github.wxpay.sdk.WXPayUtil;
+import com.github.wxpay.sdk.WXPayConstants.SignType;
 import com.project.appinterface.util.wxpayutil.MyConfig;
 import com.project.util.HttpsClientUtil;
+import com.project.util.PayParameter;
 
 /**
  *  微信支付
@@ -28,6 +30,10 @@ public class WXPayExample {
 	        	data.put("appid", config.getAppID());
 	        	data.put("mch_id", config.getMchID());
 	 	        data.put("nonce_str", WXPayUtil.generateNonceStr());
+	 	        
+//	 	       String sign = WXPayUtil.generateSignature(data, PayParameter.WEI_KEY);
+//	 	       data.put("sign", sign);
+//	 	       data.put("sign_type", "MD5");
 	 	       String xml = WXPayUtil.generateSignedXml(data, config.getKey());
 	 	       String str = HttpsClientUtil.httpRequest("https://api.mch.weixin.qq.com/pay/unifiedorder",
 	    				"POST", xml);

@@ -2,8 +2,7 @@ package com.project.appinterface.service.impl;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,13 +35,13 @@ import com.project.appinterface.domain.GiftApply;
 import com.project.appinterface.domain.GiftGoods;
 import com.project.appinterface.domain.GiftLocation;
 import com.project.appinterface.domain.GiftModel;
+import com.project.appinterface.domain.GiftVo;
 import com.project.appinterface.domain.GoodsVo;
 import com.project.appinterface.domain.Order;
 import com.project.appinterface.domain.ParamArrayVo;
 import com.project.appinterface.domain.Parameter;
 import com.project.appinterface.domain.PayOrder;
 import com.project.appinterface.domain.RefundApplication;
-import com.project.appinterface.domain.SysAreas;
 import com.project.appinterface.domain.TCollection;
 import com.project.appinterface.domain.UserAddress;
 import com.project.appinterface.domain.Wallet;
@@ -138,7 +137,6 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 		List<Map<String, Object>> rlist = new ArrayList<>();
 		for (Gift gift : list) {
 			Map<String, Object> map = new HashMap<>();
-			map.put("giftName", gift.getModelName());
 			map.put("lng", gift.getLng());
 			map.put("lat", gift.getLat());
 			map.put("giftId", gift.getId());
@@ -148,19 +146,15 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			}
 			map.put("isApply", gift.getIsApply());
 			map.put("giftId", gift.getId());
-			SysAreas sysAress = commonInterfaceMapper.getAddressById(gift.getLocationName());
-			if (sysAress != null) {
-				map.put("locationName", sysAress.getShort_name());
+			map.put("locationName", gift.getLocationName());
+			if("1".equals(gift.getState())) {
+				GiftVo giftVo = giftMachineMapper.selectGiftByGiftId(gift.getId());
+				map.put("giftName", giftVo.getIntroduce());
+				map.put("latticePrice", MoneyUtil.toYuan(giftVo.getLatticePrice()));
+				map.put("surplusPosition", giftVo.getSurplusPosition());
+				map.put("totalPosition", giftVo.getLatticeNum());
+				map.put("goodsName", giftVo.getGoodsNames());
 			}
-			map.put("latticePrice", MoneyUtil.toYuan(gift.getLattice_price()));
-			map.put("surplusPosition", gift.getSurplusPosition());
-			map.put("totalPosition", gift.getTotalPosition());
-			List<CommodityInformation> clist = commodityInformationMapper.selectCommodityInformationList(gift.getId());
-			String goodsname = "";
-			for (CommodityInformation c : clist) {
-				goodsname += c.getName();
-			}
-			map.put("goodsName", goodsname);
 			rlist.add(map);
 		}
 		result.setResult(rlist);
@@ -535,8 +529,10 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 		gi.setConsumptionUser(paramArrayVo.getUserId());
 		gi.setConsumptionDate(new Date());
 		gi.setState("0");
+		gi.setExtend(orderno);
 		returnMap.put("indexs", paramArrayVo.getIndexs());
 		if (paramArrayVo.getPayType().equals("0")) {
+			gi.setPayType("0");
 			try {
 				AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
 				model.setBody("大来也");
@@ -568,15 +564,14 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 					po.setPayParams(paramArrayVoJson);
 					// 申请
 					if (paramArrayVo.getType().equals("0")) {
-						gi.setPayType("0");
 						po.setPayType("0");
 						po.setOrderno(orderno);
 						gi.setConsumptionType("0");
-						gi.setState("购买礼物机");
+//						gi.setState("购买礼物机");
 					} else {
 						po.setPayType("1");
 						gi.setConsumptionType("1");
-						gi.setState("抽奖");
+//						gi.setState("抽奖");
 					}
 					giftMachineMapper.addPayOrder(po);
 					returnMap.put("returnStr", returnstr);
@@ -647,11 +642,10 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 						ga.setIntroduce(paramArrayVo.getGiftName());
 						giftApplyMapper.insertGiftApply(ga);
 						gi.setConsumptionType("0");
-						gi.setConsumptionType("0");
 					} else {
 						po.setPayType("1");
 						gi.setConsumptionType("1");
-						gi.setState("抽奖");
+//						gi.setState("抽奖");
 					}
 					po.setOrderno(orderno);
 					giftMachineMapper.addPayOrder(po);
@@ -709,8 +703,10 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			gi.setConsumptionUser(paramArrayVo.getUserId());
 			gi.setConsumptionDate(new Date());
 			gi.setState("0");
+			gi.setExtend(orderno);
 			returnMap.put("indexs", paramArrayVo.getIndexs());
 			if (paramArrayVo.getPayType().equals("0")) {
+				gi.setPayType("0");
 				AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
 				model.setBody("大来也");
 				if (paramArrayVo.getType().equals("0")) {
@@ -740,7 +736,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 					po.setPayParams(paramArrayVoJson);
 					po.setPayType("1");
 					gi.setConsumptionType("1");
-					gi.setState("抽奖");
+//					gi.setState("抽奖");
 
 					giftMachineMapper.addPayOrder(po);
 					consumptionInformationMapper.insertConsumptionInformation(gi);
@@ -1223,11 +1219,13 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 		List<ConsumptionInformation> clist = consumptionInformationMapper.selectConsumptionInformationList(ci);
 		List<Map<String, Object>> rlist = new ArrayList<>();
 		for (ConsumptionInformation c : clist) {
-			Map<String, Object> map = new HashMap<>();
-			map.put("consumptionType", c.getConsumptionType());
-			map.put("money", MoneyUtil.toYuan(c.getMoney()));
-			map.put("state", c.getState());
-			rlist.add(map);
+			if("1".equals(c.getState()) || "3".equals(c.getState())) {
+				Map<String, Object> map = new HashMap<>();
+				map.put("consumptionType", c.getConsumptionType());
+				map.put("money", MoneyUtil.toYuan(c.getMoney()));
+				map.put("state", c.getState());
+				rlist.add(map);
+			}
 		}
 		result.setResult(rlist);
 		result.setMessage("查询成功");
@@ -1393,6 +1391,8 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 						ga.setIntroduce(paramArrayVo.getGiftName());
 						giftApplyMapper.insertGiftApply(ga);
 						List<GoodsVo> gvlist = paramArrayVo.getGoodsList();
+						//计算押金
+						BigDecimal deposit = BigDecimal.ZERO;
 						for (GoodsVo g : gvlist) {
 							int goodsNumber = g.getGoodsNumber();
 							for (int i = 0; i < goodsNumber; i++) {
@@ -1404,25 +1404,32 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 								gg.setGiftApplyId(giftApplyId);
 								giftGoodsMapper.insertGiftGoods(gg);
 							}
+							BigDecimal price = new BigDecimal(g.getPicture());
+							deposit = deposit.add(price.multiply(new BigDecimal(goodsNumber)));
 						}
+						deposit = deposit.multiply(new BigDecimal(100));
+						//增加押金
 						Wallet wallet = walletMapper.selectWalletByUserId(userId);
-						if(wallet == null) {
-							Wallet walletu = new Wallet();
-							walletu.setId(UUIDUtil.getUUID());
-							walletu.setUserId(userId);
-							walletu.setBalance(0l);
-							walletu.setProfit(0l);
-							walletu.setDeposit(0l);
-							walletMapper.insertWallet(walletu);
-						}
+						Long depositOld = wallet.getDeposit();
+						Wallet walletu = new Wallet();
+						walletu.setId(wallet.getId());
+						walletu.setDeposit(depositOld+deposit.longValue());
+						walletMapper.updateWallet(wallet);
+						//消费记录
+						ConsumptionInformation consumptionInformation = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
+						consumptionInformation.setState("1");
+						consumptionInformationMapper.updateConsumptionInformation(consumptionInformation);
 					} else {
 						//开盒子
 						String indexs = paramArrayVo.getIndexs();
 						// 1.查询礼物机礼物格子信息
 						GiftLocation giftLocation = giftLocationMapper.selectGiftLocationById(giftId);
+						//机主的 giftUserId
+						String giftUserId = giftLocation.getCreateUser();
 						Integer surplusPosition = giftLocation.getSurplusPosition();
 						String[] contentArr = giftLocation.getContent().split(",");
 						String[] indexArr = indexs.split(",");
+						Long shouyi = 0l;
 						for (String index : indexArr) {
 							if (surplusPosition >= 1) {
 								// 1 未中奖2已中奖
@@ -1476,27 +1483,44 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 									context += a + ",";
 								}
 								context = context.substring(0, context.length() - 1);
+								GiftLocation giftLocationTemp = giftLocationMapper.selectGiftLocationById(giftId);
+								
 								GiftLocation ugiftLocation = new GiftLocation();
 								ugiftLocation.setContent(context);
-								ugiftLocation.setId(giftLocation.getId());
-								ugiftLocation.setSurplusPosition(giftLocation.getSurplusPosition() - 1);
+								ugiftLocation.setId(giftLocationTemp.getId());
+								ugiftLocation.setSurplusPosition(giftLocationTemp.getSurplusPosition() - 1);
 								giftLocationMapper.updateGiftLocation(ugiftLocation);
-								Wallet wallet = walletMapper.selectWalletByUserId(userId);
-								Long profit = 0l;
-								if(wallet.getProfit() != null) {
-									profit = wallet.getProfit();
-								}
+								//增加收益和余额
+								Wallet wallet = walletMapper.selectWalletByUserId(giftUserId);
+								Long profitOld = wallet.getProfit();
+								Long balanceOld = wallet.getBalance();
 								Wallet walletu = new Wallet();
 								walletu.setId(wallet.getId());
-								walletu.setProfit(profit + giftLocation.getLatticePrice());
+								walletu.setProfit(profitOld + giftLocation.getLatticePrice());
+								walletu.setBalance(balanceOld +giftLocation.getLatticePrice());
 								walletMapper.updateWallet(walletu);
+								shouyi += giftLocation.getLatticePrice();
 							}
 						}
+						//消费记录
+						ConsumptionInformation consumptionInformation = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
+						consumptionInformation.setState("1");
+						consumptionInformationMapper.updateConsumptionInformation(consumptionInformation);
+						ConsumptionInformation gi = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
+						gi.setId(UUIDUtil.getUUID());
+						gi.setMoney(shouyi);
+						gi.setConsumptionUser(giftUserId);
+						gi.setConsumptionDate(new Date());
+						gi.setState("1");
+						gi.setConsumptionType("4");
+						consumptionInformationMapper.insertConsumptionInformation(gi);
 					}
 					PayOrder payOrder = new PayOrder();
 					payOrder.setState("1");
 					payOrder.setOrderno(orderNo);
 					int l = payOrderMapper.updatePayOrderByOrderNo(payOrder);
+					ConsumptionInformation gi = new ConsumptionInformation();
+					
 					if (l != 1) {
 						result.setStatus(Result.FAILED);
 						result.setMessage("更新订单状态失败");
@@ -1525,26 +1549,23 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				GiftGoods giftGoods = new GiftGoods();
 				giftGoods.setGiftId(giftId);
 				giftGoods.setGiftApplyId(giftApply.getId());
-				giftGoods.setState("0");
 				List<GiftGoods> giftGoodsList = giftGoodsMapper.selectGiftGoodsInfoList(giftGoods);
 				if(CollectionUtils.isNotEmpty(giftGoodsList)) {
-					Long deposit = 0l;
+					Long deposit = 0l;//退到余额里的钱
+					Long depositTotal = 0l;//押金总共退的钱
 					for(GiftGoods tGiftGoods:giftGoodsList) {
-						deposit+=tGiftGoods.getPrice();
+						if("0".equals(tGiftGoods.getState())) {
+							deposit+=tGiftGoods.getPrice();
+						}
+						depositTotal +=tGiftGoods.getPrice();
 					}
 					// 把可以退的押金返还到我的钱包中
 					Wallet wallet = walletMapper.selectWalletByUserId(userId);
 					Wallet uwallet = new Wallet();
-					if(wallet == null) {
-						uwallet.setId(UUIDUtil.getUUID());
-						uwallet.setBalance(deposit);
-						uwallet.setUserId(userId);
-						walletMapper.insertWallet(wallet);
-					}else {
-						uwallet.setId(wallet.getId());
-						uwallet.setBalance(wallet.getBalance() + deposit);
-						walletMapper.updateWallet(uwallet);
-					}
+					uwallet.setId(wallet.getId());
+					uwallet.setBalance(wallet.getBalance() + deposit);
+					uwallet.setDeposit(wallet.getDeposit() - depositTotal);
+					walletMapper.updateWallet(uwallet);
 					// 生成退还押金记录
 					ConsumptionInformation ci = new ConsumptionInformation();
 					ci.setId(UUIDUtil.getUUID());

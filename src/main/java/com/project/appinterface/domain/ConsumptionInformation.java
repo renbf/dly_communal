@@ -29,7 +29,10 @@ public class ConsumptionInformation extends BaseEntity
 	private Date consumptionDate;
 	/** 状态0支付中1支付成功2支付失败 */
 	private String state;
-
+	/** 账户 */
+	private String account;
+	/** 支付单号 */
+	private String extend;
 	public void setId(String id)
 	{
 		this.id = id;
@@ -94,7 +97,23 @@ public class ConsumptionInformation extends BaseEntity
 		return state;
 	}
 
-    public String toString() {
+    public String getExtend() {
+		return extend;
+	}
+
+	public void setExtend(String extend) {
+		this.extend = extend;
+	}
+
+	public String getAccount() {
+		return account;
+	}
+
+	public void setAccount(String account) {
+		this.account = account;
+	}
+
+	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("consumptionType", getConsumptionType())

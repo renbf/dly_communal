@@ -13,14 +13,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createUser"    column="create_user"    />
         <result property="state"    column="state"    />
         <result property="goodsId"    column="goods_id"    />
-        <result property="delivery_date"    column="deliveryDate"    />
-        <result property="completion_date"    column="completionDate"    />
+        <result property="deliveryDate"    column="delivery_date"    />
+        <result property="completionDate"    column="completion_date"    />
         <result property="address"    column="address"    />
         <result property="telephone"    column="telephone"    />
         <result property="picture"    column="picture"    />
         <result property="receiver"    column="receiver"    />
         <result property="orderNo"    column="order_no"    />
-        <result property="goodsName"    column="name"    />
+        <result property="goodsName"    column="goodsName"    />
         <result property="price"    column="price"    />
         <result property="companyCode"    column="company_code"    />
     </resultMap>
@@ -47,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     <select id="selectOrderGoodsList" parameterType="Order" resultMap="OrderResult">
-        select c.name,c.picture,t.id,t.state,t.order_no from t_order t
+        select c.name goodsName,c.picture,t.id,t.state,t.order_no from t_order t
         LEFT JOIN t_commodity_information c on c.id=t.goods_id
         <where>
             <if test="userId != null  and userId != '' "> and t.user_id = #{userId}</if>
@@ -60,10 +60,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="selectOrderByUserId" parameterType="Order" resultMap="OrderResult">
         select
-                o.id as id , o.user_id as userId, o.address_id as addressId, o.express_no as expressNo, o.creat_date as createDate,o.order_no as orderNo,
-                 o.create_user as createDate, o.state as state, o.goods_id as goodsId,o.delivery_date as defaultAddress,
-                o.completion_date as completionDate,
-                a.receiver as receiver,a.address asaddress,a.telephone as telephone,c.name as oodsName,c.picture as picture,c.price
+                o.id , o.user_id, o.address_id, o.express_no, o.creat_date,o.order_no,
+                o.create_user, o.state, o.goods_id,o.delivery_date,
+                o.completion_date,
+                a.receiver,concat(a.address,' ',a.address_detailed) address,a.telephone,c.name as goodsName,c.picture,c.price
                 from t_order o
                 LEFT JOIN t_commodity_information c on o.goods_id=c.id
                 LEFT JOIN t_user_address a on o.address_id=a.id

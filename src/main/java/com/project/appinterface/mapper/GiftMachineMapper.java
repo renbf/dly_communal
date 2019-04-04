@@ -122,5 +122,11 @@ public interface GiftMachineMapper
 	 * @return
 	 */
 	public int updateTGiftReload(String id);
+	/**
+	 * 审核通过的信息
+	 * @param giftId
+	 * @return
+	 */
+	public GiftVo selectGiftByGiftId(@Param("giftId")String giftId);
 	
 }

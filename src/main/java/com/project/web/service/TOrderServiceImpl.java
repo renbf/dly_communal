@@ -1,13 +1,15 @@
 package com.project.web.service;
 
+import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.project.common.support.Convert;
 import com.project.web.domain.OrderVo;
 import com.project.web.domain.TOrder;
 import com.project.web.mapper.TOrderMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.project.common.support.Convert;
 
 /**
  * 订单 服务层实现
@@ -67,6 +69,8 @@ public class TOrderServiceImpl implements ITOrderService
 	public int updateTOrder(TOrder tOrder)
 	{
 		tOrder.setState("1");
+		//发货时间
+		tOrder.setDeliveryDate(new Date());
 	    return tOrderMapper.updateTOrder(tOrder);
 	}
 

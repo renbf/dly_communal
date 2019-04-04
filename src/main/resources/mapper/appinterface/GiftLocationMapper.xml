@@ -47,10 +47,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         g.surplus_position as surplus_position,
         g.total_position as total_position,
         g.lattice_price as lattice_price,
-        t.model_name as giftName
+        ga.introduce as giftName
         FROM
         t_gift_location g
-        LEFT JOIN t_gift t on t.id=g.gift_id
+        LEFT JOIN t_gift_apply ga on ga.gift_id=g.gift_id and g.create_user = ga.user_id
         <where>
             <if test="giftId != null  and giftId != '' "> and g.gift_id = #{giftId}</if>
          </where>
