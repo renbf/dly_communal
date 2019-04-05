@@ -7,7 +7,7 @@ public class LatticeUtil {
     public static void main(String[] args) {
        ;
         // for形式遍历数组
-        int []array= getlLatticePosition(14,2);
+        int []array= getlLatticePosition(14,5);
         for(int i=0;i<array.length;i++){
             System.out.println("-----------"+array[i]);
         }

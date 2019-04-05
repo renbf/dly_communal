@@ -199,7 +199,7 @@ public class TGiftApplyServiceImpl implements ITGiftApplyService
 					tGift.setUpdateDate(new Date());
 					tGiftMapper.updateTGift(tGift);
 					GiftGoods giftGoods = new GiftGoods();
-					giftGoods.setGiftId(tGiftApply.getGiftId());
+					giftGoods.setGiftApplyId(tGiftApply.getId());
 					List<GiftGoods> GiftGoods = giftGoodsMapper.selectGiftGoodsList(giftGoods);
 					TGiftModel tGiftModel = tGiftModelMapper.selectTGiftModelById(tGift.getModel());
 					GiftLocation giftLocation = new GiftLocation();

@@ -779,7 +779,8 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 	}
 
 	@Override
-	public synchronized void notice(HttpServletRequest request, HttpServletResponse response) {
+	@Transactional
+	public void notice(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			log.info("支付宝回调开始=============");
 			Map<String, Object> map = AliPayUtil.aliNotice(request, response);
@@ -868,6 +869,8 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 						ga.setIntroduce(paramArrayVo.getGiftName());
 						giftApplyMapper.insertGiftApply(ga);
 						List<GoodsVo> gvlist = paramArrayVo.getGoodsList();
+						//计算押金
+						BigDecimal deposit = BigDecimal.ZERO;
 						for (GoodsVo g : gvlist) {
 							int goodsNumber = g.getGoodsNumber();
 							for (int i = 0; i < goodsNumber; i++) {
@@ -879,25 +882,32 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 								gg.setGiftApplyId(giftApplyId);
 								giftGoodsMapper.insertGiftGoods(gg);
 							}
+							BigDecimal price = new BigDecimal(g.getPrice());
+							deposit = deposit.add(price.multiply(new BigDecimal(goodsNumber)));
 						}
+						deposit = deposit.multiply(new BigDecimal(100));
+						//增加押金
 						Wallet wallet = walletMapper.selectWalletByUserId(userId);
-						if(wallet == null) {
-							Wallet walletu = new Wallet();
-							walletu.setId(UUIDUtil.getUUID());
-							walletu.setUserId(userId);
-							walletu.setBalance(0l);
-							walletu.setProfit(0l);
-							walletu.setDeposit(0l);
-							walletMapper.insertWallet(walletu);
-						}
+						Long depositOld = wallet.getDeposit();
+						Wallet walletu = new Wallet();
+						walletu.setId(wallet.getId());
+						walletu.setDeposit(depositOld+deposit.longValue());
+						walletMapper.updateWallet(wallet);
+						//消费记录
+						ConsumptionInformation consumptionInformation = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
+						consumptionInformation.setState("1");
+						consumptionInformationMapper.updateConsumptionInformation(consumptionInformation);
 					} else {
 						//开盒子
 						String indexs = paramArrayVo.getIndexs();
 						// 1.查询礼物机礼物格子信息
 						GiftLocation giftLocation = giftLocationMapper.selectGiftLocationById(giftId);
+						//机主的 giftUserId
+						String giftUserId = giftLocation.getCreateUser();
 						Integer surplusPosition = giftLocation.getSurplusPosition();
 						String[] contentArr = giftLocation.getContent().split(",");
 						String[] indexArr = indexs.split(",");
+						Long shouyi = 0l;
 						for (String index : indexArr) {
 							if (surplusPosition >= 1) {
 								// 1 未中奖2已中奖
@@ -951,22 +961,37 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 									context += a + ",";
 								}
 								context = context.substring(0, context.length() - 1);
+								GiftLocation giftLocationTemp = giftLocationMapper.selectGiftLocationById(giftId);
+								
 								GiftLocation ugiftLocation = new GiftLocation();
 								ugiftLocation.setContent(context);
-								ugiftLocation.setId(giftLocation.getId());
-								ugiftLocation.setSurplusPosition(giftLocation.getSurplusPosition() - 1);
+								ugiftLocation.setId(giftLocationTemp.getId());
+								ugiftLocation.setSurplusPosition(giftLocationTemp.getSurplusPosition() - 1);
 								giftLocationMapper.updateGiftLocation(ugiftLocation);
-								Wallet wallet = walletMapper.selectWalletByUserId(giftLocation.getCreateUser());
-								Long profit = 0l;
-								if(wallet.getProfit() != null) {
-									profit = wallet.getProfit();
-								}
+								//增加收益和余额
+								Wallet wallet = walletMapper.selectWalletByUserId(giftUserId);
+								Long profitOld = wallet.getProfit();
+								Long balanceOld = wallet.getBalance();
 								Wallet walletu = new Wallet();
 								walletu.setId(wallet.getId());
-								walletu.setProfit(profit + giftLocation.getLatticePrice());
+								walletu.setProfit(profitOld + giftLocation.getLatticePrice());
+								walletu.setBalance(balanceOld +giftLocation.getLatticePrice());
 								walletMapper.updateWallet(walletu);
+								shouyi += giftLocation.getLatticePrice();
 							}
 						}
+						//消费记录
+						ConsumptionInformation consumptionInformation = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
+						consumptionInformation.setState("1");
+						consumptionInformationMapper.updateConsumptionInformation(consumptionInformation);
+						ConsumptionInformation gi = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
+						gi.setId(UUIDUtil.getUUID());
+						gi.setMoney(shouyi);
+						gi.setConsumptionUser(giftUserId);
+						gi.setConsumptionDate(new Date());
+						gi.setState("1");
+						gi.setConsumptionType("4");
+						consumptionInformationMapper.insertConsumptionInformation(gi);
 					}
 					PayOrder payOrder = new PayOrder();
 					payOrder.setState("1");
@@ -989,6 +1014,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw new RuntimeException();
 		}
 	}
 
@@ -1404,7 +1430,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 								gg.setGiftApplyId(giftApplyId);
 								giftGoodsMapper.insertGiftGoods(gg);
 							}
-							BigDecimal price = new BigDecimal(g.getPicture());
+							BigDecimal price = new BigDecimal(g.getPrice());
 							deposit = deposit.add(price.multiply(new BigDecimal(goodsNumber)));
 						}
 						deposit = deposit.multiply(new BigDecimal(100));
