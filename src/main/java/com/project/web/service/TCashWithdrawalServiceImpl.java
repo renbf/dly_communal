@@ -1,15 +1,20 @@
 package com.project.web.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.project.appinterface.domain.ConsumptionInformation;
+import com.project.appinterface.mapper.ConsumptionInformationMapper;
 import com.project.appinterface.util.AliPayUtil;
 import com.project.appinterface.util.OrderNo;
 import com.project.common.result.DataResult;
 import com.project.common.result.Result;
 import com.project.common.support.Convert;
+import com.project.util.UUIDUtil;
 import com.project.web.domain.TCashWithdrawal;
 import com.project.web.domain.vo.TCashWithdrawalVo;
 import com.project.web.mapper.TCashWithdrawalMapper;
@@ -26,6 +31,9 @@ public class TCashWithdrawalServiceImpl implements ITCashWithdrawalService
 	@Autowired
 	private TCashWithdrawalMapper tCashWithdrawalMapper;
 
+	@Autowired
+	private ConsumptionInformationMapper consumptionInformationMapper;
+	
 	/**
      * 查询提现申请信息
      * 
@@ -69,6 +77,7 @@ public class TCashWithdrawalServiceImpl implements ITCashWithdrawalService
      * @return 结果
      */
 	@Override
+	@Transactional
 	public DataResult updateTCashWithdrawal(TCashWithdrawal tCashWithdrawal)
 	{
 		DataResult result=new DataResult();
@@ -88,6 +97,16 @@ public class TCashWithdrawalServiceImpl implements ITCashWithdrawalService
 //					return result;
 //				}
 				tCashWithdrawalMapper.updateTCashWithdrawal(tCashWithdrawal);
+				// 生成退还押金记录
+				ConsumptionInformation ci = new ConsumptionInformation();
+				ci.setId(UUIDUtil.getUUID());
+				ci.setConsumptionType("3");
+				ci.setMoney(cashWithdrawal.getMoney());
+				ci.setConsumptionUser(cashWithdrawal.getApplicantUser());
+				ci.setConsumptionDate(new Date());
+				ci.setState("1");
+				ci.setPayType(cashWithdrawal.getCashType());
+				consumptionInformationMapper.insertConsumptionInformation(ci);
 				result.setMessage("提现申请成功");
 				result.setStatus(Result.SUCCESS);
 				return result;

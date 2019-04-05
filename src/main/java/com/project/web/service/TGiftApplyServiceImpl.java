@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.project.appinterface.domain.ConsumptionInformation;
 import com.project.appinterface.domain.GiftGoods;
 import com.project.appinterface.domain.GiftLocation;
+import com.project.appinterface.mapper.ConsumptionInformationMapper;
 import com.project.appinterface.mapper.GiftGoodsMapper;
 import com.project.appinterface.mapper.GiftLocationMapper;
 import com.project.common.support.Convert;
@@ -56,6 +58,9 @@ public class TGiftApplyServiceImpl implements ITGiftApplyService
 	
 	@Autowired
 	private TWalletMapper tWalletMapper;
+	
+	@Autowired
+	private ConsumptionInformationMapper consumptionInformationMapper;
 	/**
      * 查询礼物机申请信息
      * 
@@ -258,5 +263,15 @@ public class TGiftApplyServiceImpl implements ITGiftApplyService
 			tWallet.setBalance(money);
 			tWalletMapper.insertTWallet(tWallet);
 		}
+		// 生成退还押金记录
+		ConsumptionInformation ci = new ConsumptionInformation();
+		ci.setId(UUIDUtil.getUUID());
+		ci.setConsumptionType("2");
+		ci.setMoney(money);
+		ci.setConsumptionUser(userId);
+		ci.setConsumptionDate(new Date());
+		ci.setState("3");
+		ci.setPayType("2");
+		consumptionInformationMapper.insertConsumptionInformation(ci);
 	}
 }
