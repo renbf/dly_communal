@@ -186,15 +186,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getCollectgoodsAddress" resultType="com.project.appinterface.domain.UserAddress">
 	    		select id,receiver,address,telephone,user_id,address_detailed,default_address from t_user_address where
-	    	user_id = #{user_id} order by default_address
+	    	user_id = #{user_id} and is_delete = 0 order by default_address
 		</select>
     <select id="queryaddress" resultType="com.project.appinterface.domain.UserAddress">
 		    	select id,receiver,address,telephone,user_id,address_detailed,default_address from t_user_address where
 		    	id = #{id}
 		</select>
-    <delete id="deleteCollectAddress" parameterType="map" >
-				DELETE FROM t_user_address  where id=#{id}
-			</delete>
+    		<update id="deleteCollectAddress" parameterType="map" >
+				update t_user_address set is_delete = 1 where id=#{id}
+			</update>
 
     <update id="updateCollectAddress" parameterType="map">
         update t_user_address

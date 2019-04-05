@@ -17,13 +17,19 @@ public class LatticeUtil {
         for(int i=0;i<lattice;i++){
             array[i]=1;
         }
+        Random random = new Random();
         for(int i=0;i<prize;i++){
-            int num=0;
-            Random random = new Random();
-            int s = random.nextInt(lattice) % (lattice - 0 + 1) + 0;
-            if(num!=s){
-                array[s]=2;
-                num=s;
+//            int num=0;
+//            int s = random.nextInt(lattice) % (lattice - 0 + 1) + 0;
+//            if(num!=s){
+//                array[s]=2;
+//                num=s;
+//            }
+            int s = random.nextInt(lattice);
+            if(array[s] == 1) {
+            	array[s] = 2;
+            }else {
+            	i--;
             }
         }
         return array;
