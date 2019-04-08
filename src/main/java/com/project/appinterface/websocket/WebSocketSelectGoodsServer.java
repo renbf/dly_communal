@@ -2,6 +2,7 @@ package com.project.appinterface.websocket;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.OnClose;
@@ -40,11 +41,13 @@ public class WebSocketSelectGoodsServer {
 			addOnlineCount(); // 在线数加1
 			log.info("有新窗口开始监听:" + giftId + ",当前在线人数为" + getOnlineCount());
 			sessionMap.put(session.getId(), session);
-			StringBuilder sb = new StringBuilder();
-			for(String sessionId:sessionMap.keySet()) {
-				sb.append(sessionId+",");
+			JedisUtil.set("websocket_sessionId_"+session.getId(), userId, 0);
+			Set<String> keys = JedisUtil.keys("websocket_sessionId_*");
+			for(String key:keys) {
+				if(!sessionMap.containsKey(key.substring(20))) {
+					JedisUtil.del(key);
+				}
 			}
-			JedisUtil.set("websocket_sessionId", sb.toString(), 0);
 			Map<String, String> giftIdMapOld = JedisUtil.getMap("websocket_"+giftId);
 			//校验
 			if(giftIdMapOld != null) {
@@ -70,11 +73,12 @@ public class WebSocketSelectGoodsServer {
 			
 			WebSocketUtils.close(giftId, userId, session,sessionMap);
 			sessionMap.remove(session.getId());
-			StringBuilder sb = new StringBuilder();
-			for(String sessionId:sessionMap.keySet()) {
-				sb.append(sessionId+",");
+			Set<String> keys = JedisUtil.keys("websocket_sessionId_*");
+			for(String key:keys) {
+				if(!sessionMap.containsKey(key.substring(20))) {
+					JedisUtil.del(key);
+				}
 			}
-			JedisUtil.set("websocket_sessionId", sb.toString(), 0);
 			subOnlineCount(); // 在线数减1
 			log.info("有一连接关闭！当前在线人数为" + getOnlineCount());
 		} catch (Exception e) {
@@ -154,5 +158,4 @@ public class WebSocketSelectGoodsServer {
 	public static synchronized void subOnlineCount() {
 		WebSocketSelectGoodsServer.onlineCount--;
 	}
-
 }

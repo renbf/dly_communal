@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -66,7 +67,7 @@ public class JedisUtil {
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			if (jedis.exists(key)) {
+			if (StringUtils.isNotEmpty(key)) {
 				value = jedis.keys(key);
 				logger.debug("keys "+ key + " = " + value);
 			}
