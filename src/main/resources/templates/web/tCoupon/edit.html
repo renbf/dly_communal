@@ -65,28 +65,52 @@
 
 
         $('#effectiveStart').datetimepicker({
-            format: 'yyyy-mm-dd hh:ii',
+            format: 'yyyy-mm-dd hh:ii:ss',
             language: 'zh-CN'
         });
         $('#effectiveEnd').datetimepicker({
-            format: 'yyyy-mm-dd hh:ii',
+            format: 'yyyy-mm-dd hh:ii:ss',
             language: 'zh-CN'
         });
 		var prefix = ctx + "web/tCoupon"
 		$("#form-tCoupon-edit").validate({
 			rules:{
-				xxxx:{
-					required:true,
+				name:{
+					required:true
 				},
+				money:{
+					required:true,
+					isMoney:true
+				},
+				effectiveStart:{
+					required:true
+				},
+				effectiveEnd:{
+					required:true
+				},
+				rule:{
+					required:true
+				},
+				type:{
+					required:true
+				}
 			}
 		});
 		
 		function submitHandler() {
 	        if ($.validate.form()) {
+	        	var price = parseFloat($("#money").val()) * 100;
+	        	$("#money").val(price);
 	            $.operate.save(prefix + "/edit", $('#form-tCoupon-edit').serialize());
 	        }
 	    }
-
+		$(function() {
+	    	init();
+	    });
+		function init(){
+			var price = parseInt($("#money").val()) / 100;
+        	$("#money").val(price);
+		}
 	</script>
 </body>
 </html>

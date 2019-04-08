@@ -57,6 +57,11 @@ $(document).ready(function(){
 			 return false;
 		}
 		});
+	//金额格式
+	jQuery.validator.addMethod("isMoney",function(value,element){
+		var money=/(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+		return this.optional(element)||(money.test(value));
+	},"金额的输入格式不正确");
 	//自定义参数0是正则，参数1是提示信息
 	 jQuery.validator.addMethod("zdy", function(value, element, param) {
 		 return this.optional(element) || (param[0].test(value));

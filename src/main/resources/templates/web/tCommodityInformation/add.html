@@ -71,6 +71,7 @@
 				},
 				price:{
 					required:true,
+					isMoney:true
 				},
 				model:{
 					required:true
@@ -80,10 +81,11 @@
 				}
 			}
 		});
-		var lock = false;
 		function submitHandler() {
 			$("#myDiv",window.top.document).show();
 	        if ($.validate.form()) {
+	        	var price = parseFloat($("#price").val()) * 100;
+	        	$("#price").val(price);
 	            var formData = new FormData($("#form-tCommodityInformation-add")[0]);
 	            $.ajax({
 	                url : prefix + "/add",

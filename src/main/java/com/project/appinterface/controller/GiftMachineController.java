@@ -73,10 +73,10 @@ public class GiftMachineController {
 	@ApiOperation(value="查询礼物机",httpMethod="GET",response=Result.class)
 	public @ResponseBody DataResult queryGift(HttpServletRequest request,
 										 @ApiParam(name="state",value="0可申请1已申请",required=true) @RequestParam(value="state",required=false)String state,
-										 @ApiParam(name="user_id",value="用户id",required=false) @RequestParam(value="user_id",required=false)String user_id
+										 @ApiParam(name="userId",value="用户id",required=false) @RequestParam(value="userId",required=false)String userId
 	){
 		DataResult result=new DataResult();
-		result=giftMachineService.queryGift(state,user_id) ;
+		result=giftMachineService.queryGift(state,userId) ;
 		return result;
 	}
     /**
@@ -178,7 +178,7 @@ public class GiftMachineController {
 													 @ApiParam(name="consigneeaddress",value="收货地址",required=true)@RequestParam("consigneeaddress")String consigneeaddress,
 													 @ApiParam(name="defaultaddress",value="是否是默认地址0是1不是",required=true)@RequestParam("defaultaddress")String defaultaddress,
 													 @ApiParam(name="consigneeaddressdetail",value="收货详细地址",required=true)@RequestParam("consigneeaddressdetail")String consigneeaddressdetail,
-													 @ApiParam(name="userid",value="用户id",required=true)@RequestParam("userid")String userid){
+													 @ApiParam(name="userId",value="用户id",required=true)@RequestParam("userId")String userId){
 		Result result =new Result();
 		UserAddress userAddress=new UserAddress();
 		userAddress.setId(UUIDUtil.getUUID());
@@ -187,7 +187,7 @@ public class GiftMachineController {
 		userAddress.setTelephone(phone);
 		userAddress.setAddress_detailed(consigneeaddressdetail);
 		userAddress.setDefault_address(defaultaddress);
-		userAddress.setUser_id(userid);
+		userAddress.setUser_id(userId);
 		result = giftMachineService.insertCollectAddress(userAddress);
 		return result;
 	}
@@ -203,13 +203,13 @@ public class GiftMachineController {
 													 @ApiParam(name="name",value="收货人姓名",required=true)@RequestParam("name")String name,
 													 @ApiParam(name="phone",value="收货人电话",required=true)@RequestParam("phone")String phone,
 													 @ApiParam(name="consigneeaddress",value="收货地址",required=true)@RequestParam("consigneeaddress")String consigneeaddress,
-													 @ApiParam(name="userid",value="用户id",required=true)@RequestParam("userid")String userid,
+													 @ApiParam(name="userId",value="用户id",required=true)@RequestParam("userId")String userId,
 													 @ApiParam(name="defaultaddress",value="是否是默认地址0是1不是",required=true)@RequestParam("defaultaddress")String defaultaddress,
 													 @ApiParam(name="consigneeaddressdetail",value="收货详细地址",required=true)@RequestParam("consigneeaddressdetail")String consigneeaddressdetail){
 		Result result =new Result();
 		Map<String,String> map=new HashMap<String,String>();
 		map.put("id", addressid);
-		map.put("user_id",userid);
+		map.put("user_id",userId);
 		map.put("receiver", name);
 		map.put("address", consigneeaddress);
 		map.put("telephone", phone);
@@ -242,12 +242,12 @@ public class GiftMachineController {
 	@RequestMapping(value="/updateDefault",method=RequestMethod.POST)
 	public @ResponseBody Result updateDefault(HttpServletRequest request,
 											  @ApiParam(name="addressid",value="收货地址id",required=true)@RequestParam("addressid")String addressid,
-											  @ApiParam(name="userid",value="用户id",required=true)@RequestParam("userid")String userid){
+											  @ApiParam(name="userId",value="用户id",required=true)@RequestParam("userId")String userId){
 		Result result =new Result();
 		Map<String,String> map=new HashMap<String,String>();
 		map.put("id", addressid);
 		map.put("default_address", "0");
-		result = giftMachineService.updateDefault(map,userid);
+		result = giftMachineService.updateDefault(map,userId);
 		return result;
 	}
 	/**
@@ -258,9 +258,9 @@ public class GiftMachineController {
 	@ApiOperation(value = "查询默认收货地址", httpMethod="GET",response=Result.class )
 	@RequestMapping(value="/queryDefault",method=RequestMethod.GET)
 	public @ResponseBody DataResult queryDefault(HttpServletRequest request,
-												 @ApiParam(name="userid",value="用户id",required=true)@RequestParam("userid")String userid){
+												 @ApiParam(name="userId",value="用户id",required=true)@RequestParam("userId")String userId){
 		DataResult result =new DataResult();
-		result = giftMachineService.queryDefault(userid);
+		result = giftMachineService.queryDefault(userId);
 		return result;
 	}
 	/**
@@ -271,9 +271,9 @@ public class GiftMachineController {
 	@ApiOperation(value = "查询收货地址", httpMethod="GET",response=Result.class )
 	@RequestMapping(value="/getCollectgoodsAddress",method=RequestMethod.GET)
 	public @ResponseBody DataResult getCollectgoodsAddress(HttpServletRequest request,
-														   @ApiParam(name="userid",value="用户id",required=true)@RequestParam("userid")String userid){
+														   @ApiParam(name="userId",value="用户id",required=true)@RequestParam("userId")String userId){
 		DataResult result =new DataResult();
-		result = giftMachineService.getCollectgoodsAddress(userid);
+		result = giftMachineService.getCollectgoodsAddress(userId);
 		return result;
 	}
 	/********************************      查询支付状态      **********************************/

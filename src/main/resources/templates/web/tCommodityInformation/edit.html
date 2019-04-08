@@ -63,7 +63,8 @@
 					required:true
 				},
 				price:{
-					required:true
+					required:true,
+					isMoney:true
 				},
 				model:{
 					required:true
@@ -76,6 +77,8 @@
 		
 		function submitHandler() {
 	        if ($.validate.form()) {
+	        	var price = parseFloat($("#price").val()) * 100;
+	        	$("#price").val(price);
 	            //$.operate.save(prefix + "/edit", $('#form-tCommodityInformation-edit').serialize());
 	            var formData = new FormData($("#form-tCommodityInformation-edit")[0]);
 	            $.modal.loading("正在处理，请稍后...");
@@ -141,6 +144,8 @@
 	    });
 		function init(){
 			showTGoodsTypes("goodsTypeId",[[${tCommodityInformation.goodsTypeId}]]);
+			var price = parseInt($("#price").val()) / 100;
+        	$("#price").val(price);
 		}
 	</script>
 </body>

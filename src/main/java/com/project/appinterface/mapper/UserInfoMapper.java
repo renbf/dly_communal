@@ -47,7 +47,7 @@ public interface UserInfoMapper
 	 * @param id 用户ID
 	 * @return 用户信息
 	 */
-	public UserInfo selectUserInfoById(String id);
+	public UserInfo selectUserInfoByUserId(String id);
 	/**
 	 * 删除用户
 	 *

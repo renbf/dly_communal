@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.project.appinterface.util.AliPayUtil;
 import com.project.common.annotation.Log;
 import com.project.common.base.AjaxResult;
 import com.project.common.enums.BusinessType;
@@ -100,18 +99,19 @@ public class TCashWithdrawalController extends BaseController
 	@Log(title = "提现申请", businessType = BusinessType.UPDATE)
 	@PostMapping("/edit")
 	@ResponseBody
-	public Result editSave(TCashWithdrawal tCashWithdrawal)
+	public AjaxResult editSave(TCashWithdrawal tCashWithdrawal)
 	{		
-		DataResult result=new DataResult();
 		try {
 //			AliPayUtil.getUserInfoAuth();
-			result = tCashWithdrawalService.updateTCashWithdrawal(tCashWithdrawal);
-			return result;
+			DataResult result = tCashWithdrawalService.updateTCashWithdrawal(tCashWithdrawal);
+			if(Result.SUCCESS.contentEquals(result.getStatus())) {
+				return success(result.getMessage());
+			}else {
+				return error("提现申请异常");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			result.setStatus(Result.FAILED);
-			result.setMessage("提现申请异常");
-			return result;
+			return error("提现申请异常");
 		}
 	}
 	

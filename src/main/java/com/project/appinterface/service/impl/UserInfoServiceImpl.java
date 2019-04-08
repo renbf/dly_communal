@@ -543,4 +543,9 @@ public class UserInfoServiceImpl implements IUserInfoService
 		return Integer.parseInt(String.valueOf(between_days));
 	}
 
+	@Override
+	public UserInfo selectUserInfoByUserId(String id) {
+		return userInfoMapper.selectUserInfoByUserId(id);
+	}
+
 }

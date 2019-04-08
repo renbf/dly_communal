@@ -114,4 +114,12 @@ public interface IUserInfoService
 	 */
 	public DataResult openAuthSdkCodeGet(String userId);
 	
+	/**
+	 * 查询用户信息
+	 *
+	 * @param id 用户ID
+	 * @return 用户信息
+	 */
+	public UserInfo selectUserInfoByUserId(String id);
+	
 }

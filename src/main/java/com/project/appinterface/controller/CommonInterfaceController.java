@@ -1,26 +1,23 @@
 package com.project.appinterface.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.project.appinterface.domain.ParamArrayVo;
-import com.project.appinterface.domain.UserAddress;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.project.appinterface.service.CommonInterfaceService;
-import com.project.appinterface.service.GiftMachineService;
 import com.project.appinterface.service.IWinningRecordService;
 import com.project.common.result.DataResult;
 import com.project.common.result.Result;
-import com.project.util.UUIDUtil;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
+import io.swagger.annotations.ApiParam;
 
 
 /**

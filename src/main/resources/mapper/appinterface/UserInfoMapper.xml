@@ -38,6 +38,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
 
+	<select id="selectUserInfoByUserId" parameterType="java.lang.String" resultMap="UserInfoResult">
+        <include refid="selectUserInfoVo"/>
+		where id = #{id}
+    </select>
+    
     <insert id="insertUserInfo" parameterType="UserInfo">
         insert into t_user_info
 		<trim prefix="(" suffix=")" suffixOverrides=",">
