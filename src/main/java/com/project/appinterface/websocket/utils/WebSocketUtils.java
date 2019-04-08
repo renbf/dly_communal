@@ -48,7 +48,7 @@ public class WebSocketUtils {
 				bean.setCurrentStateMap(currentStateMap);
 				bean.setGiftId(giftId);
 				bean.setUserId(userId);
-				bean.setSessionId("sessionId_"+session.getId());
+				bean.setSessionId(session.getId());
 			}
 		}
 		
@@ -56,7 +56,7 @@ public class WebSocketUtils {
 		if(giftIdMap == null) {
 			giftIdMap = new ConcurrentHashMap<String, String>();
 			String beanStr = JSON.toJSONString(bean);
-			giftIdMap.put("sessionId_"+session.getId(), beanStr);
+			giftIdMap.put(session.getId(), beanStr);
 		}else {
 			Map<String, String> currentStateMap = bean.getCurrentStateMap();
 			//消息指令
@@ -84,7 +84,7 @@ public class WebSocketUtils {
 			String messages = JSON.toJSONString(selectGoodsMessage);
 			sendMessage(messages,sessionMap.get(bean.getSessionId()));
 			String beanStr = JSON.toJSONString(bean);
-			giftIdMap.put("sessionId_"+session.getId(), beanStr);
+			giftIdMap.put(session.getId(), beanStr);
 		}
 		
 		JedisUtil.mapPut("websocket_"+giftId, giftIdMap);
@@ -124,7 +124,7 @@ public class WebSocketUtils {
     	log.info("giftId="+giftId+",userId="+userId+",sessionId="+session.getId());
     	String sessionId = session.getId();
     	Map<String, String> giftIdMap = JedisUtil.getMap("websocket_"+giftId);
-    	String sessionidBean = giftIdMap.get("sessionId_"+sessionId);
+    	String sessionidBean = giftIdMap.get(sessionId);
 		WebSocketSelectGoodsBean bean = JSON.parseObject(sessionidBean, WebSocketSelectGoodsBean.class);
 		Map<String, String> indexStateMap = new ConcurrentHashMap<String, String>();
 		if (bean.getOriginalStateMap() != null && bean.getOriginalStateMap().size() > 0 && bean.getCurrentStateMap() != null
@@ -153,7 +153,7 @@ public class WebSocketUtils {
 						if (!item.getUserId().equals(userId)) {
 							item.getCurrentStateMap().put(index, indexStateMap.get(index));
 							String beanStr = JSON.toJSONString(item);
-							giftIdMap.put("sessionId_"+session.getId(), beanStr);
+							giftIdMap.put(session.getId(), beanStr);
 							JedisUtil.mapPut("websocket_"+giftId, giftIdMap);
 							String messages = JSON.toJSONString(selectGoodsMessage);
 							sendMessage(messages,sessionMap.get(item.getSessionId()));
@@ -162,7 +162,7 @@ public class WebSocketUtils {
 				}
 			}
 		}
-		JedisUtil.mapRemove("websocket_"+giftId, "sessionId_"+sessionId);
+		JedisUtil.mapRemove("websocket_"+giftId, sessionId);
 //    	Map<String,WebSocketSelectGoodsBean> webSocketSet = webSocketMap.get(giftId);
 //    	WebSocketSelectGoodsBean bean = webSocketSet.get(sessionId);
 //    	

@@ -513,6 +513,12 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 		log.info("申请礼物机接口=============");
 		DataResult result = new DataResult();
 		if ("0".equals(paramArrayVo.getType())) {
+			Integer countGift = giftApplyMapper.checkIsApplyByGiftId(paramArrayVo.getGiftId());
+			if(countGift != null && countGift.intValue() > 0) {
+				result.setMessage("您申请的该位置的礼物机，已被申请");
+				result.setStatus(Result.FAILED);
+				return result;
+			}
 			Integer count = giftApplyMapper.checkIsApply(paramArrayVo.getGiftId(), paramArrayVo.getUserId());
 			if (count != null && count.intValue() > 0) {
 				result.setMessage("您已经申请过该位置的礼物机，请勿重复申请！");
@@ -1219,7 +1225,11 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			throw new RuntimeException();
 		}
 	}
-
+	/**
+	 * 支付成功回调
+	 * @param orderNo
+	 * @return
+	 */
 	public DataResult aliPayNotice(String orderNo) {
 		String requestId = UUIDUtil.getUUID();
 		DataResult result = new DataResult();
@@ -1273,6 +1283,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 						gg.setGiftId(giftId);
 						gg.setState("0");
 						gg.setGiftApplyId(giftApplyId);
+						gg.setPrice(MoneyUtil.toFen(g.getPrice()));
 						giftGoodsMapper.insertGiftGoods(gg);
 					}
 					BigDecimal price = new BigDecimal(g.getPrice());
@@ -1547,6 +1558,11 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			result.setMessage("查询快递信息失败");
 			return result;
 		}
+	}
+
+	@Override
+	public List<GiftApply> selectGiftIdOverdue() {
+		return giftApplyMapper.selectGiftIdOverdue();
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.project.appinterface.service;
 
 
+import com.project.appinterface.domain.GiftApply;
 import com.project.appinterface.domain.ParamArrayVo;
 import com.project.appinterface.domain.UserAddress;
 import com.project.appinterface.domain.UserInfo;
@@ -10,6 +11,7 @@ import com.project.common.result.Result;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.DataTruncation;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -202,4 +204,10 @@ public interface GiftMachineService
 	 * @return
 	 */
 	public DataResult queryKuaidiInfo(String orderId);
+	
+	/**
+	 * 查询过期的礼物机
+	 * @return
+	 */
+	public List<GiftApply> selectGiftIdOverdue();
 }

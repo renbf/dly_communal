@@ -110,4 +110,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     where gift_id = #{giftId} and user_id = #{userId} and state in ('0','1')
     </select>
     
+    <select id="checkIsApplyByGiftId" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select count(1) from t_gift_apply
+    where gift_id = #{giftId} and state in ('0','1')
+    </select>
+    
+    <select id="selectGiftIdOverdue" resultMap="GiftApplyResult">
+    	select a.id gift_id,a.user_id
+		from (
+		select g.id,g.model_name,g.model,g.state,g.source,ga.user_id,
+				ga.lattice_price,ga.time_type,timestampdiff(day,gl.create_date,now()) day_used,
+				case when ga.time_type = 0 then ga.number else 30* ga.number end day_total_number
+				from t_gift g
+				join t_gift_apply ga on g.id = ga.gift_id and ga.state = 1
+				join t_gift_location gl on gl.gift_id = g.id
+				where g.source = '1'
+		) a where a.day_used > a.day_total_number
+    </select>
+    
 </mapper>

@@ -41,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="goodsId != null  and goodsId != ''  ">goods_id,</if>
 			<if test="state != null  and state != ''  ">state,</if>
 			<if test="giftApplyId != null  and giftApplyId != ''  ">gift_apply_id,</if>
+			<if test="price != null  and price != ''  ">price,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null  and id != ''  ">#{id},</if>
@@ -48,6 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="goodsId != null  and goodsId != ''  ">#{goodsId},</if>
 			<if test="state != null  and state != ''  ">#{state},</if>
 			<if test="giftApplyId != null  and giftApplyId != ''  ">#{giftApplyId},</if>
+			<if test="price != null  and price != ''  ">#{price},</if>
          </trim>
     </insert>
 	 
@@ -88,7 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="selectGiftGoodsInfoList" parameterType="GiftGoods" resultMap="GiftGoodsResult">
     	select gg.id, gg.gift_id, gg.goods_id, gg.state,gg.gift_apply_id,
-    	ci.price
+    	gg.price
     	from t_gift_goods gg
     	left join t_commodity_information ci on ci.id = gg.goods_id
     	<where>  

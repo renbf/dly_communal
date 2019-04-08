@@ -68,7 +68,23 @@ public interface GiftApplyMapper
      * @return 结果
      */
 	public int deleteGiftApplyByIds(String[] ids);
-	
+	/**
+	 * 同一个人申请同一个礼物机
+	 * @param giftId
+	 * @param userId
+	 * @return
+	 */
 	public Integer checkIsApply(@Param("giftId")String giftId,@Param("userId")String userId);
+	/**
+	 * 礼物机审核通过的
+	 * @param giftId
+	 * @return
+	 */
+	public Integer checkIsApplyByGiftId(@Param("giftId")String giftId);
+	/**
+	 * 查询过期的礼物机
+	 * @return
+	 */
+	public List<GiftApply> selectGiftIdOverdue();
 	
 }
