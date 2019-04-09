@@ -210,4 +210,11 @@ public interface GiftMachineService
 	 * @return
 	 */
 	public List<GiftApply> selectGiftIdOverdue();
+	/**
+	 * 绑定账号
+	 * @param alipayAccount
+	 * @param userId
+	 * @return
+	 */
+	public DataResult bindingAccount(String alipayAccount,String userId);
 }

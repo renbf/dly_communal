@@ -587,6 +587,28 @@ public class GiftMachineController {
 			return result;
 		}
 	}
+	
+	/**
+	 * 绑定账号接口
+	 * @param orderNo
+	 * @return
+	 */
+	@ApiOperation(value = "绑定账号接口", httpMethod="POST",response=Result.class)
+	@RequestMapping(value="/cashWithdrawal",method=RequestMethod.POST)
+	public @ResponseBody Result bindingAccount(HttpServletRequest request,
+			@ApiParam(name="alipayAccount",value="支付宝账号",required=true)@RequestParam String alipayAccount,
+			@ApiParam(name="userId",value="用户id",required=true)@RequestParam String userId){
+		DataResult result=new DataResult();
+		try {
+			result = giftMachineService.bindingAccount(alipayAccount,userId);
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus(Result.FAILED);
+			result.setMessage("绑定账号失败");
+			return result;
+		}
+	}
 	/**
 	 * 查询快递接口
 	 * @param orderNo

@@ -1490,11 +1490,21 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			}
 			Long moneyL = Long.valueOf(money.replace(".", ""));
 			Wallet wallet = walletMapper.selectWalletByUserId(userId);
+			String account = null;
 			if(wallet == null) {
 				result.setStatus(Result.FAILED);
 				result.setMessage("用户已没有余额");
 				return result;
 			}else {
+				//支付宝
+				if("0".equals(cashType)){
+					account = wallet.getAlipayAccount();
+					if(StringUtils.isEmpty(account)){
+						result.setStatus(Result.FAILED);
+						result.setMessage("请录入支付宝账号");
+						return result;
+					}
+				}
 				Long balance = wallet.getBalance();
 				if(balance == null || balance.longValue() == 0) {
 					result.setStatus(Result.FAILED);
@@ -1515,6 +1525,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			tCashWithdrawal.setApplicantUser(userId);
 			tCashWithdrawal.setApplicantDate(new Date());
 			tCashWithdrawal.setState("0");
+			tCashWithdrawal.setAccount(account);
 			tCashWithdrawalMapper.insertTCashWithdrawal(tCashWithdrawal);
 			result.setStatus(Result.SUCCESS);
 			result.setMessage("提现申请成功");
@@ -1564,6 +1575,18 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 	@Override
 	public List<GiftApply> selectGiftIdOverdue() {
 		return giftApplyMapper.selectGiftIdOverdue();
+	}
+
+	@Override
+	public DataResult bindingAccount(String alipayAccount, String userId) {
+		DataResult result = new DataResult();
+		Wallet wallet = new Wallet();
+		wallet.setUserId(userId);
+		wallet.setAlipayAccount(alipayAccount);
+		walletMapper.updateWallet(wallet);
+		result.setStatus(Result.SUCCESS);
+		result.setMessage("绑定成功");
+		return result;
 	}
 
 }
