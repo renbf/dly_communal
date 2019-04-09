@@ -19,6 +19,9 @@ import com.project.appinterface.domain.SysAreas;
 import com.project.appinterface.mapper.CommonInterfaceMapper;
 import com.project.appinterface.mapper.GiftGoodsMapper;
 import com.project.appinterface.mapper.GiftLocationMapper;
+import com.project.appinterface.service.GiftMachineService;
+import com.project.common.result.DataResult;
+import com.project.common.result.Result;
 import com.project.common.support.Convert;
 import com.project.framework.util.ShiroUtils;
 import com.project.util.LatticeUtil;
@@ -71,6 +74,9 @@ public class TGiftServiceImpl implements ITGiftService
 	private TGiftModelMapper tGiftModelMapper;
 	@Autowired
 	private GiftLocationMapper giftLocationMapper;
+	@Autowired
+	GiftMachineService giftMachineService;
+	
 	/**
      * 查询礼物机信息
      * 
@@ -219,8 +225,20 @@ public class TGiftServiceImpl implements ITGiftService
 	}
 
 	@Override
+	@Transactional
 	public int updateTGiftState(TGift tGift) {
-		return tGiftMapper.updateTGiftState(tGift);
+		try {
+			String giftId = tGift.getId();
+			TGiftApply tGiftApply = tGiftApplyMapper.selectGiftApplyByGiftIdAndState(giftId);
+			DataResult result = giftMachineService.refundDeposit(giftId, tGiftApply.getUserId());
+			if(Result.SUCCESS.equals(result.getStatus())) {
+				return tGiftMapper.updateTGiftState(tGift);
+			}else {
+				return 0;
+			}
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
 	}
 
 	/**
@@ -340,6 +358,11 @@ public class TGiftServiceImpl implements ITGiftService
 			}
 		}
 		return tGiftVo;
+	}
+
+	@Override
+	public TGift selectTGiftByGiftId(String giftId) {
+		return tGiftMapper.selectTGiftById(giftId);
 	}
 	
 }

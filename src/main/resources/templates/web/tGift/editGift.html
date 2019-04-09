@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-tParameter-editGift" th:object="${tGift}">
+        	<input id="id" name="id" th:field="*{id}"  type="hidden">
+            <div class="form-group">	
+				<label class="col-sm-3 control-label">礼物机名称：</label>
+				<div class="col-sm-8">
+					<input id="modelName" name="modelName" class="form-control" type="text" th:field="*{modelName}">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">礼物机类型：</label>
+				<div class="col-sm-8">
+					<select id="model" name="model" class="form-control">
+					</select>
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">礼物机位置：</label>
+				<div class="col-sm-8">
+					<select id="locationName" name="locationName" class="form-control">
+					</select>
+				</div>
+			</div>
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script th:src="@{/project/js/utils.js}"></script>
+    <script th:inline="javascript">
+    $(function() {
+    	init();
+    });
+		var prefix = ctx + "web/tGift"
+		$("#form-tParameter-editGift").validate({
+			rules:{
+				modelName:{
+					required:true
+				},
+				model:{
+					required:true
+				},
+				locationName:{
+					required:true
+				}
+			}
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	        	$.operate.save(prefix + "/editGift", $('#form-tParameter-editGift').serialize());
+	        }
+	    }
+		
+		function init(){
+			showTGiftModelSelect("model",[[${tGift.model}]]);
+			showAddressSelect("100000","locationName",[[${tGift.locationName}]]);
+		}
+		
+	</script>
+</body>
+</html>

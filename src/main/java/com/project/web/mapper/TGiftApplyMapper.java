@@ -1,9 +1,12 @@
 package com.project.web.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.project.web.domain.GiftApplyVo;
 import com.project.web.domain.TCommodityInformation;
 import com.project.web.domain.TGiftApply;
-import java.util.List;
 
 /**
  * 礼物机申请 数据层
@@ -90,5 +93,11 @@ public interface TGiftApplyMapper
      * @return 结果
      */
 	public int deleteTGiftApplyByIds(String[] ids);
-	
+	/**
+     * 查询礼物机申请使用中的信息
+     * 
+     * @param giftId 礼物机ID
+     * @return 礼物机申请信息
+     */
+	public TGiftApply selectGiftApplyByGiftIdAndState(@Param("giftId")String giftId);
 }

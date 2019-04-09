@@ -78,4 +78,11 @@ public interface ITGiftService
 	 */
 	public TGiftVo selectTGiftVoById(String id);
 	
+	/**
+     * 查询礼物机信息
+     * 
+     * @param id 礼物机ID
+     * @return 礼物机信息
+     */
+	public TGift selectTGiftByGiftId(String giftId);
 }

@@ -31,31 +31,31 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 	
     <select id="selectTUserInfoList" parameterType="TUserInfo" resultMap="TUserInfoResult">
-        select id, phone, password, sex, nickname, birth_day, invitation_code, head_portrait,
-        openid, login_state, state, create_date, update_date,inviter_code,count(invitation_code) as inviterNum from t_user_info
+        select ui.id, ui.phone, ui.password, ui.sex, ui.nickname, ui.birth_day, ui.invitation_code, ui.head_portrait,
+		ui.openid, ui.login_state, ui.state, ui.create_date, ui.update_date,ui.inviter_code ,(select count(1) from t_user_info a where a.inviter_code = ui.invitation_code) as inviterNum 
+		from t_user_info ui
         <where>  
-            <if test="id != null  and id != '' "> and id = #{id}</if>
-             <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
-             <if test="password != null  and password != '' "> and password = #{password}</if>
-             <if test="sex != null  and sex != '' "> and sex = #{sex}</if>
-             <if test="nickname != null  and nickname != '' "> and nickname = #{nickname}</if>
-             <if test="birthDay != null "> and birth_day = #{birthDay}</if>
-             <if test="invitationCode != null  and invitationCode != '' "> and invitation_code = #{invitationCode}</if>
-             <if test="headPortrait != null  and headPortrait != '' "> and head_portrait = #{headPortrait}</if>
-             <if test="openid != null  and openid != '' "> and openid = #{openid}</if>
-             <if test="loginState != null  and loginState != '' "> and login_state = #{loginState}</if>
-             <if test="state != null  and state != '' "> and state = #{state}</if>
-             <if test="createDate != null "> and create_date = #{createDate}</if>
-             <if test="updateDate != null "> and update_date = #{updateDate}</if>
-            <if test="inviterCode != null and inviterCode != ''  "> and inviter_code = #{inviterCode}</if>
+            <if test="id != null  and id != '' "> and ui.id = #{id}</if>
+             <if test="phone != null  and phone != '' "> and ui.phone = #{phone}</if>
+             <if test="password != null  and password != '' "> and ui.password = #{password}</if>
+             <if test="sex != null  and sex != '' "> and ui.sex = #{sex}</if>
+             <if test="nickname != null  and nickname != '' "> and ui.nickname = #{nickname}</if>
+             <if test="birthDay != null "> and ui.birth_day = #{birthDay}</if>
+             <if test="invitationCode != null  and invitationCode != '' "> and ui.invitation_code = #{invitationCode}</if>
+             <if test="headPortrait != null  and headPortrait != '' "> and ui.head_portrait = #{headPortrait}</if>
+             <if test="openid != null  and openid != '' "> and ui.openid = #{openid}</if>
+             <if test="loginState != null  and loginState != '' "> and ui.login_state = #{loginState}</if>
+             <if test="state != null  and state != '' "> and ui.state = #{state}</if>
+             <if test="createDate != null "> and ui.create_date = #{createDate}</if>
+             <if test="updateDate != null "> and ui.update_date = #{updateDate}</if>
+            <if test="inviterCode != null and inviterCode != ''  "> and ui.inviter_code = #{inviterCode}</if>
             <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
-                AND date_format(create_date,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+                AND date_format(ui.create_date,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
             </if>
             <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
-                AND date_format(create_date,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+                AND date_format(ui.create_date,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
             </if>
         </where>
-        GROUP BY invitation_code
     </select>
     
     <select id="selectTUserInfoById" parameterType="String" resultMap="TUserInfoResult">

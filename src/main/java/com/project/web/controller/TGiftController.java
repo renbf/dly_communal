@@ -95,7 +95,7 @@ public class TGiftController extends BaseController
 	}
 
 	/**
-	 * 修改礼物机
+	 * 补充礼物机
 	 */
 	@GetMapping("/edit/{id}")
 	public String edit(@PathVariable("id") String id, ModelMap mmap)
@@ -146,10 +146,14 @@ public class TGiftController extends BaseController
 	@ResponseBody
 	public AjaxResult editState(String id)
 	{
-		TGift tGift = new TGift();
-		tGift.setId(id);
-		tGift.setState("2");
-		return toAjax(tGiftService.updateTGiftState(tGift));
+		try {
+			TGift tGift = new TGift();
+			tGift.setId(id);
+			tGift.setState("2");
+			return toAjax(tGiftService.updateTGiftState(tGift));
+		} catch (Exception e) {
+			return error("礼物机下架失败");
+		}
 	}
 
 	/**
@@ -164,4 +168,26 @@ public class TGiftController extends BaseController
 		return toAjax(tGiftService.deleteTGiftByIds(ids));
 	}
 
+	/**
+	 * 修改礼物机
+	 */
+	@GetMapping("/editGift/{id}")
+	public String editGift(@PathVariable("id") String id, ModelMap mmap)
+	{
+		TGift tGift = tGiftService.selectTGiftByGiftId(id);
+		mmap.put("tGift", tGift);
+		return prefix + "/editGift";
+	}
+	
+	/**
+	 * 修改保存礼物机
+	 */
+	@RequiresPermissions("web:tGift:edit")
+	@Log(title = "礼物机修改", businessType = BusinessType.UPDATE)
+	@PostMapping("/editGift")
+	@ResponseBody
+	public AjaxResult editGift(TGift tGift)
+	{		
+		return toAjax(tGiftService.updateTGift(tGift));
+	}
 }

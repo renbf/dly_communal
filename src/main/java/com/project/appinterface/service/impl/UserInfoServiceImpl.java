@@ -21,6 +21,8 @@ import com.project.util.UUIDUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -138,70 +140,80 @@ public class UserInfoServiceImpl implements IUserInfoService
 	}
 
 	@Override
+	@Transactional
 	public Result register(String phone, String code, String password, String invitationCode) {
 		Result result = new Result();
-		String strcode = redisUtil.get(phone).toString();
-		UserInfo userInfo=new UserInfo();
-		userInfo.setPhone(phone);
-		UserInfo isRegister = this.userInfoMapper.selectUserInfoById(userInfo);
-		if (isRegister != null) {
-			result.setMessage("该手机号已经注册!");
-			result.setStatus(Result.FAILED);
-			return result;
-		}
-		if (strcode != null && !"".equals(strcode)) {
-			if (code.equals(strcode)) {
-				UserInfo user = new UserInfo();
-				user.setId(UUIDUtil.getUUID());
-				user.setPassword(password);
-				user.setPhone(phone);
-				user.setHeadPortrait("");
-				user.setCreateDate(new Date());
-				user.setUpdateDate(new Date());
-				user.setInvitationCode(ConfirmationNumberUtil.toSerialCode(6));
-				user.setState("0");
-				user.setNickname("用户_"+phone);
-				user.setInviterCode(invitationCode);
-				userInfoMapper.insertUserInfo(user);
-				Wallet wallet = walletMapper.selectWalletByUserId(user.getId());
-				if(wallet == null) {
-					Wallet walletu = new Wallet();
-					walletu.setId(UUIDUtil.getUUID());
-					walletu.setUserId(user.getId());
-					walletu.setBalance(0l);
-					walletu.setProfit(0l);
-					walletu.setDeposit(0l);
-					walletMapper.insertWallet(walletu);
+		try {
+			String strcode = redisUtil.get(phone);
+			UserInfo userInfo = new UserInfo();
+			userInfo.setPhone(phone);
+			UserInfo isRegister = this.userInfoMapper.selectUserInfoById(userInfo);
+			if (isRegister != null) {
+				result.setMessage("该手机号已经注册!");
+				result.setStatus(Result.FAILED);
+				return result;
+			}
+			if (invitationCode != null && !"".equals(invitationCode)) {
+				UserInfo userInfoi = new UserInfo();
+				userInfoi.setInvitationCode(invitationCode);
+				UserInfo u = this.userInfoMapper.selectUserInfoById(userInfoi);
+				if (u != null) {
+					//没加优惠券id
+					CouponReceive couponReceivecrm = new CouponReceive();
+					couponReceivecrm.setId(UUIDUtil.getUUID());
+					couponReceivecrm.setUserId(u.getId());
+					couponReceivecrm.setState("0");
+					couponReceivecrm.setCreateDate(new Date());
+					couponReceivecrm.setUpdateDate(new Date());
+					Coupon cou = couponMapper.selectCouponById();
+					couponReceivecrm.setCouponId(cou.getId());
+					couponReceiveMapper.insertCouponReceive(couponReceivecrm);
+				}else {
+					result.setMessage("邀请码错误");
+					result.setStatus(Result.FAILED);
+					return result;
 				}
-				Map<String, String> map = new HashMap<String, String>();
-				map.put("userid", user.getId());
-				result.setMessage("注册成功");
-				result.setStatus(Result.SUCCESS);
-				redisUtil.del(phone);
-				if(invitationCode!=null && !"".equals(invitationCode)){
-					UserInfo userInfoi=new UserInfo();
-					userInfoi.setInvitationCode(invitationCode);
-					UserInfo u = this.userInfoMapper.selectUserInfoById(userInfoi);
-					if(u!=null){
-						//没加优惠券id
-						CouponReceive couponReceivecrm=new CouponReceive();
-						couponReceivecrm.setId(UUIDUtil.getUUID());
-						couponReceivecrm.setUserId(u.getId());
-						couponReceivecrm.setState("0");
-						couponReceivecrm.setCreateDate(new Date());
-						couponReceivecrm.setUpdateDate(new Date());
-						Coupon cou=couponMapper.selectCouponById();
-						couponReceivecrm.setCouponId(cou.getId());
-						couponReceiveMapper.insertCouponReceive(couponReceivecrm);
+			}
+			if (strcode != null && !"".equals(strcode)) {
+				if (code.equals(strcode)) {
+					UserInfo user = new UserInfo();
+					user.setId(UUIDUtil.getUUID());
+					user.setPassword(password);
+					user.setPhone(phone);
+					user.setHeadPortrait("");
+					user.setCreateDate(new Date());
+					user.setUpdateDate(new Date());
+					user.setInvitationCode(ConfirmationNumberUtil.toSerialCode(6));
+					user.setState("0");
+					user.setNickname("用户_" + phone);
+					user.setInviterCode(invitationCode);
+					userInfoMapper.insertUserInfo(user);
+					Wallet wallet = walletMapper.selectWalletByUserId(user.getId());
+					if (wallet == null) {
+						Wallet walletu = new Wallet();
+						walletu.setId(UUIDUtil.getUUID());
+						walletu.setUserId(user.getId());
+						walletu.setBalance(0l);
+						walletu.setProfit(0l);
+						walletu.setDeposit(0l);
+						walletMapper.insertWallet(walletu);
 					}
+					Map<String, String> map = new HashMap<String, String>();
+					map.put("userid", user.getId());
+					result.setMessage("注册成功");
+					result.setStatus(Result.SUCCESS);
+					redisUtil.del(phone);
+				} else {
+					result.setMessage("请输入正确的验证码");
+					result.setStatus(Result.FAILED);
 				}
 			} else {
-				result.setMessage("请输入正确的验证码");
+				result.setMessage("验证码失效请重新发送！");
 				result.setStatus(Result.FAILED);
-			}
-		} else {
-			result.setMessage("验证码失效请重新发送！");
-			result.setStatus(Result.FAILED);
+			} 
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException();
 		}
 		return result;
 	}

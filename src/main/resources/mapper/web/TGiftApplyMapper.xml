@@ -165,4 +165,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </delete>
     
+    <select id="selectGiftApplyByGiftIdAndState" parameterType="String" resultMap="TGiftApplyResult">
+    	<include refid="selectTGiftApplyVo"/>
+        where gift_id = #{giftId} and state = '1'
+    </select>
+    
 </mapper>

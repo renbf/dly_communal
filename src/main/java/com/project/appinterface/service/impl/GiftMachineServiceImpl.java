@@ -1035,16 +1035,19 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			Map<String, Object> map = new HashMap<>();
 			map.put("collectionId", c.getId());
 			Gift gift = giftMachineMapper.selectGiftByIdw(c.getGiftId());
-			List<CommodityInformation> cilist = commodityInformationMapper.selectCommodityInformationList(gift.getId());
-			String goodsname = "";
-			for (CommodityInformation co : cilist) {
-				goodsname += co.getName();
+			if(gift != null) {
+				List<CommodityInformation> cilist = commodityInformationMapper
+						.selectCommodityInformationList(gift.getId());
+				String goodsname = "";
+				for (CommodityInformation co : cilist) {
+					goodsname += co.getName();
+				}
+				map.put("giftId", gift.getId());
+				map.put("giftName", gift.getModelName());
+				map.put("goodsName", goodsname);
+				map.put("pictureUrl", gift.getPictureUrl());
+				rlist.add(map);
 			}
-			map.put("giftId", gift.getId());
-			map.put("giftName", gift.getModelName());
-			map.put("goodsName", goodsname);
-			map.put("pictureUrl", gift.getPictureUrl());
-			rlist.add(map);
 		}
 		result.setResult(rlist);
 		result.setStatus(Result.SUCCESS);
@@ -1432,6 +1435,9 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 					Long deposit = 0l;//退到余额里的钱
 					Long depositTotal = 0l;//押金总共退的钱
 					for(GiftGoods tGiftGoods:giftGoodsList) {
+						if(tGiftGoods.getPrice() == null) {
+							tGiftGoods.setPrice(0l);
+						}
 						if("0".equals(tGiftGoods.getState())) {
 							deposit+=tGiftGoods.getPrice();
 						}

@@ -136,7 +136,12 @@ public class RedisUtil {
      * @return 值
      */
     public String get(String key){
-        return key==null?null:redisTemplate.opsForValue().get(key).toString();
+    	Object value = key==null?null:redisTemplate.opsForValue().get(key);
+    	if(value != null) {
+    		return value.toString();
+    	}else {
+    		return null;
+    	}
     }
 
     /**
