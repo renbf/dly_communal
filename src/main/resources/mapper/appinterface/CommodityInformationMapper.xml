@@ -45,10 +45,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         c.create_user as createUser
         FROM
         t_commodity_information c
-        LEFT JOIN t_gift_goods gg on gg.goods_id=c.id
+        JOIN t_gift_goods gg on gg.goods_id=c.id
+        join t_gift_apply ga on gg.gift_apply_id = ga.id and ga.state = '1'
         where 1=1
-        <if test="gift_id!=null and gift_id !=''">
-          and   gg.gift_id=#{gift_id}
+        <if test="giftId != null and giftId !=''">
+          and gg.gift_id=#{giftId}
         </if>
     </select>
     <select id="queryGoodsAll" parameterType="String" resultMap="CommodityInformationResult">

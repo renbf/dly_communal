@@ -15,6 +15,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="totalPosition"    column="total_position"    />
         <result property="giftName"    column="giftName"    />
         <result property="latticePrice"    column="lattice_price"    />
+        <result property="giftApplyId"    column="gift_apply_id"    />
     </resultMap>
 	
 	<sql id="selectGiftLocationVo">
@@ -47,10 +48,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         g.surplus_position as surplus_position,
         g.total_position as total_position,
         g.lattice_price as lattice_price,
-        ga.introduce as giftName
+        ga.introduce as giftName,
+        ga.id gift_apply_id
         FROM
         t_gift_location g
-        LEFT JOIN t_gift_apply ga on ga.gift_id=g.gift_id and g.create_user = ga.user_id
+        LEFT JOIN t_gift_apply ga on ga.gift_id=g.gift_id and g.create_user = ga.user_id and ga.state = '1'
         <where>
             <if test="giftId != null  and giftId != '' "> and g.gift_id = #{giftId}</if>
          </where>

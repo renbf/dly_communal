@@ -46,9 +46,6 @@ public class TGiftController extends BaseController
 	private ITGiftService tGiftService;
 
 	@Autowired
-	private ITGiftApplyService tGiftApplyService;
-
-	@Autowired
 	private ITCommodityInformationService tCommodityInformationService;
 	
 	

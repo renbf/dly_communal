@@ -35,6 +35,8 @@ public class GiftLocation extends BaseEntity
 	private Long latticePrice;
 	/** 礼物机名称 **/
 	private String giftName;
+	/** 申请礼物机id **/
+	private String giftApplyId;
 
 	public String getGiftName() {
 		return giftName;
@@ -125,7 +127,15 @@ public class GiftLocation extends BaseEntity
 		return latticePrice;
 	}
 
-    public String toString() {
+    public String getGiftApplyId() {
+		return giftApplyId;
+	}
+
+	public void setGiftApplyId(String giftApplyId) {
+		this.giftApplyId = giftApplyId;
+	}
+
+	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("content", getContent())

@@ -1298,8 +1298,8 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				Long depositOld = wallet.getDeposit();
 				Wallet walletu = new Wallet();
 				walletu.setId(wallet.getId());
-				walletu.setDeposit(depositOld+deposit.longValue());
-				walletMapper.updateWallet(wallet);
+				walletu.setDeposit(depositOld.longValue()+deposit.longValue());
+				walletMapper.updateWallet(walletu);
 				//消费记录
 				ConsumptionInformation consumptionInformation = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
 				consumptionInformation.setState("1");

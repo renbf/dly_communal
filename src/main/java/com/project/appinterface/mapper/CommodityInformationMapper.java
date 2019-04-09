@@ -46,7 +46,7 @@ public interface CommodityInformationMapper
      * @param id 商品信息
      * @return 商品集合
      */
-	public List<CommodityInformation> selectCommodityInformationList(@Param("gift_id") String id);
+	public List<CommodityInformation> selectCommodityInformationList(@Param("giftId") String giftId);
 
 	/**
      * 新增商品

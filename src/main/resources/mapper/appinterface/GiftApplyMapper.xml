@@ -112,7 +112,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="checkIsApplyByGiftId" parameterType="java.util.Map" resultType="java.lang.Integer">
     select count(1) from t_gift_apply
-    where gift_id = #{giftId} and state in ('0','1')
+    where gift_id = #{giftId} and state = '1'
     </select>
     
     <select id="selectGiftIdOverdue" resultMap="GiftApplyResult">
