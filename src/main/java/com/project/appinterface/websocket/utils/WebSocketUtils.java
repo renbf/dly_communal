@@ -59,6 +59,8 @@ public class WebSocketUtils {
 			giftIdMap.put(session.getId(), beanStr);
 		}else {
 			Map<String, String> currentStateMap = bean.getCurrentStateMap();
+			//打开过的指令
+			Map<String, String> current3StateMap = bean.getCurrentStateMap();
 			//消息指令
 			Map<String, String> checkedStateMap = new ConcurrentHashMap<String, String>();
 			for(String sessionid : giftIdMap.keySet()){
@@ -75,6 +77,13 @@ public class WebSocketUtils {
 						checkedStateMap.put(index, "4");
 					}
 				}
+				//给其他人发3的消息
+				SelectGoodsMessage selectGoodsMessage = new SelectGoodsMessage();
+				selectGoodsMessage.setGiftId(giftId);
+				selectGoodsMessage.setUserId(userId);
+				selectGoodsMessage.setIndexStateMap(current3StateMap);
+				String messages = JSON.toJSONString(selectGoodsMessage);
+				sendMessage(messages,sessionMap.get(item.getSessionId()));
 			}
 			//发消息
 			SelectGoodsMessage selectGoodsMessage = new SelectGoodsMessage();
