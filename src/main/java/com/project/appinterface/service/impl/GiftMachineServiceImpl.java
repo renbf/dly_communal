@@ -1489,18 +1489,13 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				return result;
 			}
 			Long moneyL = Long.valueOf(money.replace(".", ""));
-			Wallet wallet = new Wallet();
-			wallet.setUserId(userId);
-			List<Wallet> wallets = walletMapper.selectWalletList(wallet);
-			if(CollectionUtils.isEmpty(wallets)) {
+			Wallet wallet = walletMapper.selectWalletByUserId(userId);
+			if(wallet == null) {
 				result.setStatus(Result.FAILED);
 				result.setMessage("用户已没有余额");
 				return result;
 			}else {
-				Long balance = null;
-				if(wallets.size() == 1) {
-					balance = wallets.get(0).getBalance();
-				}
+				Long balance = wallet.getBalance();
 				if(balance == null || balance.longValue() == 0) {
 					result.setStatus(Result.FAILED);
 					result.setMessage("用户已没有余额");

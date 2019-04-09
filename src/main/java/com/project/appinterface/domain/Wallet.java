@@ -24,6 +24,8 @@ public class Wallet extends BaseEntity
 	private Long deposit;
 	/** 用户id */
 	private String userId;
+	/** 支付宝账号 */
+	private String alipayAccount;
 
 	public void setId(String id) 
 	{
@@ -71,7 +73,15 @@ public class Wallet extends BaseEntity
 		return userId;
 	}
 
-    public String toString() {
+    public String getAlipayAccount() {
+		return alipayAccount;
+	}
+
+	public void setAlipayAccount(String alipayAccount) {
+		this.alipayAccount = alipayAccount;
+	}
+
+	public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("profit", getProfit())

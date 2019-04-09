@@ -10,10 +10,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="balance"    column="balance"    />
         <result property="deposit"    column="deposit"    />
         <result property="userId"    column="user_id"    />
+        <result property="alipayAccount"    column="alipay_account"    />
     </resultMap>
 	
 	<sql id="selectWalletVo">
-        select id, profit, balance, deposit, user_id from t_wallet
+        select id, profit, balance, deposit, user_id,alipay_account from t_wallet
     </sql>
 	
     <select id="selectWalletList" parameterType="Wallet" resultMap="WalletResult">
@@ -60,6 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="balance != null  ">balance = #{balance},</if>
             <if test="deposit != null  ">deposit = #{deposit},</if>
             <if test="userId != null  and userId != ''  ">user_id = #{userId},</if>
+            <if test="alipayAccount != null  and alipayAccount != ''  ">alipay_account = #{alipayAccount},</if>
         </trim>
         where id = #{id}
     </update>
