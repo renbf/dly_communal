@@ -695,7 +695,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			for (String index : indexArr) {
 				boolean getLock = JedisUtil.tryGetDistributedLock("tryPayGift_"+giftId + "_" + index, requestId, 60000);
 				if (getLock == false) {
-					result.setMessage("第" + (index + 1) + "个盒子已被占用了");
+					result.setMessage("第" + (Integer.valueOf(index).intValue() + 1) + "个盒子已被占用了");
 					result.setStatus(Result.FAILED);
 					return result;
 				}

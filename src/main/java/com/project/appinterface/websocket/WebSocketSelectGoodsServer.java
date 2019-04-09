@@ -43,9 +43,11 @@ public class WebSocketSelectGoodsServer {
 			sessionMap.put(session.getId(), session);
 			JedisUtil.set("websocket_sessionId_"+session.getId(), userId, 0);
 			Set<String> keys = JedisUtil.keys("websocket_sessionId_*");
-			for(String key:keys) {
-				if(!sessionMap.containsKey(key.substring(20))) {
-					JedisUtil.del(key);
+			if(keys != null) {
+				for(String key:keys) {
+					if(!sessionMap.containsKey(key.substring(20))) {
+						JedisUtil.del(key);
+					}
 				}
 			}
 			Map<String, String> giftIdMapOld = JedisUtil.getMap("websocket_"+giftId);
@@ -74,9 +76,11 @@ public class WebSocketSelectGoodsServer {
 			WebSocketUtils.close(giftId, userId, session,sessionMap);
 			sessionMap.remove(session.getId());
 			Set<String> keys = JedisUtil.keys("websocket_sessionId_*");
-			for(String key:keys) {
-				if(!sessionMap.containsKey(key.substring(20))) {
-					JedisUtil.del(key);
+			if(keys != null) {
+				for(String key:keys) {
+					if(!sessionMap.containsKey(key.substring(20))) {
+						JedisUtil.del(key);
+					}
 				}
 			}
 			subOnlineCount(); // 在线数减1
