@@ -93,7 +93,7 @@ public class TCashWithdrawalController extends BaseController
 	}
 	
 	/**
-	 * 修改保存提现申请
+	 * 提现申请同意或拒绝
 	 */
 	@RequiresPermissions("web:tCashWithdrawal:edit")
 	@Log(title = "提现申请", businessType = BusinessType.UPDATE)

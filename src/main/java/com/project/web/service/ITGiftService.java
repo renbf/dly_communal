@@ -2,6 +2,7 @@ package com.project.web.service;
 
 import java.util.List;
 
+import com.project.common.result.DataResult;
 import com.project.web.domain.TGift;
 import com.project.web.domain.vo.TGiftParam;
 import com.project.web.domain.vo.TGiftVo;
@@ -69,7 +70,7 @@ public interface ITGiftService
      */
 	public int deleteTGiftByIds(String ids);
 	
-	public int updateTGiftGoodsInfo(TGiftParam tGiftParam);
+	public DataResult updateTGiftGoodsInfo(TGiftParam tGiftParam);
 	
 	/**
 	 * 礼物机详情信息

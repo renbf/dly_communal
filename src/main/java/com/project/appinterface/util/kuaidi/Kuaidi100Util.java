@@ -34,8 +34,12 @@ public class Kuaidi100Util {
 			String resp = new HttpRequest().postData("http://poll.kuaidi100.com/poll/query.do", params, "utf-8")
 					.toString();
 			log.info(resp);
-			KuaidiResult result = JacksonHelper.fromJSON(resp, KuaidiResult.class);
-			return result;
+			if(!"".contentEquals(resp)) {
+				KuaidiResult result = JacksonHelper.fromJSON(resp, KuaidiResult.class);
+				return result;
+			}else {
+				return null;
+			}
 		} catch (Exception e) {
 			log.error("快递100查询错误",e);
 			return null;

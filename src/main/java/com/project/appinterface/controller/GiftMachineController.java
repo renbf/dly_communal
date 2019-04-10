@@ -594,7 +594,7 @@ public class GiftMachineController {
 	 * @return
 	 */
 	@ApiOperation(value = "绑定账号接口", httpMethod="POST",response=Result.class)
-	@RequestMapping(value="/cashWithdrawal",method=RequestMethod.POST)
+	@RequestMapping(value="/bindingAccount",method=RequestMethod.POST)
 	public @ResponseBody Result bindingAccount(HttpServletRequest request,
 			@ApiParam(name="alipayAccount",value="支付宝账号",required=true)@RequestParam String alipayAccount,
 			@ApiParam(name="userId",value="用户id",required=true)@RequestParam String userId){

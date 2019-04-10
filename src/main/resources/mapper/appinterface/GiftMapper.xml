@@ -317,7 +317,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryPayGift" resultType="com.project.appinterface.domain.PayOrder">
 		    	select p.type as type,p.money as money from t_pay_order p
                 LEFT JOIN t_gift_apply t on t.orderno=p.orderno
-                where t.gift_id=#{giftId} and t.user_id = #{userId}
+                where t.id = #{giftApplyId}
 	</select>
     <select id="queryPayOrder" resultType="com.project.appinterface.domain.PayOrder">
 		    	select id,orderid,userid,orderno,state,create_date,type,content,pay_type,money,pay_params from t_pay_order where orderno=#{orderno}
@@ -370,8 +370,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     	select ga.gift_id,ga.introduce,ga.lattice_price,gm.lattice_num,gl.surplus_position,
     	(select GROUP_CONCAT(ci.name) from t_commodity_information ci join t_gift_goods gg on gg.goods_id = ci.id where gg.gift_apply_id = ga.id) goodsNames
 		from t_gift_apply ga 
+		left join t_gift g on g.id = ga.gift_id
 		left join t_gift_location gl on gl.gift_id = ga.gift_id
-		left join t_gift_model gm on gm.id = ga.gift_model_id
+		left join t_gift_model gm on gm.id = g.model
 		where ga.gift_id = #{giftId} and ga.state = '1'
     </select>
     

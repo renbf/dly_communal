@@ -267,12 +267,20 @@ public class TGiftServiceImpl implements ITGiftService
 
 	@Override
 	@Transactional
-	public int updateTGiftGoodsInfo(TGiftParam tGiftParam) {
+	public DataResult updateTGiftGoodsInfo(TGiftParam tGiftParam) {
+		DataResult result=new DataResult();
 		try {
+			String giftId = tGiftParam.getGiftId();
+			List<TGiftVo> tGiftVos = tGiftMapper.selectTGiftsByGiftId(giftId);
+			if(CollectionUtils.isNotEmpty(tGiftVos)) {
+				result.setMessage("已经有人申请该礼物机");
+				result.setStatus(Result.FAILED);
+				return result;
+			}
 			String sysUserId = ShiroUtils.getUserId().toString();
 			Date now = new Date();
 			TGift tGift = new TGift();
-			tGift.setId(tGiftParam.getGiftId());
+			tGift.setId(giftId);
 			tGift.setModel(tGiftParam.getModel());
 			tGift.setModelName(tGiftParam.getModelName());
 			tGift.setLocationName(tGiftParam.getLocationName());
@@ -289,7 +297,7 @@ public class TGiftServiceImpl implements ITGiftService
 			TGiftApply tGiftApply = new TGiftApply();
 			String giftApplyId = UUIDUtil.getUUID();
 			tGiftApply.setId(giftApplyId);
-			tGiftApply.setGiftId(tGiftParam.getGiftId());
+			tGiftApply.setGiftId(giftId);
 			tGiftApply.setTimeType(tGiftParam.getTimeType());
 			tGiftApply.setNumber(tGiftParam.getNumber());
 			tGiftApply.setUserId(sysUserId);
@@ -300,6 +308,7 @@ public class TGiftServiceImpl implements ITGiftService
 			tGiftApplyMapper.insertTGiftApply(tGiftApply);
 			String[] goodsId = tGiftParam.getGoodsId();
 			int[] goodsNumber = tGiftParam.getGoodsNumber();
+			Long[] goodsPrice = tGiftParam.getGoodsPrice();
 			if (goodsId != null && goodsId.length > 0 && goodsNumber != null && goodsNumber.length > 0
 					&& goodsNumber.length == goodsId.length) {
 				List<GiftGoods> list = new ArrayList<GiftGoods>();
@@ -309,10 +318,11 @@ public class TGiftServiceImpl implements ITGiftService
 						for (int j = 0; j < goodsNumber[i]; j++) {
 							GiftGoods giftGoods = new GiftGoods();
 							giftGoods.setId(UUIDUtil.getUUID());
-							giftGoods.setGiftId(tGiftParam.getGiftId());
+							giftGoods.setGiftId(giftId);
 							giftGoods.setGoodsId(goods_id);
 							giftGoods.setState("0");
 							giftGoods.setGiftApplyId(giftApplyId);
+							giftGoods.setPrice(goodsPrice[i]);
 							list.add(giftGoods);
 						}
 					}
@@ -335,10 +345,14 @@ public class TGiftServiceImpl implements ITGiftService
 					giftLocation.setTotalPosition(tGiftModel.getLatticeNum());
 					giftLocation.setLatticePrice(tGiftApply.getLatticePrice());
 					giftLocationMapper.insertGiftLocation(giftLocation);
-					return 1;
+					result.setMessage("补充礼物机成功");
+					result.setStatus(Result.SUCCESS);
+					return result;
 				}
 			}
-			return 0;
+			result.setMessage("补充礼物机失败");
+			result.setStatus(Result.FAILED);
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException();

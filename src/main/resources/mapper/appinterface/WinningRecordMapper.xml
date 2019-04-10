@@ -45,7 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="getWinningRecord" resultMap="WinningRecordResult">
-        select  CONCAT('公告:',u.nickname,'中了:',c.`name`) as message
+        select  CONCAT('公告:',u.nickname,'中了',c.`name`) as message
              from t_winning_record w
             LEFT JOIN t_user_info u on u.id=w.user_id
             LEFT JOIN t_commodity_information c on c.id=w.goods_id

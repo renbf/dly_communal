@@ -9,6 +9,8 @@ public class Result {
 	public static final String SUCCESS = "0";
 	public static final String FAILED = "1";
 	public static final String USERNO = "10086";
+	/**没绑定账号*/
+	public static final String NOBING = "10010";
 	protected String message;
 	protected String status;
 	

@@ -63,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		(select GROUP_CONCAT(ci.name) from t_commodity_information ci join t_gift_goods gg on gg.goods_id = ci.id where gg.gift_apply_id = ga.id) goodsNames,
 		(select GROUP_CONCAT(gg.goods_id) from t_gift_goods gg where gg.gift_apply_id = ga.id) goodsIds
 		from t_gift g
-		left join t_gift_apply ga on g.id = ga.gift_id and ga.state = 1
+		left join t_gift_apply ga on g.id = ga.gift_id and ga.state = '1'
 		left join t_user_info ui on ga.user_id = ui.id
 		left join sys_user su on su.user_id = ga.user_id
 		left join t_sys_areas sa on sa.id = g.location_name
@@ -93,7 +93,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		case when ga.time_type = 0 then ga.number else 30* ga.number end day_total_number,
 		m.lattice_num,gl.surplus_position,p.money as deposit
 		from t_gift g
-		left join t_gift_apply ga on g.id = ga.gift_id and ga.state = 1
+		left join t_gift_apply ga on g.id = ga.gift_id and ga.state = '1'
 		left join t_user_info ui on ga.user_id = ui.id
 		left join sys_user su on su.user_id = ga.user_id
 		left join t_sys_areas sa on sa.id = g.location_name
@@ -201,5 +201,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTGiftByLngLat" parameterType="java.util.Map" resultMap="TGiftResult">
     	<include refid="selectTGiftVo"/>
     	where lng = #{lng} and lat = #{lat}
+    </select>
+    
+    <select id="selectTGiftsByGiftId" parameterType="java.lang.String" resultMap="TGiftVoResult">
+    	select g.id,g.model_name,g.model,sa.id locationCode,sa.short_name location_name,g.state,g.source
+		from t_gift g
+		join t_gift_apply ga on g.id = ga.gift_id and ga.state = '0'
+		left join t_sys_areas sa on sa.id = g.location_name
+		where g.id = #{giftId}
     </select>
 </mapper>

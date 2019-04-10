@@ -1,8 +1,7 @@
 package com.project.web.controller;
 
+import java.util.Date;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -18,16 +17,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.project.common.annotation.Log;
 import com.project.common.base.AjaxResult;
 import com.project.common.enums.BusinessType;
+import com.project.common.result.DataResult;
+import com.project.common.result.Result;
 import com.project.framework.web.page.TableDataInfo;
 import com.project.system.core.base.BaseController;
 import com.project.web.domain.TCommodityInformation;
 import com.project.web.domain.TGift;
-import com.project.web.domain.TGiftApply;
 import com.project.web.domain.vo.TCommodityInformationVo;
 import com.project.web.domain.vo.TGiftParam;
 import com.project.web.domain.vo.TGiftVo;
 import com.project.web.service.ITCommodityInformationService;
-import com.project.web.service.ITGiftApplyService;
 import com.project.web.service.ITGiftService;
 
 /**
@@ -123,7 +122,7 @@ public class TGiftController extends BaseController
 	}
 
 	/**
-	 * 修改保存礼物机
+	 * 补充礼物机
 	 */
 	@RequiresPermissions("web:tGift:edit")
 	@Log(title = "礼物机", businessType = BusinessType.UPDATE)
@@ -131,7 +130,17 @@ public class TGiftController extends BaseController
 	@ResponseBody
 	public AjaxResult editSave(TGiftParam tGiftParam)
 	{
-		return toAjax(tGiftService.updateTGiftGoodsInfo(tGiftParam));
+		try {
+			DataResult result = tGiftService.updateTGiftGoodsInfo(tGiftParam);
+			if (Result.SUCCESS.contentEquals(result.getStatus())) {
+				return success(result.getMessage());
+			} else {
+				return error(result.getMessage());
+			} 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return error("补充礼物机异常");
+		}
 	}
 
 	/**
@@ -186,5 +195,25 @@ public class TGiftController extends BaseController
 	public AjaxResult editGift(TGift tGift)
 	{		
 		return toAjax(tGiftService.updateTGift(tGift));
+	}
+	
+	/**
+	 * 修改礼物机  上架
+	 */
+	@RequiresPermissions("web:tGift:remove")
+	@Log(title = "礼物机", businessType = BusinessType.UPDATE)
+	@PostMapping("/upGiftState")
+	@ResponseBody
+	public AjaxResult upGiftState(String id)
+	{
+		try {
+			TGift tGift = new TGift();
+			tGift.setId(id);
+			tGift.setState("0");
+			tGift.setUpdateDate(new Date());
+			return toAjax(tGiftService.updateTGift(tGift));
+		} catch (Exception e) {
+			return error("礼物机上架失败");
+		}
 	}
 }

@@ -51,7 +51,7 @@ public interface GiftMachineMapper
 	 * @param grifId
 	 * @return
 	 */
-	public PayOrder queryPayGift(@Param("giftId")String grifId,@Param("userId")String userId);
+	public PayOrder queryPayGift(@Param("giftApplyId")String giftApplyId);
 	/**
 	 * 添加收货地址
 	 * @param userAddress

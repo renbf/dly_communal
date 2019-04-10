@@ -428,7 +428,9 @@ public class UserInfoServiceImpl implements IUserInfoService
 						Date newDate = c.getTime(); //结果
 						num=daysBetween(dateFormat.format(new Date()),dateFormat.format(newDate));
 					}else{
-						c.add(Calendar.MINUTE, giftApply.getNumber()); //日期分钟加1,Calendar.DATE(天),Calendar.HOUR(小时)
+						Integer number = giftApply.getNumber();
+						number = number.intValue() *30;
+						c.add(Calendar.DATE, number); //日期分钟加1,Calendar.DATE(天),Calendar.HOUR(小时)
 						Date newDate = c.getTime(); //结果
 						num=daysBetween(dateFormat.format(new Date()),dateFormat.format(newDate));
 					}
@@ -487,7 +489,7 @@ public class UserInfoServiceImpl implements IUserInfoService
 						}
 					}
 			}
-			PayOrder po=giftMachineMapper.queryPayGift(gift.getId(),userId);
+			PayOrder po=giftMachineMapper.queryPayGift(giftApply.getId());
 			if(po != null){
 				if(po.getType().equals("1")){
 					rmap.put("payType","支付宝");

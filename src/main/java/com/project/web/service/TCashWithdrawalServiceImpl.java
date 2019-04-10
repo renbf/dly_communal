@@ -3,14 +3,18 @@ package com.project.web.service;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.project.appinterface.domain.ConsumptionInformation;
+import com.project.appinterface.domain.Wallet;
 import com.project.appinterface.mapper.ConsumptionInformationMapper;
+import com.project.appinterface.mapper.WalletMapper;
 import com.project.appinterface.util.AliPayUtil;
 import com.project.appinterface.util.OrderNo;
+import com.project.common.constant.Constants;
 import com.project.common.result.DataResult;
 import com.project.common.result.Result;
 import com.project.common.support.Convert;
@@ -33,6 +37,9 @@ public class TCashWithdrawalServiceImpl implements ITCashWithdrawalService
 
 	@Autowired
 	private ConsumptionInformationMapper consumptionInformationMapper;
+	
+	@Autowired
+	private WalletMapper walletMapper;
 	
 	/**
      * 查询提现申请信息
@@ -97,6 +104,43 @@ public class TCashWithdrawalServiceImpl implements ITCashWithdrawalService
 //					return result;
 //				}
 				tCashWithdrawalMapper.updateTCashWithdrawal(tCashWithdrawal);
+				Wallet wallet = walletMapper.selectWalletByUserId(cashWithdrawal.getApplicantUser());
+				String account = null;
+				//支付宝
+				if("0".equals(cashWithdrawal.getCashType())){
+					account = wallet.getAlipayAccount();
+					if(StringUtils.isEmpty(account)){
+						result.setStatus(Result.FAILED);
+						result.setMessage("支付宝账号为空");
+						return result;
+					}
+				}
+				Long balance = wallet.getBalance();
+				if(balance == null || balance.longValue() == 0) {
+					result.setStatus(Result.FAILED);
+					result.setMessage("用户已没有余额");
+					return result;
+				}else {
+					if(balance.longValue() < cashWithdrawal.getMoney().longValue()) {
+						result.setStatus(Result.FAILED);
+						result.setMessage("用户余额不足");
+						return result;
+					}
+				}
+				//平台加钱
+				Wallet adminWallet = walletMapper.selectWalletById(Constants.ADMIN);
+				Long adminBalance = adminWallet.getBalance();
+				if(adminBalance.longValue() < cashWithdrawal.getMoney().longValue()) {
+					result.setStatus(Result.FAILED);
+					result.setMessage("平台没钱了");
+					return result;
+				}
+				adminWallet.setBalance(adminBalance.longValue()-cashWithdrawal.getMoney().longValue());
+				walletMapper.updateWallet(adminWallet);
+				Wallet walletu = new Wallet();
+				walletu.setId(wallet.getId());
+				walletu.setBalance(balance.longValue() - cashWithdrawal.getMoney().longValue());
+				walletMapper.updateWallet(walletu);
 				// 生成退还押金记录
 				ConsumptionInformation ci = new ConsumptionInformation();
 				ci.setId(UUIDUtil.getUUID());

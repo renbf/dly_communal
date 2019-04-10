@@ -76,4 +76,28 @@ function showTGoodsTypes(selectId,defaultValue){
         }
     });
 }
-
+//快递公司字典
+function showTExpressCompanys(selectId,defaultValue){
+	$.ajax({
+    url :'/web/tExpressCompany/getTExpressCompanys',
+    type:"post",
+    data : {
+    },
+    success : function(result) {
+        if(result.status == 0){
+            $("#"+selectId).html('<option value="">全部</option>');
+            $.each(result.result, function (i, detail) {
+                var code = detail['companyCode'];
+                var name = detail['companyName'];
+                if(defaultValue != undefined && defaultValue != null && code == defaultValue){
+                    $("#"+selectId).append('<option selected="selected" value="'+code+'">'+name+'</option>');
+                }else{
+                    $("#"+selectId).append('<option value="'+code+'">'+name+'</option>');
+                    }
+                });
+            }else{
+                $.modal.alertError(result.message);
+            }
+        }
+    });
+}

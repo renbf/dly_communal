@@ -3,9 +3,14 @@ package com.project.web.service;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.project.appinterface.util.kuaidi.Kuaidi100Util;
+import com.project.appinterface.util.kuaidi.pojo.pojo.KuaidiResult;
+import com.project.common.result.DataResult;
+import com.project.common.result.Result;
 import com.project.common.support.Convert;
 import com.project.web.domain.OrderVo;
 import com.project.web.domain.TOrder;
@@ -66,12 +71,36 @@ public class TOrderServiceImpl implements ITOrderService
      * @return 结果
      */
 	@Override
-	public int updateTOrder(TOrder tOrder)
+	public DataResult updateTOrder(TOrder tOrder)
 	{
-		tOrder.setState("1");
-		//发货时间
-		tOrder.setDeliveryDate(new Date());
-	    return tOrderMapper.updateTOrder(tOrder);
+		DataResult result = new DataResult();
+		try {
+			String companyCode = tOrder.getCompanyCode();
+			String expressNo = tOrder.getExpressNo();
+			if (StringUtils.isEmpty(companyCode) || StringUtils.isEmpty(expressNo)) {
+				result.setStatus(Result.FAILED);
+				result.setMessage("参数不能为空");
+				return result;
+			}
+			KuaidiResult kuaidiResult = Kuaidi100Util.getString(companyCode, expressNo);
+			if (kuaidiResult == null) {
+				result.setStatus(Result.FAILED);
+				result.setMessage("请核实");
+				return result;
+			}
+			tOrder.setState("1");
+			//发货时间
+			tOrder.setDeliveryDate(new Date());
+			tOrderMapper.updateTOrder(tOrder);
+			result.setStatus(Result.SUCCESS);
+			result.setMessage("发货成功");
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus(Result.FAILED);
+			result.setMessage("发货失败");
+			return result;
+		}
 	}
 
 	/**

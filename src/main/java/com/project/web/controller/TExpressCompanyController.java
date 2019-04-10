@@ -3,6 +3,8 @@ package com.project.web.controller;
 import java.util.List;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -10,15 +12,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.project.common.annotation.Log;
 import com.project.common.base.AjaxResult;
 import com.project.common.enums.BusinessType;
+import com.project.common.result.DataResult;
+import com.project.common.result.Result;
 import com.project.framework.web.page.TableDataInfo;
 import com.project.system.core.base.BaseController;
 import com.project.web.domain.TExpressCompany;
 import com.project.web.service.ITExpressCompanyService;
+import com.wordnik.swagger.annotations.ApiOperation;
+
+import io.swagger.annotations.ApiImplicitParams;
 
 /**
  * 快递公司 信息操作处理
@@ -30,6 +38,7 @@ import com.project.web.service.ITExpressCompanyService;
 @RequestMapping("/web/tExpressCompany")
 public class TExpressCompanyController extends BaseController
 {
+	private static final Logger log = LoggerFactory.getLogger(TExpressCompanyController.class);
     private String prefix = "web/tExpressCompany";
 	
 	@Autowired
@@ -111,4 +120,26 @@ public class TExpressCompanyController extends BaseController
 		return toAjax(tExpressCompanyService.deleteTExpressCompanyByIds(ids));
 	}
 	
+	/**
+	 * 
+	 * @param request
+	 * @param code
+	 * @return
+	 */
+	@ApiOperation(value = "查询快递公司字典", httpMethod="POST",response=Result.class )
+	@ApiImplicitParams({
+	})
+	@RequestMapping(value="/getTExpressCompanys",method=RequestMethod.POST)
+	public @ResponseBody DataResult getTExpressCompanys(){
+		DataResult result =new DataResult();
+		try {
+			result = tExpressCompanyService.getTExpressCompanys();
+			return result;
+		} catch (Exception e) {
+			result.setMessage("查询失败");
+			result.setStatus(Result.FAILED);
+			log.error("查询失败", e);
+			return result;
+		}
+	}
 }

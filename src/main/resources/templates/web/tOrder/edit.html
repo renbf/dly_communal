@@ -28,17 +28,20 @@
                     <input id="expressNo" name="expressNo" th:field="*{expressNo}" class="form-control" type="text" style="width:180px;display:inline">
                 <!--</div>-->
             </div>
-			<div class="form-group">
-                <label class="col-sm-3 control-label">快递公司编码：</label>
-                    <input id="companyCode" name="companyCode" th:field="*{companyCode}" class="form-control" type="text" style="width:180px;display:inline">
+			<div class="form-group">	
+                <label class="col-sm-3 control-label">快递公司：</label>
+                <div class="col-sm-8">
+                	<select id="companyCode" name="companyCode" class="form-control">
+					</select>
+                </div>
             </div>
-
 
 
 
 		</form>
     </div>
     <div th:include="include::footer"></div>
+    <script th:src="@{/project/js/utils.js}"></script>
     <script type="text/javascript">
 		var prefix = ctx + "web/tOrder"
 		$("#form-tOrder-edit").validate({
@@ -57,7 +60,12 @@
 	            $.operate.save(prefix + "/edit", $('#form-tOrder-edit').serialize());
 	        }
 	    }
-
+		$(function() {
+	    	init();
+	    });
+		function init(){
+			showTExpressCompanys("companyCode",null);
+		}
 	</script>
 </body>
 </html>

@@ -100,6 +100,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              <if test="locationName != null  and locationName != '' "> and g.location_name = #{locationName}</if>
 			<if test="giftModel != null  and giftModel != '' "> and m.id = #{giftModel}</if>
          </where>
+         order by ga.create_date desc
     </select>
     
     <select id="selectTGiftApplyById" parameterType="String" resultMap="TGiftApplyResult">

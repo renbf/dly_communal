@@ -14,7 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 	
 	<sql id="selectGiftGoodsVo">
-        select id, gift_id, goods_id, state,gift_apply_id from t_gift_goods
+        select id, gift_id, goods_id, state,gift_apply_id,price from t_gift_goods
     </sql>
 	
     <select id="selectGiftGoodsList" parameterType="GiftGoods" resultMap="GiftGoodsResult">
@@ -60,6 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="goodsId != null  and goodsId != ''  ">goods_id = #{goodsId},</if>
             <if test="state != null  and state != ''  ">state = #{state},</if>
             <if test="giftApplyId != null  and giftApplyId != ''  ">gift_apply_id = #{giftApplyId},</if>
+            <if test="price != null  and price != ''  ">price = #{price},</if>
         </trim>
         where id = #{id}
     </update>
@@ -76,7 +77,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
     
     <insert id="insertGiftGoodsBatch" parameterType="java.util.List">
-        insert into t_gift_goods (id, gift_id, goods_id, state,gift_apply_id) values
+        insert into t_gift_goods (id, gift_id, goods_id, state,gift_apply_id,price) values
          <foreach item="item" collection="list" separator="," >
          <trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="item.id != null  and item.id != ''  ">#{item.id},</if>
@@ -84,6 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="item.goodsId != null  and item.goodsId != ''  ">#{item.goodsId},</if>
 			<if test="item.state != null  and item.state != ''  ">#{item.state},</if>
 			<if test="item.giftApplyId != null  and item.giftApplyId != ''  ">#{item.giftApplyId},</if>
+			<if test="item.price != null  and item.price != ''  ">#{item.price},</if>
          </trim>
          </foreach>
     </insert>

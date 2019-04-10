@@ -2,6 +2,7 @@ package com.project.web.service;
 
 import java.util.List;
 
+import com.project.common.result.DataResult;
 import com.project.web.domain.TExpressCompany;
 
 /**
@@ -51,5 +52,11 @@ public interface ITExpressCompanyService
      * @return 结果
      */
 	public int deleteTExpressCompanyByIds(String ids);
+	
+	/**
+	 * 快递公司字典
+	 * @return
+	 */
+	public DataResult getTExpressCompanys();
 	
 }

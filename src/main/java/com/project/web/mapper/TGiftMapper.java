@@ -90,5 +90,11 @@ public interface TGiftMapper
 	 * @return
 	 */
 	public TGift selectTGiftByLngLat(@Param("lng") String lng,@Param("lat")String lat);
+	/**
+	 * 查询申请中的礼物机
+	 * @param giftId
+	 * @return
+	 */
+	public List<TGiftVo> selectTGiftsByGiftId(String giftId);
 	
 }

@@ -153,8 +153,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		c.name goodsName,c.picture,c.price,c.introduce,c.model
 		from t_order o
 		LEFT JOIN t_user_address u ON o.address_id=u.id
-		LEFT JOIN t_pay_order p on o.order_no=p.orderno
 		LEFT JOIN t_commodity_information c on o.goods_id=c.id
+		LEFT JOIN t_winning_record wr on wr.order_id = o.id
+		LEFT JOIN t_pay_order p on p.orderno=wr.pay_order_no
 		where o.id = #{id}
     </select>
     

@@ -27,6 +27,8 @@ public class TGiftParam extends BaseEntity{
     private String[] goodsId;
     /** 商品数量*/
     private int[] goodsNumber;
+    /** 商品价格*/
+    private Long[] goodsPrice;
 	public String getModel() {
 		return model;
 	}
@@ -80,6 +82,12 @@ public class TGiftParam extends BaseEntity{
 	}
 	public void setLatticePrice(Long latticePrice) {
 		this.latticePrice = latticePrice;
+	}
+	public Long[] getGoodsPrice() {
+		return goodsPrice;
+	}
+	public void setGoodsPrice(Long[] goodsPrice) {
+		this.goodsPrice = goodsPrice;
 	}
 	
 }

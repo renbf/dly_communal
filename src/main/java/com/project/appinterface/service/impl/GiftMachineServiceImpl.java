@@ -70,6 +70,7 @@ import com.project.appinterface.util.WXPayExample;
 import com.project.appinterface.util.kuaidi.Kuaidi100Util;
 import com.project.appinterface.util.kuaidi.pojo.pojo.KuaidiResult;
 import com.project.appinterface.util.wxpayutil.WXPayUtil;
+import com.project.common.constant.Constants;
 import com.project.common.result.DataResult;
 import com.project.common.result.Result;
 import com.project.util.MoneyUtil;
@@ -761,7 +762,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 			throw new RuntimeException();
 		} finally {
 			for (String index : indexArr) {
-				JedisUtil.releaseDistributedLock(giftId + "_" + index, requestId);
+				JedisUtil.releaseDistributedLock("tryPayGift_"+giftId + "_" + index, requestId);
 			}
 		}
 		return result;
@@ -1304,6 +1305,11 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				ConsumptionInformation consumptionInformation = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
 				consumptionInformation.setState("1");
 				consumptionInformationMapper.updateConsumptionInformation(consumptionInformation);
+				//平台加钱
+				Wallet adminWallet = walletMapper.selectWalletById(Constants.ADMIN);
+				Long adminBalance = adminWallet.getBalance();
+				adminWallet.setBalance(adminBalance.longValue()+payOrderIsCheck.getMoney());
+				walletMapper.updateWallet(adminWallet);
 			} else {
 				//开盒子
 				String indexs = paramArrayVo.getIndexs();
@@ -1377,13 +1383,15 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 						giftLocationMapper.updateGiftLocation(ugiftLocation);
 						//增加收益和余额
 						Wallet wallet = walletMapper.selectWalletByUserId(giftUserId);
-						Long profitOld = wallet.getProfit();
-						Long balanceOld = wallet.getBalance();
-						Wallet walletu = new Wallet();
-						walletu.setId(wallet.getId());
-						walletu.setProfit(profitOld + giftLocation.getLatticePrice());
-						walletu.setBalance(balanceOld +giftLocation.getLatticePrice());
-						walletMapper.updateWallet(walletu);
+						if(wallet != null) {
+							Long profitOld = wallet.getProfit();
+							Long balanceOld = wallet.getBalance();
+							Wallet walletu = new Wallet();
+							walletu.setId(wallet.getId());
+							walletu.setProfit(profitOld + giftLocation.getLatticePrice());
+							walletu.setBalance(balanceOld +giftLocation.getLatticePrice());
+							walletMapper.updateWallet(walletu);
+						}
 						shouyi += giftLocation.getLatticePrice();
 					}
 				}
@@ -1391,7 +1399,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				ConsumptionInformation consumptionInformation = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
 				consumptionInformation.setState("1");
 				consumptionInformationMapper.updateConsumptionInformation(consumptionInformation);
-				ConsumptionInformation gi = consumptionInformationMapper.selectConsumptionInformationByOrderNo(orderNo);
+				ConsumptionInformation gi = consumptionInformation;
 				gi.setId(UUIDUtil.getUUID());
 				gi.setMoney(shouyi);
 				gi.setConsumptionUser(giftUserId);
@@ -1399,6 +1407,11 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				gi.setState("1");
 				gi.setConsumptionType("4");
 				consumptionInformationMapper.insertConsumptionInformation(gi);
+				//平台加钱
+				Wallet adminWallet = walletMapper.selectWalletById(Constants.ADMIN);
+				Long adminBalance = adminWallet.getBalance();
+				adminWallet.setBalance(adminBalance.longValue()+payOrderIsCheck.getMoney());
+				walletMapper.updateWallet(adminWallet);
 			}
 			PayOrder payOrder = new PayOrder();
 			payOrder.setState("1");
@@ -1500,7 +1513,7 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				if("0".equals(cashType)){
 					account = wallet.getAlipayAccount();
 					if(StringUtils.isEmpty(account)){
-						result.setStatus(Result.FAILED);
+						result.setStatus(Result.NOBING);
 						result.setMessage("请录入支付宝账号");
 						return result;
 					}
@@ -1556,14 +1569,20 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 				return result;
 			}
 			KuaidiResult kuaidiResult = Kuaidi100Util.getString(companyCode, expressNo);
-			TExpressCompany tExpressCompany = tExpressCompanyMapper.selectTExpressCompanyByCode(companyCode);
-			if(tExpressCompany != null) {
-				kuaidiResult.setNuName(tExpressCompany.getCompanyName());
+			if(kuaidiResult != null) {
+				TExpressCompany tExpressCompany = tExpressCompanyMapper.selectTExpressCompanyByCode(companyCode);
+				if(tExpressCompany != null) {
+					kuaidiResult.setNuName(tExpressCompany.getCompanyName());
+				}
+				result.setResult(kuaidiResult);
+				result.setStatus(Result.SUCCESS);
+				result.setMessage("提现成功");
+				return result;
+			}else {
+				result.setStatus(Result.FAILED);
+				result.setMessage("查询快递信息失败");
+				return result;
 			}
-			result.setResult(kuaidiResult);
-			result.setStatus(Result.SUCCESS);
-			result.setMessage("提现成功");
-			return result;
 		} catch (Exception e) {
 			log.error("查询快递信息失败",e);
 			result.setStatus(Result.FAILED);
@@ -1580,10 +1599,11 @@ public class GiftMachineServiceImpl implements GiftMachineService {
 	@Override
 	public DataResult bindingAccount(String alipayAccount, String userId) {
 		DataResult result = new DataResult();
-		Wallet wallet = new Wallet();
-		wallet.setUserId(userId);
-		wallet.setAlipayAccount(alipayAccount);
-		walletMapper.updateWallet(wallet);
+		Wallet wallet = walletMapper.selectWalletByUserId(userId);
+		Wallet walletu = new Wallet();
+		walletu.setId(wallet.getId());
+		walletu.setAlipayAccount(alipayAccount);
+		walletMapper.updateWallet(walletu);
 		result.setStatus(Result.SUCCESS);
 		result.setMessage("绑定成功");
 		return result;

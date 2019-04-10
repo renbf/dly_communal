@@ -173,8 +173,9 @@
 							return actions.join('');
 		            	}else{
 		            		var actions = [];
-	                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="editGift(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+	                        actions.push('<a class="btn btn-success btn-xs ' + removeFlag + '" href="#" onclick="editGift(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
 	                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+	                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="upGiftState(\'' + row.id + '\')"><i class="fa fa-remove"></i>上架</a>');
 							return actions.join('');
 		            	}
 		            }
@@ -187,10 +188,20 @@
 			showTGiftModelSelect("model",null);
 			showAddressSelect("100000","locationName");
 		}
+        //下架
         function  updateState(id) {
 
             $.modal.confirm("确认要下架选中的数据吗?", function() {
                 var url = prefix + "/editState" ;
+                var data = { "id": id };
+                $.operate.submit(url, "post", "json", data);
+            });
+        }
+        //上架
+        function  upGiftState(id) {
+
+            $.modal.confirm("确认要上架选中的数据吗?", function() {
+                var url = prefix + "/upGiftState" ;
                 var data = { "id": id };
                 $.operate.submit(url, "post", "json", data);
             });

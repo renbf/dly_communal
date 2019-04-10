@@ -2,13 +2,6 @@ package com.project.web.controller;
 
 import java.util.List;
 
-import com.project.common.annotation.Log;
-import com.project.common.base.AjaxResult;
-import com.project.common.enums.BusinessType;
-import com.project.system.core.base.BaseController;
-import com.project.web.domain.OrderVo;
-import com.project.web.domain.TOrder;
-import com.project.web.service.ITOrderService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,7 +11,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.project.common.annotation.Log;
+import com.project.common.base.AjaxResult;
+import com.project.common.enums.BusinessType;
+import com.project.common.result.DataResult;
 import com.project.framework.web.page.TableDataInfo;
+import com.project.system.core.base.BaseController;
+import com.project.web.domain.OrderVo;
+import com.project.web.domain.TOrder;
+import com.project.web.service.ITOrderService;
 
 /**
  * 订单 信息操作处理
@@ -105,7 +107,12 @@ public class TOrderController extends BaseController
 	@ResponseBody
 	public AjaxResult editSave(TOrder tOrder)
 	{		
-		return toAjax(tOrderService.updateTOrder(tOrder));
+		DataResult result = tOrderService.updateTOrder(tOrder);
+		if(result.SUCCESS.equals(result.getStatus())) {
+			return success();
+		}else {
+			return error(result.getMessage());
+		}
 	}
 	
 	/**

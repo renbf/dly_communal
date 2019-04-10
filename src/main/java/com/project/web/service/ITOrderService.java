@@ -1,8 +1,10 @@
 package com.project.web.service;
 
+import java.util.List;
+
+import com.project.common.result.DataResult;
 import com.project.web.domain.OrderVo;
 import com.project.web.domain.TOrder;
-import java.util.List;
 
 /**
  * 订单 服务层
@@ -42,7 +44,7 @@ public interface ITOrderService
      * @param tOrder 订单信息
      * @return 结果
      */
-	public int updateTOrder(TOrder tOrder);
+	public DataResult updateTOrder(TOrder tOrder);
 		
 	/**
      * 删除订单信息
